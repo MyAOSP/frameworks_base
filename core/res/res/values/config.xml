@@ -1083,6 +1083,12 @@
          config to 7. -->
     <integer name="config_deviceHardwareKeys">0</integer>
 
+    <!-- Path to the library that contains a device specific key handler -->
+    <string name="config_deviceKeyHandlerLib" translatable="false"></string>
+
+    <!-- Name of that key handler class -->
+    <string name="config_deviceKeyHandlerClass" translatable="false"></string>
+
     <!-- this sets the scan codes for the menu, home and back buttons for use in disabling
             buttons.  Since not all hardware buttons results in a hardKey being returned we 
             have to use the scan code instead -->
