@@ -2401,6 +2401,7 @@ public final class Settings {
         public static final String WIDGET_BUTTONS_TABLET = "expanded_widget_buttons_tablet";
 
         /**
+
          * Navigation controls to Use
          *
          * @hide
