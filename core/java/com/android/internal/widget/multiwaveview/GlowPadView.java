@@ -62,7 +62,7 @@ public class GlowPadView extends View {
     private static final int STATE_SNAP = 4;
     private static final int STATE_FINISH = 5;
 
-
+    //Lockscreen targets
     /**
      * @hide
      */
@@ -80,6 +80,19 @@ public class GlowPadView extends View {
 
     /**
      *
+     * Number of customizable lockscreen targets for tablets
+     * @hide
+     */
+    public final static int MAX_TABLET_TARGETS = 7;
+
+    /**
+     * Number of customizable lockscreen targets for phones
+     * @hide
+     */
+    public final static int MAX_PHONE_TARGETS = 4;
+
+    /**
+     * Empty target used to reference unused lockscreen targets
      * @hide
      */
     public final static String EMPTY_TARGET = "empty";
