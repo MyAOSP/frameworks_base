@@ -16,7 +16,9 @@
 package com.android.internal.policy.impl;
 
 import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManagerNative;
+import android.app.IActivityManager;
 import android.app.IUiModeManager;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
@@ -51,6 +53,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
@@ -144,12 +147,14 @@ import android.view.KeyCharacterMap.FallbackAction;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
+import java.util.List;
 
 /**
  * WindowManagerPolicy implementation for the Android phone UI.  This
@@ -1506,13 +1511,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if (DEBUG_STARTING_WINDOW) Slog.d(TAG, "addStartingWindow " + packageName
                     + ": nonLocalizedLabel=" + nonLocalizedLabel + " theme="
                     + Integer.toHexString(theme));
-            if (theme != context.getThemeResId() || labelRes != 0) {
-                try {
-                    context = context.createPackageContext(packageName, 0);
+
+            try {
+                context = context.createPackageContext(packageName, 0);
+                if (theme != context.getThemeResId()) {
+
                     context.setTheme(theme);
-                } catch (PackageManager.NameNotFoundException e) {
-                    // Ignore
                 }
+            } catch (PackageManager.NameNotFoundException e) {
+                // Ignore
             }
 
             Window win = PolicyManager.makeNewWindow(context);
