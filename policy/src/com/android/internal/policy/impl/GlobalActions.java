@@ -83,7 +83,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private Action mSilentModeAction;
     private ToggleAction mAirplaneModeOn;
-    private Profile mChosenProfile;
 
     private MyAdapter mAdapter;
 
@@ -95,8 +94,11 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private boolean mHasVibrator;
 
     private IWindowManager mIWindowManager;
+    private Profile mChosenProfile;
+
 
     private static int rebootIndex = 0;
+    private static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
 
     /**
      * @param context everything needs a context :(
@@ -255,25 +257,27 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 }
             });
 
-        // next: profile
-        mItems.add(
-            new ProfileChooseAction() {
-                public void onPress() {
-                    createProfileDialog();
-                }
+        // next: profile - only shown if enabled, which is true by default
+        if (Settings.System.getInt(mContext.getContentResolver(), SYSTEM_PROFILES_ENABLED, 1) == 1) {
+            mItems.add(
+                new ProfileChooseAction() {
+                    public void onPress() {
+                        createProfileDialog();
+                    }
 
-                public boolean onLongPress() {
-                    return true;
-                }
+                    public boolean onLongPress() {
+                        return true;
+                    }
 
-                public boolean showDuringKeyguard() {
-                    return false;
-                }
+                    public boolean showDuringKeyguard() {
+                        return false;
+                    }
 
-                public boolean showBeforeProvisioning() {
-                    return false;
-                }
-            });
+                    public boolean showBeforeProvisioning() {
+                        return false;
+                    }
+                });
+        }
 
         // next: airplane mode
         mItems.add(mAirplaneModeOn);

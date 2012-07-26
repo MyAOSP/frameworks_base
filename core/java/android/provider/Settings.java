@@ -2035,6 +2035,12 @@ public final class Settings {
         public static final String POINTER_SPEED = "pointer_speed";
 
         /**
+         * Show the pending notification counts as overlays on the status bar
+         * @hide
+         */
+        public static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
