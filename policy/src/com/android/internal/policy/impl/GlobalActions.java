@@ -369,7 +369,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         final AlertDialog.Builder ab = new AlertDialog.Builder(mContext);
 
         AlertDialog dialog = ab
-                .setTitle(com.android.internal.R.string.global_action_choose_profile)
+                .setTitle(R.string.global_action_choose_profile)
                 .setSingleChoiceItems(names, checkedItem, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         if (which < 0)
@@ -611,8 +611,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             statusView.setVisibility(View.VISIBLE);
             statusView.setText(mProfileManager.getActiveProfile().getName());
 
-            icon.setImageDrawable(context.getResources().getDrawable(com.android.internal.R.drawable.ic_lock_profile));
-            messageView.setText(com.android.internal.R.string.global_action_choose_profile);
+            icon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_lock_profile));
+            messageView.setText(R.string.global_action_choose_profile);
 
             return v;
         }

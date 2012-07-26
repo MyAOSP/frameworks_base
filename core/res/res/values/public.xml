@@ -3658,7 +3658,7 @@
   <public type="style" name="Widget.DeviceDefault.Light.MediaRouteButton" id="0x010301d8" />
 
 <!-- ===============================================================
-     Resources added in version JB of AOKP
+     Resources added in version JB of BAKED
      =============================================================== -->
   <eat-comment />
 
@@ -3668,5 +3668,10 @@
   <java-symbol type="bool" name="config_autoBrightnessButtonKeyboard" />
   <java-symbol type="string" name="config_deviceKeyHandlerLib" />
   <java-symbol type="string" name="config_deviceKeyHandlerClass" />
+  <!-- Profiles -->
+  <java-symbol type="xml" name="profile_default" />
+  <java-symbol type="string" name="wildcardProfile" />
+  <java-symbol type="string" name="global_action_choose_profile" />
+  <java-symbol type="drawable" name="ic_lock_profile" />
 
 </resources>
