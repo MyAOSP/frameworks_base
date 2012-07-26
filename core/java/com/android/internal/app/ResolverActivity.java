@@ -106,7 +106,7 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState, Intent intent,
             CharSequence title, Intent[] initialIntents, List<ResolveInfo> rList,
             boolean alwaysUseOption) {
-        setTheme(R.style.Theme_DeviceDefault_Light_Dialog_Alert);
+        setTheme(R.style.Theme_DeviceDefault_Dialog_Alert);
         super.onCreate(savedInstanceState);
         try {
             mLaunchedFromUid = ActivityManagerNative.getDefault().getLaunchedFromUid(
@@ -323,7 +323,7 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
                         || (!"file".equals(data.getScheme())
                                 && !"content".equals(data.getScheme()))) {
                     filter.addDataScheme(data.getScheme());
-    
+
                     // Look through the resolved filter to determine which part
                     // of it matched the original Intent.
                     Iterator<IntentFilter.AuthorityEntry> aIt = ri.filter.authoritiesIterator();
@@ -482,9 +482,9 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
                             new ResolveInfo.DisplayNameComparator(mPm);
                     Collections.sort(mCurrentResolveList, rComparator);
                 }
-                
+
                 mList = new ArrayList<DisplayResolveInfo>();
-                
+
                 // First put the initial items at the top.
                 if (mInitialIntents != null) {
                     for (int i=0; i<mInitialIntents.length; i++) {
@@ -512,7 +512,7 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
                                 ri.loadLabel(getPackageManager()), null, ii));
                     }
                 }
-                
+
                 // Check for applications with same name and use application name or
                 // package name if necessary
                 r0 = mCurrentResolveList.get(0);
@@ -602,7 +602,7 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
             }
 
             DisplayResolveInfo dri = mList.get(position);
-            
+
             Intent intent = new Intent(dri.origIntent != null
                     ? dri.origIntent : mIntent);
             intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT
