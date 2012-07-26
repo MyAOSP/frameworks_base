@@ -1,5 +1,5 @@
 
-package com.android.systemui.statusbar.policy.toggles;
+package com.android.systemui.statusbar.toggles;
 
 import android.content.Context;
 import android.content.Intent;

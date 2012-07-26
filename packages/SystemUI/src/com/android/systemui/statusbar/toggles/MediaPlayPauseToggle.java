@@ -1,5 +1,5 @@
 
-package com.android.systemui.statusbar.policy.toggles;
+package com.android.systemui.statusbar.toggles;
 
 import android.content.Context;
 import android.content.Intent;
@@ -59,7 +59,7 @@ public class MediaPlayPauseToggle extends Toggle {
         if (isMusicActive()) {
             mToggle.setChecked(true);
             mToggle.setEnabled(true);
-            setLabel(R.string.toggle_media_pause); 
+            setLabel(R.string.toggle_media_pause);
             setIcon(R.drawable.toggle_media_pause);
             return isPlaying;
         } else {
