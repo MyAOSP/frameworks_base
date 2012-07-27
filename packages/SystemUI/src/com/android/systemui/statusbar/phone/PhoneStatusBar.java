@@ -34,6 +34,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.content.res.CustomTheme;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Canvas;
@@ -54,6 +55,7 @@ import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Pair;
 import android.util.Slog;
 import android.view.Choreographer;
 import android.view.Display;
@@ -74,6 +76,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -98,6 +101,7 @@ import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.NotificationRowLayout;
 
 import java.io.FileDescriptor;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
@@ -142,7 +146,7 @@ public class PhoneStatusBar extends BaseStatusBar {
     private float mExpandAccelPx; // classic value: 2000px/s/s
     private float mCollapseAccelPx; // classic value: 2000px/s/s (will be negated to collapse "up")
 
-    private float mFlingGestureMaxOutputVelocityPx; // how fast can it really go? (should be a little 
+    private float mFlingGestureMaxOutputVelocityPx; // how fast can it really go? (should be a little
                                                     // faster than mSelfCollapseVelocityPx)
 
     PhoneStatusBarPolicy mIconPolicy;
@@ -239,6 +243,11 @@ public class PhoneStatusBar extends BaseStatusBar {
     int[] mAbsPos = new int[2];
     Runnable mPostCollapseCleanup = null;
 
+    // last theme that was applied in order to detect theme change (as opposed
+    // to some other configuration change).
+    CustomTheme mCurrentTheme;
+    private boolean mRecreating = false;
+
     private AnimatorSet mLightsOutAnimation;
     private AnimatorSet mLightsOnAnimation;
 
@@ -330,6 +339,11 @@ public class PhoneStatusBar extends BaseStatusBar {
 
         mWindowManager = IWindowManager.Stub.asInterface(
                 ServiceManager.getService(Context.WINDOW_SERVICE));
+
+        CustomTheme currentTheme = mContext.getResources().getConfiguration().customTheme;
+        if (currentTheme != null) {
+            mCurrentTheme = (CustomTheme)currentTheme.clone();
+        }
 
         super.start(); // calls createAndAddWindows()
 
@@ -450,7 +464,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         mSettingsButton = mStatusBarWindow.findViewById(R.id.settings_button);
         mSettingsButton.setOnClickListener(mSettingsButtonListener);
         mRotationButton = (RotationToggle) mStatusBarWindow.findViewById(R.id.rotation_lock_button);
-        
+
         mCarrierLabel = (TextView)mStatusBarWindow.findViewById(R.id.carrier_label);
         mCarrierLabel.setVisibility(mCarrierLabelVisible ? View.VISIBLE : View.INVISIBLE);
 
@@ -580,6 +594,10 @@ public class PhoneStatusBar extends BaseStatusBar {
         }
     }
 
+    void onBarViewDetached() {
+     //   WindowManagerImpl.getDefault().removeView(mStatusBarWindow);
+    }
+
     @Override
     protected void updateSearchPanel() {
         super.updateSearchPanel();
@@ -677,6 +695,12 @@ public class PhoneStatusBar extends BaseStatusBar {
     private void repositionNavigationBar() {
         if (mNavigationBarView == null) return;
 
+        CustomTheme newTheme = mContext.getResources().getConfiguration().customTheme;
+        if (newTheme != null &&
+                (mCurrentTheme == null || !mCurrentTheme.equals(newTheme))) {
+            // Nevermind, this will be re-created
+            return;
+        }
         prepareNavigationBarView();
 
         WindowManagerImpl.getDefault().updateViewLayout(
@@ -804,7 +828,7 @@ public class PhoneStatusBar extends BaseStatusBar {
                 notification.notification.fullScreenIntent.send();
             } catch (PendingIntent.CanceledException e) {
             }
-        } else {
+        } else if (!mRecreating) {
             // usual case: status bar visible & not immersive
 
             // show the ticker if there isn't an intruder too
@@ -843,7 +867,11 @@ public class PhoneStatusBar extends BaseStatusBar {
 
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
-        updateRecentsPanel();
+        try {
+            updateRecentsPanel();
+        } catch(android.view.InflateException avIE) {
+            Log.d(TAG, "Reinflation failure for the recents panel, new theme is '" + newConfig.customTheme + "' vs current '" + mContext.getResources().getConfiguration().customTheme + "'");
+        }
         updateShowSearchHoldoff();
     }
 
@@ -945,16 +973,16 @@ public class PhoneStatusBar extends BaseStatusBar {
 
     protected void updateCarrierLabelVisibility(boolean force) {
         if (!SHOW_CARRIER_LABEL) return;
-        // The idea here is to only show the carrier label when there is enough room to see it, 
+        // The idea here is to only show the carrier label when there is enough room to see it,
         // i.e. when there aren't enough notifications to fill the panel.
         if (DEBUG) {
             Slog.d(TAG, String.format("pileh=%d scrollh=%d carrierh=%d",
                     mPile.getHeight(), mScrollView.getHeight(), mCarrierLabelHeight));
         }
-        
-        final boolean makeVisible = 
+
+        final boolean makeVisible =
             mPile.getHeight() < (mScrollView.getHeight() - mCarrierLabelHeight);
-        
+
         if (force || mCarrierLabelVisible != makeVisible) {
             mCarrierLabelVisible = makeVisible;
             if (DEBUG) {
@@ -987,7 +1015,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         final boolean any = mNotificationData.size() > 0;
 
         final boolean clearable = any && mNotificationData.hasClearableItems();
-        
+
         mBatteryNotification.isVisible(!clearable);
 
         if (DEBUG) {
@@ -1055,7 +1083,7 @@ public class PhoneStatusBar extends BaseStatusBar {
             clock.setVisibility(show ? View.VISIBLE : View.GONE);
         }
         if (centerClock && cclock != null) {
-        	cclock.setVisibility(show ? View.VISIBLE : View.GONE);
+                cclock.setVisibility(show ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -1239,12 +1267,12 @@ public class PhoneStatusBar extends BaseStatusBar {
 
         // Expand the window to encompass the full screen in anticipation of the drag.
         // This is only possible to do atomically because the status bar is at the top of the screen!
-        WindowManager.LayoutParams lp = (WindowManager.LayoutParams) mStatusBarWindow.getLayoutParams();
+        WindowManager.LayoutParams lp = (WindowManager.LayoutParams) mStatusBarContainer.getLayoutParams();
         lp.flags &= ~WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         lp.flags |= WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
         lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
         final WindowManager wm = WindowManagerImpl.getDefault();
-        wm.updateViewLayout(mStatusBarWindow, lp);
+        wm.updateViewLayout(mStatusBarContainer, lp);
 
         // Updating the window layout will force an expensive traversal/redraw.
         // Kick off the reveal animation after this is complete to avoid animation latency.
@@ -1344,12 +1372,12 @@ public class PhoneStatusBar extends BaseStatusBar {
         visibilityChanged(false);
 
         // Shrink the window to the size of the status bar only
-        WindowManager.LayoutParams lp = (WindowManager.LayoutParams) mStatusBarWindow.getLayoutParams();
+        WindowManager.LayoutParams lp = (WindowManager.LayoutParams) mStatusBarContainer.getLayoutParams();
         lp.height = getStatusBarHeight();
         lp.flags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         lp.flags &= ~WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
         final WindowManager wm = WindowManagerImpl.getDefault();
-        wm.updateViewLayout(mStatusBarWindow, lp);
+        wm.updateViewLayout(mStatusBarContainer, lp);
 
         if ((mDisabled & StatusBarManager.DISABLE_NOTIFICATION_ICONS) == 0) {
             setNotificationIconVisibility(true, com.android.internal.R.anim.fade_in);
@@ -1432,13 +1460,13 @@ public class PhoneStatusBar extends BaseStatusBar {
 
     /**
      * Enables or disables layers on the children of the notifications pile.
-     * 
+     *
      * When layers are enabled, this method attempts to enable layers for the minimal
      * number of children. Only children visible when the notification area is fully
      * expanded will receive a layer. The technique used in this method might cause
      * more children than necessary to get a layer (at most one extra child with the
      * current UI.)
-     * 
+     *
      * @param layerType {@link View#LAYER_TYPE_NONE} or {@link View#LAYER_TYPE_HARDWARE}
      */
     private void setPileLayers(int layerType) {
@@ -1451,7 +1479,7 @@ public class PhoneStatusBar extends BaseStatusBar {
                 }
                 break;
             case View.LAYER_TYPE_HARDWARE:
-                final int[] location = new int[2]; 
+                final int[] location = new int[2];
                 mNotificationPanel.getLocationInWindow(location);
 
                 final int left = location[0];
@@ -1928,7 +1956,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         // until status bar window is attached to the window manager,
         // because...  well, what's the point otherwise?  And trying to
         // run a ticker without being attached will crash!
-        if (n.notification.tickerText != null && mStatusBarWindow.getWindowToken() != null) {
+        if (n.notification.tickerText != null && mStatusBarContainer.getWindowToken() != null) {
             if (0 == (mDisabled & (StatusBarManager.DISABLE_NOTIFICATION_ICONS
                             | StatusBarManager.DISABLE_NOTIFICATION_TICKER))) {
                 mTicker.addEntry(n);
@@ -2007,9 +2035,9 @@ public class PhoneStatusBar extends BaseStatusBar {
                     + ", mTrackingPosition=" + mTrackingPosition);
             pw.println("  mTicking=" + mTicking);
             pw.println("  mTracking=" + mTracking);
-            pw.println("  mNotificationPanel=" + 
-                    ((mNotificationPanel == null) 
-                            ? "null" 
+            pw.println("  mNotificationPanel=" +
+                    ((mNotificationPanel == null)
+                            ? "null"
                             : (mNotificationPanel + " params=" + mNotificationPanel.getLayoutParams().debug(""))));
             pw.println("  mAnimating=" + mAnimating
                     + ", mAnimY=" + mAnimY + ", mAnimVel=" + mAnimVel
@@ -2079,7 +2107,6 @@ public class PhoneStatusBar extends BaseStatusBar {
     private void addStatusBarWindow() {
         // Put up the view
         final int height = getStatusBarHeight();
-
         // Now that the status bar window encompasses the sliding panel and its
         // translucent backdrop, the entire thing is made TRANSLUCENT and is
         // hardware-accelerated.
@@ -2099,7 +2126,9 @@ public class PhoneStatusBar extends BaseStatusBar {
         lp.packageName = mContext.getPackageName();
 
         makeStatusBarView();
-        WindowManagerImpl.getDefault().addView(mStatusBarWindow, lp);
+
+        mStatusBarContainer.addView(mStatusBarWindow);
+        WindowManagerImpl.getDefault().addView(mStatusBarContainer, lp);
     }
 
     void setNotificationIconVisibility(boolean visible, int anim) {
@@ -2187,7 +2216,7 @@ public class PhoneStatusBar extends BaseStatusBar {
             final int color = ((int)(0xB0 * k)) << 24;
             mStatusBarWindow.setBackgroundColor(color);
         }
-        
+
         updateCarrierLabelVisibility(false);
     }
 
@@ -2376,10 +2405,24 @@ public class PhoneStatusBar extends BaseStatusBar {
         final Context context = mContext;
         final Resources res = context.getResources();
 
-        if (mClearButton instanceof TextView) {
-            ((TextView)mClearButton).setText(context.getText(R.string.status_bar_clear_all_button));
+        // detect theme change.
+        CustomTheme newTheme = res.getConfiguration().customTheme;
+        if (newTheme != null &&
+                (mCurrentTheme == null || !mCurrentTheme.equals(newTheme))) {
+            mCurrentTheme = (CustomTheme)newTheme.clone();
+            // restart system ui on theme change
+            try {
+                Runtime.getRuntime().exec("pkill -TERM -f  com.android.systemui");
+            } catch (IOException e) {
+                // we're screwed here fellas
+            }
+        } else {
+
+            if (mClearButton instanceof TextView) {
+                ((TextView)mClearButton).setText(context.getText(R.string.status_bar_clear_all_button));
+            }
+            loadDimens();
         }
-        loadDimens();
     }
 
     protected void loadDimens() {
@@ -2431,8 +2474,8 @@ public class PhoneStatusBar extends BaseStatusBar {
             + res.getDimensionPixelSize(R.dimen.notification_panel_header_height)
             + mNotificationPanelBackgroundPadding.top
             + mNotificationPanelBackgroundPadding.bottom;
-        mNotificationPanelMinHeight = 
-              notificationPanelDecorationHeight 
+        mNotificationPanelMinHeight =
+              notificationPanelDecorationHeight
             + res.getDimensionPixelSize(R.dimen.close_handle_underlap);
 
         mCarrierLabelHeight = res.getDimensionPixelSize(R.dimen.carrier_label_height);
