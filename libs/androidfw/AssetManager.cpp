@@ -2013,3 +2013,52 @@ int AssetManager::ZipSet::getIndex(const String8& zip) const
 
     return mZipPath.size()-1;
 }
+
+bool AssetManager::attachThemePath(const String8& path, void** cookie)
+{
+    bool res = addAssetPath(path, cookie, true);
+    ResTable* rt = mResources;
+    if (res && rt != NULL && ((size_t)*cookie == mAssetPaths.size())) {
+        AutoMutex _l(mLock);
+        const asset_path& ap = mAssetPaths.itemAt((size_t)*cookie - 1);
+        updateResTableFromAssetPath(rt, ap, *cookie);
+    }
+    return res;
+}
+
+bool AssetManager::detachThemePath(const String8 &packageName, void* cookie)
+{
+    AutoMutex _l(mLock);
+
+    const size_t which = ((size_t)cookie)-1;
+    if (which >= mAssetPaths.size()) {
+        return false;
+    }
+
+    /* TODO: Ensure that this cookie is added with asSkin == true. */
+    mAssetPaths.removeAt(which);
+
+    ResTable* rt = mResources;
+    if (rt == NULL) {
+        ALOGV("ResTable must not be NULL");
+        return false;
+    }
+
+    rt->removeAssetsByCookie(packageName, (void *)cookie);
+
+    return true;
+}
+
+void AssetManager::addRedirections(PackageRedirectionMap* resMap)
+{
+    getResources();
+    ResTable* rt = mResources;
+    rt->addRedirections(resMap);
+}
+
+void AssetManager::clearRedirections()
+{
+    getResources();
+    ResTable* rt = mResources;
+    rt->clearRedirections();
+}

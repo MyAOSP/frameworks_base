@@ -38,8 +38,8 @@ import android.provider.Settings.SettingNotFoundException;
 import android.util.Slog;
 import android.view.InputDevice;
 
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
