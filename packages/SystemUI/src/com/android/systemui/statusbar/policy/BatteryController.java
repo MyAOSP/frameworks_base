@@ -39,6 +39,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import android.R.integer;
 import com.android.systemui.R;
 
 public class BatteryController extends LinearLayout {
@@ -55,6 +56,10 @@ public class BatteryController extends LinearLayout {
     private TextView mBatteryTextOnly;
 
     private static int mBatteryStyle;
+
+    // battery text only color
+    private int mBatteryChargeTextColor = 0xFF99CC00;
+    private int mBatteryTextColor;
 
     private int mLevel = -1;
     private boolean mPlugged = false;
@@ -149,9 +154,17 @@ public class BatteryController extends LinearLayout {
 
         // do my stuff here
         if (mBatteryGroup != null) {
+            int defaultColor = getResources().getColor(
+                    com.android.internal.R.color.holo_blue_light);
             mBatteryText.setText(Integer.toString(level));
             mBatteryCenterText.setText(Integer.toString(level));
             mBatteryTextOnly.setText(Integer.toString(level));
+            mBatteryTextColor = Settings.System
+                    .getInt(cr, Settings.System.STATUSBAR_BATTERY_TEXT_COLOR,
+                    defaultColor);
+            mBatteryChargeTextColor = Settings.System
+                    .getInt(cr, Settings.System.STATUSBAR_BATTERY_CHARGE_TEXT_COLOR,
+                    0XFF99CC00);
             SpannableStringBuilder formatted = new SpannableStringBuilder(
                     Integer.toString(level) + "%");
             CharacterStyle style = new RelativeSizeSpan(0.7f); // beautiful
@@ -169,11 +182,19 @@ public class BatteryController extends LinearLayout {
             mBatteryTextOnly.setText(formatted);
             if (plugged) { // colors hardcoded by now, maybe colorpicker can be
                            // added if needed
-                mBatteryTextOnly.setTextColor(Color.GREEN);
+                mBatteryTextOnly.setTextColor(mBatteryChargeTextColor);
+                if (mBatteryChargeTextColor == Integer.MIN_VALUE) {
+                    // flag to reset the color
+                    mBatteryChargeTextColor = 0xFF99CC00;
+                }
             } else if (level < 16) {
                 mBatteryTextOnly.setTextColor(Color.RED);
             } else {
-                mBatteryTextOnly.setTextColor(0xFF33B5E5);
+                mBatteryTextOnly.setTextColor(mBatteryTextColor);
+                if (mBatteryTextColor == Integer.MIN_VALUE) {
+                    // flag to reset the color
+                    mBatteryTextColor = defaultColor;
+                }
             }
 
         }
@@ -188,6 +209,12 @@ public class BatteryController extends LinearLayout {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System
                     .getUriFor(Settings.System.STATUSBAR_BATTERY_ICON), false,
+                    this);
+            resolver.registerContentObserver(Settings.System
+                    .getUriFor(Settings.System.STATUSBAR_BATTERY_CHARGE_TEXT_COLOR), false,
+                    this);
+            resolver.registerContentObserver(Settings.System
+                    .getUriFor(Settings.System.STATUSBAR_BATTERY_TEXT_COLOR), false,
                     this);
         }
 
