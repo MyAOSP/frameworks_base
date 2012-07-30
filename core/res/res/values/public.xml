@@ -1203,8 +1203,6 @@
   <java-symbol type="array" name="lockscreen_targets_when_silent" />
   <java-symbol type="array" name="lockscreen_targets_when_soundon" />
   <java-symbol type="array" name="lockscreen_targets_with_camera" />
-  <java-symbol type="array" name="reboot_options" />
-  <java-symbol type="array" name="reboot_values" />
   <java-symbol type="attr" name="actionModePopupWindowStyle" />
   <java-symbol type="attr" name="dialogCustomTitleDecorLayout" />
   <java-symbol type="attr" name="dialogTitleDecorLayout" />
@@ -1370,7 +1368,6 @@
   <java-symbol type="string" name="lockscreen_too_many_failed_pin_attempts_dialog_message" />
   <java-symbol type="string" name="lockscreen_unlock_label" />
   <java-symbol type="string" name="status_bar_device_locked" />
-  <java-symbol type="string" name="reboot" />
   <java-symbol type="style" name="Animation.LockScreen" />
   <java-symbol type="style" name="Theme.Dialog.RecentApplications" />
   <java-symbol type="style" name="Theme.ExpandedMenu" />
@@ -3679,6 +3676,9 @@
   <!-- Power menu -->
   <java-symbol type="string" name="global_action_screenshot" />
   <java-symbol type="string" name="global_action_choose_profile" />
+  <java-symbol type="string" name="global_actions_toggle_torch" />
+  <java-symbol type="string" name="global_actions_torch_on_status" />
+  <java-symbol type="string" name="global_actions_torch_off_status" />
   <java-symbol type="string" name="global_action_reboot" />
   <java-symbol type="string" name="global_actions" />
   <java-symbol type="string" name="reboot_system" />
@@ -3688,6 +3688,7 @@
   <java-symbol type="drawable" name="ic_lock_screenshot" />
   <java-symbol type="drawable" name="ic_lock_reboot" />
   <java-symbol type="drawable" name="ic_lock_profile" />
+  <java-symbol type="drawable" name="ic_lock_torch" />
 
   <!-- Profiles -->
   <java-symbol type="xml" name="profile_default" />

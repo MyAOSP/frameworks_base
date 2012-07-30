@@ -48,6 +48,7 @@ import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.util.Slog;
 import android.view.IWindowManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -97,6 +98,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private Action mSilentModeAction;
     private ToggleAction mAirplaneModeOn;
+    private ToggleAction mTorchToggle;
+    private IWindowManager mIWindowManager;
+    private Profile mChosenProfile;
 
     private MyAdapter mAdapter;
 
@@ -106,12 +110,15 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private boolean mIsWaitingForEcmExit = false;
     private boolean mHasTelephony;
     private boolean mHasVibrator;
+    private boolean mEnableScreenshotToggle = false;
+    private boolean mEnableTorchToggle = true;
+    private boolean mEnableAirplaneToggle = true;
+    private boolean mReceiverRegistered = false;
+    private boolean mEnableProfileChooser = false;
 
-    private IWindowManager mIWindowManager;
-    private Profile mChosenProfile;
+    public static final String INTENT_TORCH_ON = "com.android.systemui.INTENT_TORCH_ON";
+    public static final String INTENT_TORCH_OFF = "com.android.systemui.INTENT_TORCH_OFF";
 
-
-    private static int rebootIndex = 0;
     private static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
 
     /**
@@ -182,6 +189,18 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
      * @return A new dialog.
      */
     private AlertDialog createDialog() {
+        mEnableScreenshotToggle = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_DIALOG_SHOW_SCREENSHOT, 0) == 1;
+
+        mEnableTorchToggle = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_DIALOG_SHOW_TORCH_TOGGLE, 0) == 1;
+
+        mEnableAirplaneToggle = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_DIALOG_SHOW_AIRPLANE_TOGGLE, 1) == 1;
+
+        mEnableProfileChooser = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_DIALOG_SHOW_PROFILE_CHOOSER, 0) == 1;
+
         // Simple toggle style if there's no vibrator, otherwise use a tri-state
         if (!mHasVibrator) {
             mSilentModeAction = new SilentModeToggleAction();
@@ -230,6 +249,33 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             }
         };
         onAirplaneModeChanged();
+        mTorchToggle = new ToggleAction(
+                R.drawable.ic_lock_torch,
+                R.drawable.ic_lock_torch,
+                R.string.global_actions_toggle_torch,
+                R.string.global_actions_torch_on_status,
+                R.string.global_actions_torch_off_status) {
+
+            void onToggle(boolean on) {
+                if (on) {
+                    Intent i = new Intent(INTENT_TORCH_ON);
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mContext.startActivity(i);
+                } else {
+                    Intent i = new Intent(INTENT_TORCH_OFF);
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mContext.startActivity(i);
+                }
+            }
+
+            public boolean showDuringKeyguard() {
+                return true;
+            }
+
+            public boolean showBeforeProvisioning() {
+                return false;
+            }
+        };
 
         mItems = new ArrayList<Action>();
 
@@ -280,52 +326,70 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             });
 
         // next: profile - only shown if enabled, which is true by default
-        if (Settings.System.getInt(mContext.getContentResolver(), SYSTEM_PROFILES_ENABLED, 1) == 1) {
-            mItems.add(
-                new ProfileChooseAction() {
-                    public void onPress() {
-                        createProfileDialog();
-                    }
+        if (mEnableProfileChooser) {
+            Slog.e(TAG, "Adding ProfileChooser");
+            if (Settings.System.getInt(mContext.getContentResolver(), SYSTEM_PROFILES_ENABLED, 1) == 1) {
+                mItems.add(
+                    new ProfileChooseAction() {
+                        public void onPress() {
+                            createProfileDialog();
+                        }
 
-                    public boolean onLongPress() {
-                        return true;
-                    }
+                        public boolean onLongPress() {
+                            return true;
+                        }
 
-                    public boolean showDuringKeyguard() {
-                        return false;
-                    }
+                        public boolean showDuringKeyguard() {
+                            return false;
+                        }
 
-                    public boolean showBeforeProvisioning() {
-                        return false;
-                    }
-                });
+                        public boolean showBeforeProvisioning() {
+                            return false;
+                        }
+                    });
+            }
+        } else {
+            Slog.e(TAG, "not adding ProfileChooser");
+        }
+
+        // next: airplane mode
+        if (mEnableAirplaneToggle) {
+            Slog.e(TAG, "Adding AirplaneToggle");
+            mItems.add(mAirplaneModeOn);
+        } else {
+            Slog.e(TAG, "not adding AirplaneToggle");
         }
 
         // next: screenshot
-        mItems.add(
-            new SinglePressAction(R.drawable.ic_lock_screenshot, R.string.global_action_screenshot) {
-                public void onPress() {
-                    takeScreenshot();
-                }
+        if (mEnableScreenshotToggle) {
+            Slog.e(TAG, "Adding screenshot");
+            mItems.add(
+                new SinglePressAction(R.drawable.ic_lock_screenshot, R.string.global_action_screenshot) {
+                    public void onPress() {
+                        takeScreenshot();
+                    }
 
-                public boolean showDuringKeyguard() {
-                    return true;
-                }
+                    public boolean showDuringKeyguard() {
+                        return true;
+                    }
 
-                public boolean showBeforeProvisioning() {
-                    return true;
-                }
-            });
-
-
-        // next: airplane mode
-        mItems.add(mAirplaneModeOn);
-
-        // last: silent mode
-        if (SHOW_SILENT_TOGGLE) {
-            mItems.add(mSilentModeAction);
+                    public boolean showBeforeProvisioning() {
+                        return true;
+                    }
+                });
+        } else {
+            Slog.e(TAG, "Not adding screenshot");
         }
 
+        // Next Torch
+        if(mEnableTorchToggle) {
+            Slog.e(TAG, "Adding TorchToggle");
+            mItems.add(mTorchToggle);
+        } else {
+            Slog.e(TAG, "not adding TorchToggle");
+        }
+
+        // next: users
         List<UserInfo> users = mContext.getPackageManager().getUsers();
         if (users.size() > 1) {
             UserInfo currentUser;
@@ -360,6 +424,11 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 };
                 mItems.add(switchToUser);
             }
+        }
+
+        // last: silent mode
+        if (SHOW_SILENT_TOGGLE) {
+            mItems.add(mSilentModeAction);
         }
 
         mAdapter = new MyAdapter();
@@ -1082,3 +1151,4 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
         return mIWindowManager;
     }
+}
