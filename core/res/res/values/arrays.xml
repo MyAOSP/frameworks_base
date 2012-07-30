@@ -407,16 +407,19 @@
         <item>@null</item>
     </array>
 
-    <!-- reboot options -->
-    <string-array name="reboot_options">
-		<item>@string/reboot</item>
-		<item>@string/reboot_recovery</item>
+    <!-- Defines the shutdown options shown in the reboot dialog. -->
+    <array name="shutdown_reboot_options" translatable="false">
+        <item>@string/reboot</item>
+        <item>@string/reboot_recovery</item>
+        <item>@string/reboot_bootloader</item>
     </string-array>
 
-    <!-- reboot values -->
-    <string-array name="reboot_values">
-		<item></item>
-		<item>recovery</item>
+    <!-- Do not translate. Defines the shutdown actions passed to the kernel.
+         The first item should be empty for regular reboot. -->
+    <string-array name="shutdown_reboot_actions" translatable="false">
+        <item></item>
+        <item>recovery</item>
+        <item>bootloader</item>
     </string-array>
 
     <!-- Do not translate. Defines the mapping of notification package names
