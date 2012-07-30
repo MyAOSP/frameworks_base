@@ -1878,6 +1878,13 @@ public final class Settings {
         public static final String SOUND_EFFECTS_ENABLED = "sound_effects_enabled";
 
         /**
+         * Whether noise suppression is enabled. The value is
+         * boolean (1 or 0).
+         * @hide
+         */
+        public static final String NOISE_SUPPRESSION = "noise_suppression";
+
+        /**
          * Whether the haptic feedback (long presses, ...) are enabled. The value is
          * boolean (1 or 0).
          */
