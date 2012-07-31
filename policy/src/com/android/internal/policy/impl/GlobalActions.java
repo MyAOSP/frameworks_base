@@ -81,7 +81,7 @@ import android.os.RemoteException;
  * may show depending on whether the keyguard is showing, and whether the device
  * is provisioned.
  */
-class GlobalActions implements DialogInterface.OnDismissListener, DialogInterface.OnClickListener  {
+class GlobalActions implements DialogInterface.OnDismissListener, DialogInterface.OnClickListener {
 
     private static final String TAG = "GlobalActions";
 
@@ -98,7 +98,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private Action mSilentModeAction;
     private ToggleAction mAirplaneModeOn;
-    private ToggleAction mTorchToggle;
     private IWindowManager mIWindowManager;
     private Profile mChosenProfile;
 
@@ -115,9 +114,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private boolean mEnableAirplaneToggle = true;
     private boolean mReceiverRegistered = false;
     private boolean mEnableProfileChooser = false;
-
-    public static final String INTENT_TORCH_ON = "com.android.systemui.INTENT_TORCH_ON";
-    public static final String INTENT_TORCH_OFF = "com.android.systemui.INTENT_TORCH_OFF";
+    private boolean mEnableSoundChooser = true;
+    private boolean mEnableRebootChooser = true;
 
     private static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
 
@@ -192,14 +190,17 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         mEnableScreenshotToggle = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.POWER_DIALOG_SHOW_SCREENSHOT, 0) == 1;
 
-        mEnableTorchToggle = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_DIALOG_SHOW_TORCH_TOGGLE, 0) == 1;
+        mEnableRebootChooser = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_DIALOG_SHOW_REBOOT_CHOOSER, 0) == 1;
 
         mEnableAirplaneToggle = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.POWER_DIALOG_SHOW_AIRPLANE_TOGGLE, 1) == 1;
 
         mEnableProfileChooser = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.POWER_DIALOG_SHOW_PROFILE_CHOOSER, 0) == 1;
+
+        mEnableSoundChooser = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_DIALOG_SHOW_SOUND_CHOOSER, 0) == 1;
 
         // Simple toggle style if there's no vibrator, otherwise use a tri-state
         if (!mHasVibrator) {
@@ -248,34 +249,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 return false;
             }
         };
+
         onAirplaneModeChanged();
-        mTorchToggle = new ToggleAction(
-                R.drawable.ic_lock_torch,
-                R.drawable.ic_lock_torch,
-                R.string.global_actions_toggle_torch,
-                R.string.global_actions_torch_on_status,
-                R.string.global_actions_torch_off_status) {
-
-            void onToggle(boolean on) {
-                if (on) {
-                    Intent i = new Intent(INTENT_TORCH_ON);
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    mContext.startActivity(i);
-                } else {
-                    Intent i = new Intent(INTENT_TORCH_OFF);
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    mContext.startActivity(i);
-                }
-            }
-
-            public boolean showDuringKeyguard() {
-                return true;
-            }
-
-            public boolean showBeforeProvisioning() {
-                return false;
-            }
-        };
 
         mItems = new ArrayList<Action>();
 
@@ -304,26 +279,28 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 }
             });
 
-        // next: reboot
-        mItems.add(
-            new SinglePressAction(R.drawable.ic_lock_reboot, R.string.global_action_reboot) {
-                public void onPress() {
-                    mWindowManagerFuncs.reboot();
-                }
+        if (mEnableRebootChooser) {
+            // next: reboot
+            mItems.add(
+                new SinglePressAction(R.drawable.ic_lock_reboot, R.string.global_action_reboot) {
+                    public void onPress() {
+                        mWindowManagerFuncs.reboot();
+                    }
 
-                public boolean onLongPress() {
-                    mWindowManagerFuncs.rebootSafeMode();
-                    return true;
-                }
+                    public boolean onLongPress() {
+                        mWindowManagerFuncs.rebootSafeMode();
+                        return true;
+                    }
 
-                public boolean showDuringKeyguard() {
-                    return true;
-                }
+                    public boolean showDuringKeyguard() {
+                        return true;
+                    }
 
-                public boolean showBeforeProvisioning() {
-                    return true;
-                }
-            });
+                    public boolean showBeforeProvisioning() {
+                        return true;
+                    }
+                });
+        }
 
         // next: profile - only shown if enabled, which is true by default
         if (mEnableProfileChooser) {
@@ -381,14 +358,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             Slog.e(TAG, "Not adding screenshot");
         }
 
-        // Next Torch
-        if(mEnableTorchToggle) {
-            Slog.e(TAG, "Adding TorchToggle");
-            mItems.add(mTorchToggle);
-        } else {
-            Slog.e(TAG, "not adding TorchToggle");
-        }
-
         // next: users
         List<UserInfo> users = mContext.getPackageManager().getUsers();
         if (users.size() > 1) {
@@ -427,8 +396,10 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
 
         // last: silent mode
-        if (SHOW_SILENT_TOGGLE) {
-            mItems.add(mSilentModeAction);
+        if (mEnableSoundChooser) {
+            if (SHOW_SILENT_TOGGLE) {
+                mItems.add(mSilentModeAction);
+            }
         }
 
         mAdapter = new MyAdapter();

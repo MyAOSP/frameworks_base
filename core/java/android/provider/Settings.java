@@ -2556,7 +2556,7 @@ public final class Settings {
         /**
          * @hide
          */
-        public static final String POWER_DIALOG_SHOW_TORCH_TOGGLE = "power_dialog_show_torch_toggle";
+        public static final String POWER_DIALOG_SHOW_REBOOT_CHOOSER = "power_dialog_show_reboot_chooser";
 
         /**
          * @hide
@@ -2577,6 +2577,11 @@ public final class Settings {
          * @hide
          */
         public static final String POWER_DIALOG_SHOW_PROFILE_CHOOSER = "power_dialog_show_profile_chooser";
+
+        /**
+         * @hide
+         */
+        public static final String POWER_DIALOG_SHOW_SOUND_CHOOSER = "power_dialog_show_sound_chooser";
 
         /**
          * Setting to enable volume options.
