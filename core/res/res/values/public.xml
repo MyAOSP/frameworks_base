@@ -3815,4 +3815,12 @@
   <java-symbol type="id" name="update_time" />
   <java-symbol type="id" name="weather_temps_panel" />
 
+  <!-- Power widget -->
+  <java-symbol type="string" name="hour" />
+  <java-symbol type="string" name="hours" />
+  <java-symbol type="string" name="minute" />
+  <java-symbol type="string" name="minutes" />
+  <java-symbol type="string" name="second" />
+  <java-symbol type="string" name="seconds" />
+
 </resources>
