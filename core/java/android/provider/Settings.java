@@ -2425,8 +2425,16 @@ public final class Settings {
         */
         public static final String EXPANDED_FLASH_MODE = "expanded_flash_mode";
 
-        /*
-         * Whether national data Roming should be used.
+        /**
+         * Boolean value whether to link ringtone and notification volumes
+         * 
+         * @hide
+         */
+        public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
+
+        /**
+         * Whether national data roaming should be used.
+         * @hide
          */
         public static final String MVNO_ROAMING = "mvno_roaming";
 
@@ -2866,20 +2874,6 @@ public final class Settings {
          * @hide
          */
         public static final String POWER_DIALOG_SHOW_SOUND_CHOOSER = "power_dialog_show_sound_chooser";
-
-        /**
-         * Setting to enable volume options.
-         *
-         * @hide
-         */
-        public static final String ENABLE_VOLUME_OPTIONS = "enable_volume_options";
-
-        /**
-         * Setting to Link Ringtone and Notification.
-         *
-         * @hide
-         */
-        public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
 
          /**
          * Whether the UI is initiated in tablet UI (false = phone UI)

@@ -149,7 +149,12 @@ import android.view.KeyCharacterMap.FallbackAction;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.VolumePanel;
+
 import android.widget.Toast;
+import android.media.IAudioService;
+import android.media.AudioService;
+import android.media.AudioManager;
 
 import java.io.File;
 import java.io.FileReader;
@@ -3199,21 +3204,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // since audio is playing, we shouldn't have to hold a wake lock
             // during the call, but we do it as a precaution for the rare possibility
             // that the music stops right before we call this
-            if (keycode == KeyEvent.KEYCODE_VOLUME_MUTE) {
-                final AudioManager am = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
-                if (am == null) {
-                    Log.w(TAG, "handleVolumeKey: couldn't get AudioManager reference");
-                } else {
-                    am.toggleMute(stream);
-                }
-            } else {
-                mBroadcastWakeLock.acquire();
-                audioService.adjustStreamVolume(stream,
-                    keycode == KeyEvent.KEYCODE_VOLUME_UP
-                                ? AudioManager.ADJUST_RAISE
-                                : AudioManager.ADJUST_LOWER,
-                        0);
-            }
+            // TODO: Actually handle MUTE.
+            mBroadcastWakeLock.acquire();
+            audioService.adjustStreamVolume(stream,
+                keycode == KeyEvent.KEYCODE_VOLUME_UP
+                            ? AudioManager.ADJUST_RAISE
+                            : AudioManager.ADJUST_LOWER,
+                    0);
         } catch (RemoteException e) {
             Log.w(TAG, "IAudioService.adjustStreamVolume() threw RemoteException " + e);
         } finally {
@@ -3294,7 +3291,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     public int interceptKeyBeforeQueueing(KeyEvent event, int policyFlags, boolean isScreenOn) {
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         final boolean canceled = event.isCanceled();
-        final int keyCode = event.getKeyCode();
+        int keyCode = event.getKeyCode();
 
         final boolean isInjected = (policyFlags & WindowManagerPolicy.FLAG_INJECTED) != 0;
 

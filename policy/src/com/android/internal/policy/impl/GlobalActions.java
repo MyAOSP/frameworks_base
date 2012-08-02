@@ -113,7 +113,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private boolean mEnableTorchToggle = true;
     private boolean mEnableAirplaneToggle = true;
     private boolean mReceiverRegistered = false;
-    private boolean mEnableProfileChooser = false;
+    private boolean mEnableProfileChooser = true;
     private boolean mEnableSoundChooser = true;
     private boolean mEnableRebootChooser = true;
 
@@ -192,16 +192,16 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 Settings.System.POWER_DIALOG_SHOW_SCREENSHOT, 0) == 1;
 
         mEnableRebootChooser = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_DIALOG_SHOW_REBOOT_CHOOSER, 0) == 1;
+                Settings.System.POWER_DIALOG_SHOW_REBOOT_CHOOSER, 1) == 1;
 
         mEnableAirplaneToggle = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.POWER_DIALOG_SHOW_AIRPLANE_TOGGLE, 1) == 1;
 
         mEnableProfileChooser = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_DIALOG_SHOW_PROFILE_CHOOSER, 0) == 1;
+                Settings.System.POWER_DIALOG_SHOW_PROFILE_CHOOSER, 1) == 1;
 
         mEnableSoundChooser = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.POWER_DIALOG_SHOW_SOUND_CHOOSER, 0) == 1;
+                Settings.System.POWER_DIALOG_SHOW_SOUND_CHOOSER, 1) == 1;
 
         // Simple toggle style if there's no vibrator, otherwise use a tri-state
         if (!mHasVibrator) {
