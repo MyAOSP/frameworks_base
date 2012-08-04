@@ -3816,6 +3816,12 @@
   <java-symbol type="id" name="update_time" />
   <java-symbol type="id" name="weather_temps_panel" />
 
+  <!-- Lock screen calendar -->
+  <java-symbol type="drawable" name="ic_lock_idle_calendar" />
+  <java-symbol type="id" name="calendar_panel" />
+  <java-symbol type="id" name="calendar_event_title" />
+  <java-symbol type="id" name="calendar_event_details" />
+
   <!-- Power widget -->
   <java-symbol type="string" name="hour" />
   <java-symbol type="string" name="hours" />

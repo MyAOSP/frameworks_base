@@ -106,8 +106,8 @@ class KeyguardStatusViewManager implements OnClickListener {
     private RelativeLayout mWeatherPanel, mWeatherTempsPanel;
     private TextView mWeatherCity, mWeatherCondition, mWeatherLowHigh, mWeatherTemp, mWeatherUpdateTime;
     private ImageView mWeatherImage;
-    // private LinearLayout mCalendarPanel;
-    // private TextView mCalendarEventTitle, mCalendarEventDetails;
+    private LinearLayout mCalendarPanel;
+    private TextView mCalendarEventTitle, mCalendarEventDetails;
 
     // Top-level container view for above views
     private View mContainer;
@@ -237,14 +237,14 @@ class KeyguardStatusViewManager implements OnClickListener {
         }
 
         // Calendar panel
-        // mCalendarPanel = (LinearLayout) findViewById(R.id.calendar_panel);
-        // mCalendarEventTitle = (TextView) findViewById(R.id.calendar_event_title);
-        // mCalendarEventDetails = (TextView) findViewById(R.id.calendar_event_details);
+        mCalendarPanel = (LinearLayout) findViewById(R.id.calendar_panel);
+        mCalendarEventTitle = (TextView) findViewById(R.id.calendar_event_title);
+        mCalendarEventDetails = (TextView) findViewById(R.id.calendar_event_details);
 
         // Hide calendar panel view until we know we need to show it.
-        /* if (mCalendarPanel != null) {
+        if (mCalendarPanel != null) {
             mCalendarPanel.setVisibility(View.GONE);
-        } */
+        }
 
         // Hide transport control view until we know we need to show it.
         if (mTransportView != null) {
@@ -266,11 +266,11 @@ class KeyguardStatusViewManager implements OnClickListener {
         refreshDate();
         updateOwnerInfo();
         refreshWeather();
-        // refreshCalendar();
+        refreshCalendar();
 
         // Required to get Marquee to work.
         final View scrollableViews[] = { mCarrierView, mDateView, mStatus1View, mOwnerInfoView,
-                mAlarmStatusView, /* mCalendarEventDetails,*/ mWeatherCity, mWeatherCondition };
+                mAlarmStatusView, mCalendarEventDetails, mWeatherCity, mWeatherCondition };
         for (View v : scrollableViews) {
             if (v != null) {
                 v.setSelected(true);
@@ -527,7 +527,7 @@ class KeyguardStatusViewManager implements OnClickListener {
      * CyanogenMod Lock screen Calendar related functionality
      */
 
-    /* private void refreshCalendar() {
+    private void refreshCalendar() {
         if (mCalendarPanel != null) {
             final ContentResolver resolver = getContext().getContentResolver();
             String[] nextCalendar = null;
@@ -557,7 +557,7 @@ class KeyguardStatusViewManager implements OnClickListener {
 
            mCalendarPanel.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
-    } */
+    }
 
     /**
      * Split the MultiSelectListPreference string based on a separator of ',' and
