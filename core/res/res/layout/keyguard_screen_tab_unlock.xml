@@ -27,8 +27,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal"
-    android:id="@+id/root">
+    android:id="@+id/root"
+    android:gravity="center_horizontal">
 
     <LinearLayout
         android:orientation="vertical"

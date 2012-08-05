@@ -1966,6 +1966,19 @@ public final class Settings {
         public static final String ACCELEROMETER_ROTATION = "accelerometer_rotation";
 
         /**
+         * Control the type of rotation which can be performed using the accelerometer
+         * if ACCELEROMETER_ROTATION is enabled.
+         * Value is a bitwise combination of
+         * 1 = 0 degrees (portrait)
+         * 2 = 90 degrees (left)
+         * 4 = 180 degrees (inverted portrait)
+         * 8 = 270 degrees (right)
+         * Setting to 0 is effectively orientation lock
+         * @hide
+         */
+        public static final String ACCELEROMETER_ROTATION_ANGLES = "accelerometer_rotation_angles";
+
+        /**
          * Default screen rotation when no other policy applies.
          * When {@link #ACCELEROMETER_ROTATION} is zero and no on-screen Activity expresses a
          * preference, this rotation value will be used. Must be one of the
@@ -2247,6 +2260,12 @@ public final class Settings {
         public static final String LOCKSCREEN_DISABLED = "lockscreen.disabled";
 
         /**
+         * Stores values for custom lockscreen targets
+         * @hide
+         */
+        public static final String LOCKSCREEN_TARGETS = "lockscreen_targets";
+
+        /**
          * URI for the low battery sound file.
          * @hide
          */
@@ -2426,11 +2445,56 @@ public final class Settings {
         public static final String EXPANDED_FLASH_MODE = "expanded_flash_mode";
 
         /**
+         * Whether to use a separate delay for "slide to unlock" and security
+         * lock
+         * @hide
+         */
+        public static final String SCREEN_LOCK_SLIDE_DELAY_TOGGLE = "screen_lock_slide_delay_toggle";
+
+        /**
+         * How many ms to delay before enabling the "slide to unlock" screen
+         * lock when the screen goes off due to timeout
+         * @hide
+         */
+        public static final String SCREEN_LOCK_SLIDE_TIMEOUT_DELAY = "screen_lock_slide_timeout_delay";
+
+        /**
+         * How many ms to delay before enabling the "slide to unlock" screen
+         * lock when the screen is turned off by the user
+         * @hide
+         */
+        public static final String SCREEN_LOCK_SLIDE_SCREENOFF_DELAY = "screen_lock_slide_screenoff_delay";
+
+        /**
+        * Whether to use the custom quick unlock screen control
+         * @hide
+         */
+        public static final String LOCKSCREEN_QUICK_UNLOCK_CONTROL = "lockscreen_quick_unlock_control";
+
+        /**
          * Boolean value whether to link ringtone and notification volumes
          *
          * @hide
          */
         public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
+
+        /**
+         * Whether to unlock the menu key.  The value is boolean (1 or 0).
+         * @hide
+         */
+        public static final String MENU_UNLOCK_SCREEN = "menu_unlock_screen";
+
+        /**
+         * Whether to wake the screen with the volume keys, the value is boolean.
+         * @hide
+         */
+        public static final String VOLUME_WAKE_SCREEN = "volume_wake_screen";
+
+        /**
+         * Whether or not volume button music controls should be enabled to seek media tracks
+         * @hide
+         */
+        public static final String VOLBTN_MUSIC_CONTROLS = "volbtn_music_controls";
 
         /**
          * Whether national data roaming should be used.
@@ -2580,6 +2644,12 @@ public final class Settings {
          * Show the pending notification counts as overlays on the status bar
          * @hide
          */
+        public static final String STATUS_BAR_NOTIF_COUNT = "status_bar_notif_count";
+
+        /**
+         * Show the pending notification counts as overlays on the status bar
+         * @hide
+         */
         public static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
 
         /**
@@ -2633,6 +2703,8 @@ public final class Settings {
             AUTO_TIME_ZONE,
             TIME_12_24,
             DATE_FORMAT,
+            ACCELEROMETER_ROTATION,
+            USER_ROTATION,
             DTMF_TONE_WHEN_DIALING,
             DTMF_TONE_TYPE_WHEN_DIALING,
             EMERGENCY_TONE,
@@ -2997,12 +3069,6 @@ public final class Settings {
         public static final String STATUS_BAR_LAYOUT = "statusbar_layout";
 
         /**
-         * Show the pending notification counts as overlays on the status bar
-         * @hide
-         */
-        public static final String STATUS_BAR_NOTIF_COUNT = "status_bar_notif_count";
-
-        /**
          * @hide
          * AM/PM Style for clock options
          * 0 - Normal AM/PM
@@ -3182,6 +3248,7 @@ public final class Settings {
             MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_PATTERN_ENABLED);
             MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_PATTERN_VISIBLE);
             MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED);
+            MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_BEFORE_UNLOCK);
         }
 
         /**
@@ -3655,6 +3722,14 @@ public final class Settings {
          */
         public static final String LOCK_SCREEN_OWNER_INFO_ENABLED =
             "lock_screen_owner_info_enabled";
+
+        /**
+         * Whether the unsecure widget screen will be shown before a secure
+         * lock screen
+         * @hide
+         */
+        public static final String LOCK_BEFORE_UNLOCK =
+            "lock_before_unlock";
 
         /**
          * The saved value for WindowManagerService.setForcedDisplaySize().

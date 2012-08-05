@@ -16,17 +16,6 @@
 
 package com.android.internal.policy.impl;
 
-import com.android.internal.R;
-import com.android.internal.app.ThemeUtils;
-import com.android.internal.policy.impl.KeyguardUpdateMonitor.InfoCallback;
-import com.android.internal.policy.impl.KeyguardUpdateMonitor.InfoCallbackImpl;
-import com.android.internal.policy.impl.LockPatternKeyguardView.UnlockMode;
-import com.android.internal.telephony.IccCard;
-import com.android.internal.widget.LockPatternUtils;
-import com.android.internal.widget.LockScreenWidgetCallback;
-import com.android.internal.widget.LockScreenWidgetInterface;
-import com.android.internal.widget.TransportControlView;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -42,16 +31,15 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.os.SystemProperties;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -61,6 +49,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
+
+import com.android.internal.R;
+import com.android.internal.policy.impl.KeyguardUpdateMonitor.InfoCallbackImpl;
+import com.android.internal.telephony.IccCard;
+import com.android.internal.widget.LockPatternUtils;
+import com.android.internal.widget.LockScreenWidgetCallback;
+import com.android.internal.widget.TransportControlView;
+
+import com.android.internal.app.ThemeUtils;
 
 import java.io.IOException;
 
@@ -704,7 +701,8 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
 
     protected void onConfigurationChanged(Configuration newConfig) {
         Resources resources = getResources();
-        mShowLockBeforeUnlock = resources.getBoolean(R.bool.config_enableLockBeforeUnlockScreen);
+        mShowLockBeforeUnlock = resources.getBoolean(R.bool.config_enableLockBeforeUnlockScreen) ||
+                mLockPatternUtils.getLockBeforeUnlock();;
         mConfiguration = newConfig;
         if (DEBUG_CONFIGURATION) Log.v(TAG, "**** re-creating lock screen since config changed");
         saveWidgetState();
@@ -1066,6 +1064,10 @@ public class LockPatternKeyguardView extends KeyguardViewBase {
      */
     private Mode getInitialMode() {
         final IccCard.State simState = mUpdateMonitor.getSimState();
+
+        mShowLockBeforeUnlock = mContext.getResources().getBoolean(R.bool.config_enableLockBeforeUnlockScreen) ||
+                mLockPatternUtils.getLockBeforeUnlock();
+
         if (stuckOnLockScreenBecauseSimMissing() ||
                 (simState == IccCard.State.PUK_REQUIRED &&
                         !mLockPatternUtils.isPukUnlockScreenEnable())) {

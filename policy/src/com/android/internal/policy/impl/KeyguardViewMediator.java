@@ -370,11 +370,21 @@ public class KeyguardViewMediator implements KeyguardViewCallback,
             mScreenOn = false;
             if (DEBUG) Log.d(TAG, "onScreenTurnedOff(" + why + ")");
 
-            // Lock immediately based on setting if secure (user has a pin/pattern/password).
-            // This also "locks" the device when not secure to provide easy access to the
-            // camera while preventing unwanted input.
-            final boolean lockImmediately =
-                mLockPatternUtils.getPowerButtonInstantlyLocks() || !mLockPatternUtils.isSecure();
+            // Prepare for handling Lock/Slide lock delay and timeout
+            boolean lockImmediately = false;
+            final ContentResolver cr = mContext.getContentResolver();
+            boolean separateSlideLockTimeoutEnabled = Settings.System.getInt(cr,
+                    Settings.System.SCREEN_LOCK_SLIDE_DELAY_TOGGLE, 0) == 1;
+            if (mLockPatternUtils.isSecure()) {
+                // Lock immediately based on setting if secure (user has a pin/pattern/password)
+                // This is retained as-is to ensue AOSP security integrity is maintained
+                lockImmediately = mLockPatternUtils.getPowerButtonInstantlyLocks();
+            } else {
+                // Unless a separate slide lock timeout is enabled, this "locks" the device when
+                // not secure to provide easy access to the camera while preventing unwanted input
+                lockImmediately = separateSlideLockTimeoutEnabled ? false
+                        : mLockPatternUtils.getPowerButtonInstantlyLocks();
+            }
 
             if (mExitSecureCallback != null) {
                 if (DEBUG) Log.d(TAG, "pending exit secure callback cancelled");
@@ -393,7 +403,6 @@ public class KeyguardViewMediator implements KeyguardViewCallback,
                 // to enable it a little bit later (i.e, give the user a chance
                 // to turn the screen back on within a certain window without
                 // having to unlock the screen)
-                final ContentResolver cr = mContext.getContentResolver();
 
                 // From DisplaySettings
                 long displayTimeout = Settings.System.getInt(cr, SCREEN_OFF_TIMEOUT,
@@ -404,9 +413,24 @@ public class KeyguardViewMediator implements KeyguardViewCallback,
                         Settings.Secure.LOCK_SCREEN_LOCK_AFTER_TIMEOUT,
                         KEYGUARD_LOCK_AFTER_DELAY_DEFAULT);
 
+                // From CyanogenMod specific Settings
+                int slideLockTimeoutDelay = (why == WindowManagerPolicy.OFF_BECAUSE_OF_TIMEOUT ? Settings.System
+                        .getInt(cr, Settings.System.SCREEN_LOCK_SLIDE_TIMEOUT_DELAY,
+                                KEYGUARD_LOCK_AFTER_DELAY_DEFAULT) : Settings.System.getInt(cr,
+                        Settings.System.SCREEN_LOCK_SLIDE_SCREENOFF_DELAY, 0));
+
                 // From DevicePolicyAdmin
                 final long policyTimeout = mLockPatternUtils.getDevicePolicyManager()
                         .getMaximumTimeToLock(null);
+
+                if (DEBUG) Log.d(TAG, "Security lock screen timeout delay is " + lockAfterTimeout
+                        + " ms; slide lock screen timeout delay is "
+                        + slideLockTimeoutDelay
+                        + " ms; Separate slide lock delay settings considered: "
+                        + separateSlideLockTimeoutEnabled
+                        + "; Policy timeout is "
+                        + policyTimeout
+                        + " ms");
 
                 long timeout;
                 if (policyTimeout > 0) {
@@ -414,7 +438,8 @@ public class KeyguardViewMediator implements KeyguardViewCallback,
                     displayTimeout = Math.max(displayTimeout, 0); // ignore negative values
                     timeout = Math.min(policyTimeout - displayTimeout, lockAfterTimeout);
                 } else {
-                    timeout = lockAfterTimeout;
+                    // Not sure lockAfterTimeout is needed any more but keeping it for AOSP compatibility
+                    timeout = separateSlideLockTimeoutEnabled ? slideLockTimeoutDelay : lockAfterTimeout;
                 }
 
                 if (timeout <= 0) {
