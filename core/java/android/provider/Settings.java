@@ -3064,6 +3064,12 @@ public final class Settings {
         public static final String STATUSBAR_TOGGLES_NUMBER_PER_ROW = "statusbar_toggles_number_per_row";
 
         /**
+         * Toggle to turn off toggles in statusbar
+         * @hide
+         */
+        public static final String STATUSBAR_TOGGLES_DISPLAY = "statusbar_toggles_display";
+
+        /**
          * @hide
          */
         public static final String STATUS_BAR_LAYOUT = "statusbar_layout";
