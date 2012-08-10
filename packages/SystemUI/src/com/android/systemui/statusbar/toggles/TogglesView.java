@@ -274,6 +274,15 @@ public class TogglesView extends LinearLayout {
                     .getUriFor(Settings.System.STATUSBAR_TOGGLES_USE_BUTTONS),
                     false, this);
             resolver.registerContentObserver(Settings.System
+                    .getUriFor(Settings.System.STATUSBAR_TOGGLES_ENABLED_COLOR),
+                    false, this);
+            resolver.registerContentObserver(Settings.System
+                    .getUriFor(Settings.System.STATUSBAR_TOGGLES_DISABLED_COLOR),
+                    false, this);
+            resolver.registerContentObserver(Settings.System
+                    .getUriFor(Settings.System.STATUSBAR_TOGGLES_ALPHA),
+                    false, this);
+            resolver.registerContentObserver(Settings.System
                     .getUriFor(Settings.System.STATUSBAR_TOGGLES_DISPLAY),
                     false, this);
             updateSettings();
