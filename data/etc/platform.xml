@@ -60,9 +60,11 @@
 
     <permission name="android.permission.WRITE_EXTERNAL_STORAGE" >
         <group gid="sdcard_rw" />
+        <group gid="media_rw" />
     </permission>
 
     <permission name="android.permission.WRITE_MEDIA_STORAGE" >
+        <group gid="sdcard_rw" />
         <group gid="media_rw" />
     </permission>
 
