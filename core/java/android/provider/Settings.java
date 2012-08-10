@@ -3089,7 +3089,6 @@ public final class Settings {
          */
         public static final String STATUSBAR_TOGGLES_ALPHA = "statusbar_toggles_alpha";
 
-        
         /**
          * @hide
          * AM/PM Style for clock options
@@ -3257,6 +3256,12 @@ public final class Settings {
          * @hide
          */
         public static final String NAVIGATION_BAR_GLOW_TINT = "navigation_bar_glow_tint";
+
+        /**
+         *
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_BUTTON_ALPHA = "navigation_bar_button_alpha";
 
         /**
          * [0] = how long to animate glow off
