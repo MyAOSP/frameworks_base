@@ -290,10 +290,10 @@ public class TogglesView extends LinearLayout {
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
+            updateSettings();
             if (uri.equals(Settings.System.getUriFor(Settings.System.STATUSBAR_TOGGLES_DISPLAY))) {
                 updateVisibility();
             }
-            updateSettings();
         }
     }
 
@@ -361,14 +361,20 @@ public class TogglesView extends LinearLayout {
             settingsObserver.observe();
     }
 
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        updateVisibility();
+    }
+
     public void updateVisibility() {
-        boolean displayToggles = Settings.System.getInt(mContext.getContentResolver(),
+        final boolean displayToggles = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.STATUSBAR_TOGGLES_DISPLAY, 1) == 1;
-        View toggles = (View) findViewById(R.id.toggles_visible);
+        final View togglesVisible = (View) findViewById(R.id.toggles_visible);
         if (!displayToggles) {
-            toggles.setVisibility(View.GONE);
+            togglesVisible.setVisibility(View.GONE);
         } else {
-            toggles.setVisibility(View.VISIBLE);
+            togglesVisible.setVisibility(View.VISIBLE);
         }
     }
 }
