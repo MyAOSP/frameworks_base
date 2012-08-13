@@ -107,14 +107,6 @@
 
     </LinearLayout>
 
-    <include
-        layout="@layout/weather_panel"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:drawablePadding="4dip" />
-
     <Space android:layout_gravity="fill" />
 
     <!-- We need MATCH_PARENT here only to force the size of the parent to be passed to
