@@ -725,8 +725,8 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                         ImageView mLockScreenWallpaperImage = new ImageView(flayout.getContext());
                         mLockScreenWallpaperImage.setScaleType(ScaleType.CENTER_CROP);
                         flayout.addView(mLockScreenWallpaperImage, -1, -1);
-                        Context settingsContext = context.createPackageContext("com.android.settings", 0);
-                        String wallpaperFile = settingsContext.getFilesDir() + "/lockwallpaper";
+                        Context packageContext = context.createPackageContext("com.baked.romcontrol", 0);
+                        String wallpaperFile = packageContext.getFilesDir() + "/lockwallpaper";
                         Bitmap background = BitmapFactory.decodeFile(wallpaperFile);
                         Drawable d = new BitmapDrawable(context.getResources(), background);
                         mLockScreenWallpaperImage.setImageDrawable(d);
