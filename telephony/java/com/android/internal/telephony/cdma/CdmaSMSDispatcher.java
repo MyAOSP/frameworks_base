@@ -20,20 +20,23 @@ package com.android.internal.telephony.cdma;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
-import android.content.ContentValues;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.SQLException;
+import android.content.res.Resources;
+import android.os.Bundle;
 import android.os.Message;
 import android.os.SystemProperties;
 import android.preference.PreferenceManager;
 import android.provider.Telephony;
 import android.provider.Telephony.Sms.Intents;
+import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsCbMessage;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage.MessageClass;
 import android.telephony.cdma.CdmaSmsCbProgramData;
+import android.telephony.cdma.CdmaSmsCbProgramResults;
 import android.util.Log;
 
 import com.android.internal.telephony.CommandsInterface;
@@ -45,17 +48,17 @@ import com.android.internal.telephony.SmsStorageMonitor;
 import com.android.internal.telephony.SmsUsageMonitor;
 import com.android.internal.telephony.TelephonyProperties;
 import com.android.internal.telephony.WspTypeDecoder;
+import com.android.internal.telephony.cdma.sms.BearerData;
+import com.android.internal.telephony.cdma.sms.CdmaSmsAddress;
 import com.android.internal.telephony.cdma.sms.SmsEnvelope;
 import com.android.internal.telephony.cdma.sms.UserData;
-import com.android.internal.util.BitwiseInputStream;
-import com.android.internal.util.HexDump;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-
-import android.content.res.Resources;
 
 
 final class CdmaSMSDispatcher extends SMSDispatcher {
@@ -108,15 +111,16 @@ final class CdmaSMSDispatcher extends SMSDispatcher {
      * {@link android.telephony.cdma.CdmaSmsCbProgramData} objects.
      */
     private void handleServiceCategoryProgramData(SmsMessage sms) {
-        List<CdmaSmsCbProgramData> programDataList = sms.getSmsCbProgramData();
+        ArrayList<CdmaSmsCbProgramData> programDataList = sms.getSmsCbProgramData();
         if (programDataList == null) {
             Log.e(TAG, "handleServiceCategoryProgramData: program data list is null!");
             return;
         }
 
         Intent intent = new Intent(Intents.SMS_SERVICE_CATEGORY_PROGRAM_DATA_RECEIVED_ACTION);
-        intent.putExtra("program_data_list", (CdmaSmsCbProgramData[]) programDataList.toArray());
-        dispatch(intent, RECEIVE_SMS_PERMISSION);
+        intent.putExtra("sender", sms.getOriginatingAddress());
+        intent.putParcelableArrayListExtra("program_data", programDataList);
+        dispatch(intent, RECEIVE_SMS_PERMISSION, mScpResultsReceiver);
     }
 
     /** {@inheritDoc} */
@@ -217,76 +221,8 @@ final class CdmaSMSDispatcher extends SMSDispatcher {
                 (SmsEnvelope.MESSAGE_TYPE_BROADCAST != sms.getMessageType())) {
             return Intents.RESULT_SMS_UNSUPPORTED;
         }
-        /*
-         * Check to see if we have a Virgin Mobile MMS
-         * If so, do extra processsing for Virgin Mobile's non-standard format.
-         * Otherwise, dispatch normal message.
-         */
-        if (sms.getOriginatingAddress().equals("9999999999")) {
-            Log.d(TAG, "Got a suspect SMS from the Virgin MMS originator");
-                byte virginMMSPayload[] = null;
-                try {
-                    int[] ourMessageRef = new int[1];
-                    virginMMSPayload = getVirginMMS(sms.getUserData(), ourMessageRef);
-                    if (virginMMSPayload == null) {
-                        Log.e(TAG, "Not a virgin MMS like we were expecting");
-                        throw new Exception("Not a Virgin MMS like we were expecting");
-                    } else {
-                        Log.d(TAG, "Sending our deflowered MMS to processCdmaWapPdu");
-                        return processCdmaWapPdu(virginMMSPayload, ourMessageRef[0], "9999999999");
-                    }
-                } catch (Exception ourException) {
-                    Log.e(TAG, "Got an exception trying to get VMUS MMS data " + ourException);
-                }
-        }
-        return dispatchNormalMessage(smsb);
-    }
 
-    private synchronized byte[] getVirginMMS(final byte[] someEncodedMMSData, int[] aMessageRef) throws Exception {
-        if ((aMessageRef == null) || (aMessageRef.length != 1)) {
-            throw new Exception("aMessageRef is not usable. Must be an int array with one element.");
-        }
-        BitwiseInputStream ourInputStream;
-        int i1=0;
-        int desiredBitLength;
-        Log.d(TAG, "mmsVirginGetMsgId");
-        Log.d(TAG, "EncodedMMS: " + someEncodedMMSData);
-        try {
-            ourInputStream = new BitwiseInputStream(someEncodedMMSData);
-            ourInputStream.skip(20);
-            final int j = ourInputStream.read(8) << 8;
-            final int k = ourInputStream.read(8);
-            aMessageRef[0] = j | k;
-            Log.d(TAG, "MSGREF IS : " + aMessageRef[0]);
-            ourInputStream.skip(12);
-            i1 = ourInputStream.read(8) + -2;
-            ourInputStream.skip(13);
-            byte abyte1[] = new byte[i1];
-            for (int j1 = 0; j1 < i1; j1++) {
-                abyte1[j1] = 0;
-            }
-            desiredBitLength = i1 * 8;
-            if (ourInputStream.available() < desiredBitLength) {
-                int availableBitLength = ourInputStream.available();
-                Log.e(TAG, "mmsVirginGetMsgId inStream.available() = " + availableBitLength + " wantedBits = " + desiredBitLength);
-                throw new Exception("insufficient data (wanted " + desiredBitLength + " bits, but only have " + availableBitLength + ")");
-            }
-        } catch (com.android.internal.util.BitwiseInputStream.AccessException ourException) {
-            final String ourExceptionText = "mmsVirginGetMsgId failed: " + ourException;
-            Log.e(TAG, ourExceptionText);
-            throw new Exception(ourExceptionText);
-        }
-        byte ret[] = null;
-            try {
-            ret = ourInputStream.readByteArray(desiredBitLength);
-            Log.d(TAG, "mmsVirginGetMsgId user_length = " + i1 + " msgid = " + aMessageRef[0]);
-                Log.d(TAG, "mmsVirginGetMsgId userdata = " + ret.toString());
-            } catch (com.android.internal.util.BitwiseInputStream.AccessException ourException) {
-                final String ourExceptionText = "mmsVirginGetMsgId failed: " + ourException;
-                Log.e(TAG, ourExceptionText);
-                throw new Exception(ourExceptionText);
-            }
-            return ret;
+        return dispatchNormalMessage(smsb);
     }
 
     /**
@@ -494,4 +430,72 @@ final class CdmaSMSDispatcher extends SMSDispatcher {
         }
         return false;
     }
+
+    // Receiver for Service Category Program Data results.
+    // We already ACK'd the original SCPD SMS, so this sends a new response SMS.
+    // TODO: handle retries if the RIL returns an error.
+    private final BroadcastReceiver mScpResultsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int rc = getResultCode();
+            boolean success = (rc == Activity.RESULT_OK) || (rc == Intents.RESULT_SMS_HANDLED);
+            if (!success) {
+                Log.e(TAG, "SCP results error: result code = " + rc);
+                return;
+            }
+            Bundle extras = getResultExtras(false);
+            if (extras == null) {
+                Log.e(TAG, "SCP results error: missing extras");
+                return;
+            }
+            String sender = extras.getString("sender");
+            if (sender == null) {
+                Log.e(TAG, "SCP results error: missing sender extra.");
+                return;
+            }
+            ArrayList<CdmaSmsCbProgramResults> results
+                    = extras.getParcelableArrayList("results");
+            if (results == null) {
+                Log.e(TAG, "SCP results error: missing results extra.");
+                return;
+            }
+
+            BearerData bData = new BearerData();
+            bData.messageType = BearerData.MESSAGE_TYPE_SUBMIT;
+            bData.messageId = SmsMessage.getNextMessageId();
+            bData.serviceCategoryProgramResults = results;
+            byte[] encodedBearerData = BearerData.encode(bData);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream(100);
+            DataOutputStream dos = new DataOutputStream(baos);
+            try {
+                dos.writeInt(SmsEnvelope.TELESERVICE_SCPT);
+                dos.writeInt(0); //servicePresent
+                dos.writeInt(0); //serviceCategory
+                CdmaSmsAddress destAddr = CdmaSmsAddress.parse(
+                        PhoneNumberUtils.cdmaCheckAndProcessPlusCode(sender));
+                dos.write(destAddr.digitMode);
+                dos.write(destAddr.numberMode);
+                dos.write(destAddr.ton); // number_type
+                dos.write(destAddr.numberPlan);
+                dos.write(destAddr.numberOfDigits);
+                dos.write(destAddr.origBytes, 0, destAddr.origBytes.length); // digits
+                // Subaddress is not supported.
+                dos.write(0); //subaddressType
+                dos.write(0); //subaddr_odd
+                dos.write(0); //subaddr_nbr_of_digits
+                dos.write(encodedBearerData.length);
+                dos.write(encodedBearerData, 0, encodedBearerData.length);
+                // Ignore the RIL response. TODO: implement retry if SMS send fails.
+                mCm.sendCdmaSms(baos.toByteArray(), null);
+            } catch (IOException e) {
+                Log.e(TAG, "exception creating SCP results PDU", e);
+            } finally {
+                try {
+                    dos.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    };
 }
