@@ -22,81 +22,89 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-<com.android.systemui.statusbar.tablet.SettingsView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <LinearLayout
         android:orientation="vertical"
-        >
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
 
-    <!-- Power widget buttons will be added here -->
+        <include
+            android:id="@+id/toggles_visible"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/quick_toggles" />
 
-    <include
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/quick_toggles" />
-
-    <View style="@style/StatusBarPanelSettingsPanelSeparator" />
-
-    <!-- Brightness -->
-    <LinearLayout style="@style/StatusBarPanelSettingsRow" >
-        <ImageView
-                android:id="@+id/brightness_icon"
-                style="@style/StatusBarPanelSettingsIcon"
-                android:src="@drawable/ic_sysbar_brightness"
-                />
-        <com.android.systemui.statusbar.policy.ToggleSlider
-                android:id="@+id/brightness"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:layout_marginRight="2dp"
-                systemui:text="@string/status_bar_settings_auto_brightness_label"
-                />
-    </LinearLayout>
-    <View style="@style/StatusBarPanelSettingsPanelSeparator" />
-
-    <!-- Notifications / Do not disturb -->
-    <LinearLayout
-            android:id="@+id/do_not_disturb"
-            style="@style/StatusBarPanelSettingsRow"
-            >
-        <ImageView
-                android:id="@+id/do_not_disturb_icon"
-                style="@style/StatusBarPanelSettingsIcon"
-                android:src="@drawable/ic_notification_open"
-                />
-        <TextView
-                style="@style/StatusBarPanelSettingsContents"
-                android:text="@string/status_bar_settings_notifications"
-                />
-        <Switch
-                android:id="@+id/do_not_disturb_checkbox"
-                android:layout_width="wrap_content"
+        <com.android.systemui.statusbar.tablet.SettingsView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="5dp"
-                />
+                android:orientation="vertical"
+                >
+
+            <!-- Power widget buttons will be added here -->
+
+            <View style="@style/StatusBarPanelSettingsPanelSeparator" />
+
+            <!-- Brightness -->
+            <LinearLayout style="@style/StatusBarPanelSettingsRow" >
+                <ImageView
+                        android:id="@+id/brightness_icon"
+                        style="@style/StatusBarPanelSettingsIcon"
+                        android:src="@drawable/ic_sysbar_brightness"
+                        />
+                <com.android.systemui.statusbar.policy.ToggleSlider
+                        android:id="@+id/brightness"
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:layout_marginRight="2dp"
+                        systemui:text="@string/status_bar_settings_auto_brightness_label"
+                        />
+            </LinearLayout>
+            <View style="@style/StatusBarPanelSettingsPanelSeparator" />
+
+            <!-- Notifications / Do not disturb -->
+            <LinearLayout
+                    android:id="@+id/do_not_disturb"
+                    style="@style/StatusBarPanelSettingsRow"
+                    >
+                <ImageView
+                        android:id="@+id/do_not_disturb_icon"
+                        style="@style/StatusBarPanelSettingsIcon"
+                        android:src="@drawable/ic_notification_open"
+                        />
+                <TextView
+                        style="@style/StatusBarPanelSettingsContents"
+                        android:text="@string/status_bar_settings_notifications"
+                        />
+                <Switch
+                        android:id="@+id/do_not_disturb_checkbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="5dp"
+                        />
+            </LinearLayout>
+            <View style="@style/StatusBarPanelSettingsPanelSeparator" />
+
+            <!-- Link to settings -->
+            <LinearLayout
+                    android:id="@+id/settings"
+                    style="@style/StatusBarPanelSettingsRow"
+                    >
+
+                <ImageView
+                        android:id="@+id/settings"
+                        style="@style/StatusBarPanelSettingsIcon"
+                        android:src="@drawable/ic_sysbar_quicksettings"
+                        />
+                <TextView
+                        style="@style/StatusBarPanelSettingsContents"
+                        android:text="@string/status_bar_settings_settings_button"
+                        />
+            </LinearLayout>
+            <View style="@style/StatusBarPanelSettingsPanelSeparator" />
+
+        </com.android.systemui.statusbar.tablet.SettingsView>
+
     </LinearLayout>
-    <View style="@style/StatusBarPanelSettingsPanelSeparator" />
-
-    <!-- Link to settings -->
-    <LinearLayout
-            android:id="@+id/settings"
-            style="@style/StatusBarPanelSettingsRow"
-            >
-
-        <ImageView
-                android:id="@+id/settings"
-                style="@style/StatusBarPanelSettingsIcon"
-                android:src="@drawable/ic_sysbar_quicksettings"
-                />
-        <TextView
-                style="@style/StatusBarPanelSettingsContents"
-                android:text="@string/status_bar_settings_settings_button"
-                />
-    </LinearLayout>
-    <View style="@style/StatusBarPanelSettingsPanelSeparator" />
-
-</com.android.systemui.statusbar.tablet.SettingsView>
 
 </ScrollView>
