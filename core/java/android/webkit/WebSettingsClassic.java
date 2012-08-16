@@ -1640,6 +1640,7 @@ public class WebSettingsClassic extends WebSettings {
     /**
      * Sets whether WebGL is enabled.
      * @param flag Set to true to enable WebGL.
+     * @hide
      */
     public synchronized void setWebGLEnabled(boolean flag) {
         if (mWebGLEnabled != flag) {
