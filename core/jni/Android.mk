@@ -162,6 +162,10 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
     LOCAL_CFLAGS += -DQCOM_HARDWARE
     LOCAL_SRC_FILES += \
 	    com_android_internal_app_ActivityTrigger.cpp
+    LOCAL_C_INCLUDES += \
+	    hardware/qcom/display/libtilerenderer
+    LOCAL_SHARED_LIBRARIES += \
+	    libtilerenderer
 endif
 
 LOCAL_C_INCLUDES += \
