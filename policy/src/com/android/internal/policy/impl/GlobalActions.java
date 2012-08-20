@@ -117,8 +117,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private boolean mEnableSoundChooser = true;
     private boolean mEnableRebootChooser = true;
 
-    private static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
-
     /**
      * @param context everything needs a context :(
      */
@@ -306,7 +304,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         // next: profile - only shown if enabled, which is true by default
         if (mEnableProfileChooser) {
             Slog.e(TAG, "Adding ProfileChooser");
-            if (Settings.System.getInt(mContext.getContentResolver(), SYSTEM_PROFILES_ENABLED, 1) == 1) {
+            if (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.SYSTEM_PROFILES_ENABLED, 1) == 1) {
                 mItems.add(
                     new ProfileChooseAction() {
                         public void onPress() {
