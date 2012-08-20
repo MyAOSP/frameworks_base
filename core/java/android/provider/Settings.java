@@ -3239,6 +3239,14 @@ public final class Settings {
         public static final String MENU_VISIBILITY = "menu_visibility";
 
         /**
+         * IME Switcher
+         *
+         * @hide
+         */
+        public static final String SHOW_STATUSBAR_IME_SWITCHER = "show_statusbar_ime_switcher";
+
+
+        /**
          * Number of custom navbar buttons
          *
          * @hide
