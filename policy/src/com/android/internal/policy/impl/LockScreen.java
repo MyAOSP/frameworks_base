@@ -422,7 +422,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                                     }
                                 }
                                 TargetDrawable nDrawable = new TargetDrawable(res, getLayeredDrawable(back,front, tmpInset, frontBlank));
-                                boolean isCamera = in.getComponent().getClassName().equals("com.android.camera.Camera");
+                                boolean isCamera = in.getComponent().getClassName().equals("com.android.camera.CameraLauncher");
                                 if (isCamera) {
                                     nDrawable.setEnabled(!mCameraDisabled);
                                 } else {
@@ -680,10 +680,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         boolean disabledByAdmin = mLockPatternUtils.getDevicePolicyManager()
                 .getCameraDisabled(null);
         boolean disabledBySimState = mUpdateMonitor.isSimLocked();
-        boolean cameraTargetPresent = (mUnlockWidgetMethods instanceof GlowPadViewMethods)
-                ? ((GlowPadViewMethods) mUnlockWidgetMethods)
-                        .isTargetPresent(com.android.internal.R.drawable.ic_lockscreen_camera)
-                        : false;
+        boolean cameraPresent = mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
         boolean searchTargetPresent = (mUnlockWidgetMethods instanceof GlowPadViewMethods)
                 ? ((GlowPadViewMethods) mUnlockWidgetMethods)
                         .isTargetPresent(com.android.internal.R.drawable.ic_action_assist_generic)
@@ -695,12 +692,15 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
             Log.v(TAG, "Camera disabled by Sim State");
         }
         boolean searchActionAvailable = SearchManager.getAssistIntent(mContext) != null;
-        mCameraDisabled = disabledByAdmin || disabledBySimState || !cameraTargetPresent;
+        mCameraDisabled = disabledByAdmin || disabledBySimState || !cameraPresent;
         mSearchDisabled = disabledBySimState || !searchActionAvailable || !searchTargetPresent;
         mUnlockWidgetMethods.updateResources();
     }
 
-    static void setBackground(Context context, ViewGroup layout) {
+    public static void setBackground(Context context, ViewGroup layout) {
+        final String WALLPAPER_IMAGE_PATH = "/data/data/com.baked.romcontrol/files/lockwallpaper.jpg";
+        File file = new File(WALLPAPER_IMAGE_PATH);
+
         String lockBack = Settings.System.getString(context.getContentResolver(), Settings.System.LOCKSCREEN_BACKGROUND);
         if (lockBack != null) {
             if (!lockBack.isEmpty()) {
@@ -709,32 +709,27 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                 } catch(NumberFormatException e) {
                     e.printStackTrace();
                 }
-            } else {
-                try {
-                    ViewParent parent =  layout.getParent();
-                    if (parent != null) {
-                        //change parent to show background correctly on scale
-                        RelativeLayout rlout = new RelativeLayout(context);
-                        ((ViewGroup) parent).removeView(layout);
-                        layout.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                        ((ViewGroup) parent).addView(rlout); // change parent to new layout
-                        rlout.addView(layout);
-                        // create framelayout and add imageview to set background
-                        FrameLayout flayout = new FrameLayout(context);
-                        flayout.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                        ImageView mLockScreenWallpaperImage = new ImageView(flayout.getContext());
-                        mLockScreenWallpaperImage.setScaleType(ScaleType.CENTER_CROP);
-                        flayout.addView(mLockScreenWallpaperImage, -1, -1);
-                        Context packageContext = context.createPackageContext("com.baked.romcontrol", 0);
-                        String wallpaperFile = packageContext.getFilesDir() + "/lockwallpaper";
-                        Bitmap background = BitmapFactory.decodeFile(wallpaperFile);
-                        Drawable d = new BitmapDrawable(context.getResources(), background);
-                        mLockScreenWallpaperImage.setImageDrawable(d);
-                        // add background to lock screen.
-                        rlout.addView(flayout,0);
-                    }
-                } catch (NameNotFoundException e) {
-                }
+            }
+        } else if (file.exists()) {
+            ViewParent parent =  layout.getParent();
+            if (parent != null) {
+                //change parent to show background correctly on scale
+                RelativeLayout rlout = new RelativeLayout(context);
+                ((ViewGroup) parent).removeView(layout);
+                layout.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                ((ViewGroup) parent).addView(rlout); // change parent to new layout
+                rlout.addView(layout);
+                // create framelayout and add imageview to set background
+                FrameLayout flayout = new FrameLayout(context);
+                flayout.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                ImageView mLockScreenWallpaperImage = new ImageView(flayout.getContext());
+                mLockScreenWallpaperImage.setScaleType(ScaleType.CENTER_CROP);
+                flayout.addView(mLockScreenWallpaperImage, -1, -1);
+                Bitmap background = BitmapFactory.decodeFile(WALLPAPER_IMAGE_PATH);
+                Drawable d = new BitmapDrawable(context.getResources(), background);
+                mLockScreenWallpaperImage.setImageDrawable(d);
+                // add background to lock screen.
+                rlout.addView(flayout,0);
             }
         }
     }
