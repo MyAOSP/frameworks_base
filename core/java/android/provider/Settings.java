@@ -2669,7 +2669,8 @@ public final class Settings {
         public static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
 
         /**
-         * Whether national data Roming should be used.
+         * Whether national data roaming should be used.
+         * @hide
          */
         public static final String MVNO_ROAMING = "mvno_roaming";
 
