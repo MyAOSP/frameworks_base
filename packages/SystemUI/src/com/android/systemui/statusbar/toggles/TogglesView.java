@@ -39,7 +39,7 @@ public class TogglesView extends LinearLayout {
     public static final int BRIGHTNESS_LOC_BOTTOM = 2;
     public static final int BRIGHTNESS_LOC_NONE = 3;
 
-    private int mBrightnessLocation = BRIGHTNESS_LOC_TOP;
+    private int mBrightnessLocation = BRIGHTNESS_LOC_NONE;
 
     private static final String TOGGLE_AUTOROTATE = "ROTATE";
     private static final String TOGGLE_BLUETOOTH = "BT";
