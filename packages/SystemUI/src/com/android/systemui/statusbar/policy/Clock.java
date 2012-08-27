@@ -1,4 +1,4 @@
-        /*
+ 	/*
  * Copyright (C) 2006 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -188,25 +188,32 @@ public class Clock extends TextView {
 
         if (!b24) {
             if (mAmPmStyle != AM_PM_STYLE_NORMAL) {
+                String AmPm;
+                if (format.indexOf("a")==0) {
+                    AmPm = (new SimpleDateFormat("a ")).format(mCalendar.getTime());
+                } else {
+                    AmPm = (new SimpleDateFormat(" a")).format(mCalendar.getTime());
+                }
                 if (mAmPmStyle == AM_PM_STYLE_GONE) {
-                    formatted.delete(result.length() - 3, result.length());
+                    formatted.delete(result.indexOf(AmPm), result.lastIndexOf(AmPm)+AmPm.length());
                 } else {
                     if (mAmPmStyle == AM_PM_STYLE_SMALL) {
                         CharacterStyle style = new RelativeSizeSpan(0.7f);
-                        formatted.setSpan(style, result.length() - 3, result.length(),
-                                Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+                        formatted.setSpan(style, result.indexOf(AmPm), result.lastIndexOf(AmPm)+AmPm.length(),
+                                          Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
                     }
                 }
             }
         }
         if (mWeekdayStyle != WEEKDAY_STYLE_NORMAL) {
-            if (todayIs != null) {
-                if (mWeekdayStyle == WEEKDAY_STYLE_GONE) {
-                    formatted.delete(0, 4);
+        	if (todayIs != null) {
+        		if (mWeekdayStyle == WEEKDAY_STYLE_GONE) {
+                    formatted.delete(result.indexOf(todayIs), result.lastIndexOf(todayIs)+todayIs.length());
                 } else {
                     if (mWeekdayStyle == WEEKDAY_STYLE_SMALL) {
                         CharacterStyle style = new RelativeSizeSpan(0.7f);
-                        formatted.setSpan(style, 0, 4, Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+                        formatted.setSpan(style, result.indexOf(todayIs), result.lastIndexOf(todayIs)+todayIs.length(),
+                                          Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
                     }
                 }
             }
@@ -218,31 +225,32 @@ public class Clock extends TextView {
      * pull the int given by DAY_OF_WEEK into a day string
      */
     private String whatDay(int today) {
-        String todayIs = null;
-        switch (today) {
-            case 1:
-                todayIs = "SUN ";
-                break;
-            case 2:
-                todayIs = "MON ";
-                break;
-            case 3:
-                todayIs = "TUE ";
-                break;
-            case 4:
-                todayIs = "WED ";
-                break;
-            case 5:
-                todayIs = "THU ";
-                break;
-            case 6:
-                todayIs = "FRI ";
-                break;
-            case 7:
-                todayIs = "SAT ";
-                break;
-        }
-        return todayIs;
+    	String todayIs = null;
+    	switch (today) {
+    	case 1:
+			todayIs = getResources().getString(R.string.day_of_week_medium_sunday);
+			break;
+		case 2:
+			todayIs = getResources().getString(R.string.day_of_week_medium_monday);
+			break;
+		case 3:
+			todayIs = getResources().getString(R.string.day_of_week_medium_tuesday);
+			break;
+		case 4:
+			todayIs = getResources().getString(R.string.day_of_week_medium_wednesday);
+			break;
+		case 5:
+			todayIs = getResources().getString(R.string.day_of_week_medium_thursday);
+			break;
+		case 6:
+			todayIs = getResources().getString(R.string.day_of_week_medium_friday);
+			break;
+		case 7:
+			todayIs = getResources().getString(R.string.day_of_week_medium_saturday);
+			break;
+    	}
+    		
+        return todayIs.toUpperCase() + " ";
     }
 
     protected class SettingsObserver extends ContentObserver {
