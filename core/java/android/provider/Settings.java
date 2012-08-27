@@ -2639,6 +2639,12 @@ public final class Settings {
         public static final String LOCKSCREEN_CALENDARS = "lockscreen_calendars";
 
         /**
+         * custom lockscreen text color
+         * @hide
+         */
+        public static final String LOCKSCREEN_CUSTOM_TEXT_COLOR = "lockscreen_custom_text_color";
+
+        /**
          * How far in the future to look for events
          * @hide
          */
