@@ -302,10 +302,10 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
 
         // next: profile - only shown if enabled, which is true by default
-        if (mEnableProfileChooser) {
-            Slog.e(TAG, "Adding ProfileChooser");
-            if (Settings.System.getInt(mContext.getContentResolver(),
+        if (Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.SYSTEM_PROFILES_ENABLED, 1) == 1) {
+            if (mEnableProfileChooser) {
+                Slog.e(TAG, "Adding ProfileChooser");
                 mItems.add(
                     new ProfileChooseAction() {
                         public void onPress() {
