@@ -3321,6 +3321,12 @@ public final class Settings {
             "navigation_bar_glow_duration_on"
         };
 
+        /**
+         * Holds the text for the Carrier Label. An empty string will bring
+         * the default text back.
+         * @hide
+         */
+        public static final String CUSTOM_CARRIER_LABEL = "custom_carrier_label";
     }
 
     /**
