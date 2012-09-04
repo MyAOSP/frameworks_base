@@ -2675,6 +2675,12 @@ public final class Settings {
         public static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
 
         /**
+         * Used to override the normal system UI based on user preference
+         * @hide
+         */
+        public static final String USE_TABLET_UI = "use_tablet_ui";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
@@ -2756,6 +2762,7 @@ public final class Settings {
             QUIET_HOURS_DIM,
             LOCKSCREEN_ALWAYS_SHOW_BATTERY,
             LOCKSCREEN_VIBRATE_ENABLED,
+            USE_TABLET_UI
         };
 
         // Settings moved to Settings.Secure
