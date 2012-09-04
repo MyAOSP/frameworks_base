@@ -432,4 +432,7 @@
     <string name="battery_test">99</string>
 
     <string name="powerwidget_screen_timeout_toast">Screen timeout set to: %1$d %2$s</string>
+
+    <string name="recents_kill_all_button_text">Kill all</string>
+
 </resources>
