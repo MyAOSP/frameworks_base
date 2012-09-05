@@ -930,4 +930,6 @@
     <!-- If true, adds support for no delay A2DP in Samsung devices -->
     <bool name="config_noDelayInATwoDP">false</bool>
 
+    <!-- Set to true for Tegra3 devices -->
+    <bool name="config_isTegra3">false</bool>
 </resources>
