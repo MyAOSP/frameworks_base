@@ -28,8 +28,10 @@
     android:id="@+id/root"
     android:clipChildren="false">
 
+    <Space android:layout_width="16dip" android:layout_rowSpan="7" />
+
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_marginTop="@dimen/keyguard_lockscreen_status_line_clockfont_top_margin"
         android:layout_marginBottom="@dimen/keyguard_lockscreen_status_line_clockfont_bottom_margin"
         android:layout_gravity="center">
@@ -106,9 +108,9 @@
     </LinearLayout>
 
     <include
-        layout="@layout/weather_panel_landscape"
+        layout="@layout/weather_panel"
         android:gravity="center"
-        android:layout_width="wrap_content"
+        android:layout_width="260dip"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:drawablePadding="4dip" />
@@ -117,10 +119,9 @@
 
     <TextView
         android:id="@+id/carrier"
-        android:layout_columnSpan="3"
         android:layout_gravity="fill_horizontal"
         android:layout_marginBottom="12dip"
-        android:gravity="right"
+        android:gravity="center"
         android:singleLine="true"
         android:ellipsize="marquee"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -132,7 +133,7 @@
         android:id="@+id/emergencyCallButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
+        android:layout_gravity="center"
         android:drawableLeft="@*android:drawable/lockscreen_emergency_button"
         android:text="@*android:string/lockscreen_emergency_call"
         style="?android:attr/buttonBarButtonStyle"
@@ -141,12 +142,12 @@
         />
 
     <!-- Column 1 -->
-    <Space android:layout_width="64dip" android:layout_rowSpan="7" />
+    <Space android:layout_width="16dip" android:layout_rowSpan="7" />
 
     <!-- Column 2 -->
     <com.android.internal.widget.multiwaveview.GlowPadView
         android:id="@+id/unlock_widget"
-        android:layout_width="200dip"
+        android:layout_width="300dip"
         android:layout_height="match_parent"
         android:layout_rowSpan="7"
         android:gravity="left|center_vertical"

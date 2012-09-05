@@ -28,28 +28,30 @@
     android:layout_height="match_parent"
     android:rowCount="7">
 
+    <Space android:layout_width="16dip" android:layout_rowSpan="7" />
+
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_marginTop="@dimen/keyguard_lockscreen_status_line_clockfont_top_margin"
         android:layout_marginBottom="@dimen/keyguard_lockscreen_status_line_clockfont_bottom_margin"
-        android:layout_gravity="center"
-        android:layout_marginRight="0dip">
+        android:layout_gravity="center">
 
         <TextView
             android:id="@+id/date"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="18dip"
-            android:singleLine="true"
-            android:ellipsize="marquee"
+            android:ellipsize="none"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textSize="16dip" />
 
         <com.android.internal.widget.DigitalClock
             android:id="@+id/time"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="6dip">
+            android:layout_height="wrap_content">
 
             <!-- Because we can't have multi-tone fonts, we render two TextViews, one on
             top of the other. Hence the redundant layout... -->
@@ -105,12 +107,20 @@
 
     </LinearLayout>
 
+    <include
+        layout="@layout/weather_panel"
+        android:gravity="center"
+        android:layout_width="260dip"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:drawablePadding="4dip" />
+
     <Space android:layout_gravity="fill" />
 
     <TextView android:id="@+id/carrier"
         android:layout_width="0dip"
         android:layout_gravity="fill_horizontal"
-        android:gravity="right"
+        android:gravity="center"
         android:singleLine="true"
         android:ellipsize="marquee"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -120,11 +130,11 @@
     <LinearLayout
         style="?android:attr/buttonBarStyle"
         android:orientation="vertical"
-        android:layout_gravity="right">
+        android:layout_gravity="center">
 
         <Button android:id="@+id/emergencyCallButton"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_gravity="right"
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="0dip"
             android:layout_weight="1"
@@ -136,7 +146,7 @@
 
         <Button android:id="@+id/forgotPatternButton"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_gravity="right"
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="0dip"
             android:layout_weight="1"
@@ -164,8 +174,8 @@
         layout="@layout/keyguard_transport_control"
         android:layout_row="0"
         android:layout_column="0"
-        android:layout_rowSpan="5"
-        android:layout_columnSpan="1"
+        android:layout_rowSpan="6"
+        android:layout_columnSpan="2"
         android:layout_gravity="fill"
         android:layout_width="0dip"
         android:layout_height="0dip"
@@ -176,7 +186,7 @@
         android:id="@+id/faceLockAreaView"
         android:visibility="invisible"
         android:layout_row="0"
-        android:layout_column="1"
+        android:layout_column="2"
         android:layout_rowSpan="7"
         android:layout_columnSpan="1"
         android:layout_gravity="fill"
