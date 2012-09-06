@@ -63,7 +63,6 @@ class NotificationWallpaper extends FrameLayout {
 
         } else {
             setBackgroundColor(0xFF000000);
-            setAlpha((int) (wallpaperAlpha * 255));
         }
     }
 
