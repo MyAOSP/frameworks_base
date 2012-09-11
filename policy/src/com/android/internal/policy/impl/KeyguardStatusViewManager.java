@@ -424,11 +424,22 @@ class KeyguardStatusViewManager implements OnClickListener {
                 Settings.System.WEATHER_SHOW_TIMESTAMP, 1) == 1;
         boolean invertLowhigh = Settings.System.getInt(resolver,
                 Settings.System.WEATHER_INVERT_LOWHIGH, 0) == 1;
+        boolean mWeatherFancy = Settings.System.getInt(resolver,
+                Settings.System.LOCKSCREEN_WEATHER_ICON_STYLE, 0) == 1;
+        boolean mWeatherWhiteHighres = Settings.System.getInt(resolver,
+                Settings.System.LOCKSCREEN_WEATHER_ICON_STYLE, 0) == 2;
 
         if (mWeatherPanel != null) {
             if (mWeatherImage != null) {
                 String conditionCode = w.condition_code;
-                String condition_filename = "weather_" + conditionCode;
+                String condition_filename;
+                if (mWeatherFancy) {
+                    condition_filename = "weather_fancy_" + conditionCode;
+                } else if (mWeatherWhiteHighres) {
+                    condition_filename = "weather_white_highres_" + conditionCode;
+                } else {
+                    condition_filename = "weather_" + conditionCode;
+                }
                 int resID = res.getIdentifier(condition_filename, "drawable",
                         "android");
 
@@ -1102,7 +1113,7 @@ class KeyguardStatusViewManager implements OnClickListener {
         ContentResolver resolver = getContext().getContentResolver();
         int color = Settings.System.getInt(resolver,
                 Settings.System.LOCKSCREEN_CUSTOM_TEXT_COLOR, COLOR_WHITE);
-         
+
         // carrier view
         try {
             mCarrierView.setTextColor(color);
@@ -1199,7 +1210,7 @@ class KeyguardStatusViewManager implements OnClickListener {
             if (DEBUG) ne.printStackTrace();
         }
 
-        
+
         // status view
         try {
             mStatus1View.setTextColor(color);

@@ -2584,6 +2584,14 @@ public final class Settings {
         public static final String LOCKSCREEN_WEATHER = "lockscreen_weather";
 
         /**
+         * Switch for lockscreen weather images
+         * 0 = stock white
+         * 1 = fancy icons
+         * @hide
+         */
+        public static final String LOCKSCREEN_WEATHER_ICON_STYLE = "lockscreen_weather_icon_style";
+
+        /**
          * Show the current weather location on the lock screen
          * @hide
          */
