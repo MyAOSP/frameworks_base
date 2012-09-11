@@ -1049,7 +1049,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 LayoutInflater inflater) {
             mContext = context;
             mNavbarVisible = Settings.System.getBoolean(mContext.getContentResolver(),
-                    Settings.System.NAVIGATION_BAR_SHOW, false);
+                    Settings.System.NAVIGATION_BAR_SHOW_NOW, false);
 
             View v = inflater.inflate(R.layout.global_actions_navbar_mode, parent, false);
 
@@ -1095,7 +1095,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             case 0 :
                 mNavbarVisible = !mNavbarVisible;
                 Settings.System.putBoolean(mContext.getContentResolver(),
-                        Settings.System.NAVIGATION_BAR_SHOW,
+                        Settings.System.NAVIGATION_BAR_SHOW_NOW,
                          mNavbarVisible );
                 v.setSelected(mNavbarVisible);
                 mHandler.sendEmptyMessage(MESSAGE_DISMISS);
