@@ -17,6 +17,7 @@
 package com.android.systemui.statusbar.policy;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -25,6 +26,9 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.database.ContentObserver;
+import android.os.Handler;
+import android.provider.Settings;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateFormat;
@@ -36,6 +40,8 @@ import android.text.style.StyleSpan;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
+
+import android.R.integer;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -58,6 +64,8 @@ public class ClockStock extends TextView {
     private static final int AM_PM_STYLE_GONE    = 2;
 
     private static final int AM_PM_STYLE = AM_PM_STYLE_GONE;
+
+    protected int mExpandedClockColor = R.color.holo_blue_light;
 
     public ClockStock(Context context) {
         this(context, null);
@@ -93,8 +101,9 @@ public class ClockStock extends TextView {
         // The time zone may have changed while the receiver wasn't registered, so update the Time
         mCalendar = Calendar.getInstance(TimeZone.getDefault());
 
-        // Make sure we update to the current time
-        updateClock();
+        // for clock color
+        SettingsObserver settingsObserver = new SettingsObserver(new Handler());
+        settingsObserver.observe();
     }
 
     @Override
@@ -200,9 +209,42 @@ public class ClockStock extends TextView {
                 return formatted;
             }
         }
- 
+
         return result;
 
     }
-}
 
+    protected class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System
+                    .getUriFor(Settings.System.STATUSBAR_EXPANDED_CLOCK_COLOR),
+                    false, this);
+            updateSettings();
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            updateSettings();
+        }
+    }
+
+    protected void updateSettings() {
+        ContentResolver resolver = mContext.getContentResolver();
+        int defaultColor = getResources().getColor(R.color.holo_blue_light);
+
+            mExpandedClockColor = Settings.System.getInt(resolver,
+                Settings.System.STATUSBAR_EXPANDED_CLOCK_COLOR, defaultColor);
+        if (mExpandedClockColor == Integer.MIN_VALUE) {
+                        // flag to reset the color
+            mExpandedClockColor = defaultColor;
+        }
+        setTextColor(mExpandedClockColor);
+
+        updateClock();
+        }
+}

@@ -3175,6 +3175,12 @@ public final class Settings {
         public static final String STATUSBAR_CLOCK_COLOR = "statusbar_clock_color";
 
         /**
+         * Statusbar clock colorpicker
+         * @hide
+         */
+        public static final String STATUSBAR_EXPANDED_CLOCK_COLOR = "statusbar_expanded_clock_color";
+
+        /**
          * @hide
          * Style of Battery
          * 0 - Icon Only
