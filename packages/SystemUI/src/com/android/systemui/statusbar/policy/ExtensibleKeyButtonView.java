@@ -34,6 +34,7 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
     final static String ACTION_POWER = "**power**";
     final static String ACTION_NOTIFICATIONS = "**notifications**";
     final static String ACTION_RECENTS = "**recents**";
+    final static String ACTION_IME = "**ime**";
     final static String ACTION_KILL = "**kill**";
     final static String ACTION_NULL = "**null**";
     final static String ACTION_WIDGETS = "**widgets**";
@@ -76,7 +77,7 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
             } else if (ClickAction.equals(ACTION_MENU)) {
                 setCode (KeyEvent.KEYCODE_MENU);
             } else if (ClickAction.equals(ACTION_POWER)) {
-                    setCode (KeyEvent.KEYCODE_POWER);
+                setCode (KeyEvent.KEYCODE_POWER);
             } else { // the remaining options need to be handled by OnClick;
                 setOnClickListener(mClickListener);
                 if (ClickAction.equals(ACTION_RECENTS))
@@ -157,6 +158,11 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
                 }
                 return;
 
+                } else if (mClickAction.equals(ACTION_IME)) {
+
+                        getContext().sendBroadcast(new Intent("android.settings.SHOW_INPUT_METHOD_PICKER"));
+                        return;
+
             } else if (mClickAction.equals(ACTION_KILL)) {
                 mHandler.postDelayed(mKillTask,ViewConfiguration.getGlobalActionKeyTimeout());
                 return;
@@ -215,6 +221,9 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
                 injectKeyDelayed(KeyEvent.KEYCODE_POWER);
                 return true;
 
+            } else if (mLongpress.equals(ACTION_IME)) {
+                getContext().sendBroadcast(new Intent("android.settings.SHOW_INPUT_METHOD_PICKER"));
+                return true;
             } else if (mLongpress.equals(ACTION_KILL)) {
                 mHandler.post(mKillTask);
                 return true;
