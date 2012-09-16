@@ -2697,7 +2697,7 @@ public final class Settings {
          * Used to override the normal system UI based on user preference
          * @hide
          */
-        public static final String USE_TABLET_UI = "use_tablet_ui";
+        public static final String FORCE_TABLET_UI = "use_tablet_ui";
 
         /**
          * Control the display of the action overflow button within app UI.
@@ -2789,7 +2789,7 @@ public final class Settings {
             QUIET_HOURS_DIM,
             LOCKSCREEN_ALWAYS_SHOW_BATTERY,
             LOCKSCREEN_VIBRATE_ENABLED,
-            USE_TABLET_UI
+            FORCE_TABLET_UI
         };
 
         // Settings moved to Settings.Secure
