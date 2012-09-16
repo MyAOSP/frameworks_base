@@ -53,7 +53,7 @@ public final class DateView extends TextView {
     private boolean mWindowVisible;
     private boolean mUpdating;
 
-    protected int mExpandedClockColor = com.android.internal.R.color.holo_blue_light;
+    protected int mExpandedClockColor = com.android.internal.R.color.white;
 
     private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
         @Override
@@ -111,7 +111,7 @@ public final class DateView extends TextView {
         final Context context = getContext();
         ContentResolver resolver = context.getContentResolver();
         int defaultColor = getResources().getColor(
-                com.android.internal.R.color.holo_blue_light);
+                com.android.internal.R.color.white);
         mExpandedClockColor = Settings.System.getInt(resolver,
                 Settings.System.STATUSBAR_EXPANDED_CLOCK_COLOR, defaultColor);
 

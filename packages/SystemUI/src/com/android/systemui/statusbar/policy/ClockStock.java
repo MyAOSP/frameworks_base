@@ -65,7 +65,7 @@ public class ClockStock extends TextView {
 
     private static final int AM_PM_STYLE = AM_PM_STYLE_GONE;
 
-    protected int mExpandedClockColor = R.color.holo_blue_light;
+    protected int mExpandedClockColor = R.color.white;
 
     public ClockStock(Context context) {
         this(context, null);
@@ -135,7 +135,7 @@ public class ClockStock extends TextView {
 
     private final void updateClock() {
             ContentResolver resolver = mContext.getContentResolver();
-        int defaultColor = getResources().getColor(R.color.holo_blue_light);
+        int defaultColor = getResources().getColor(R.color.white);
 
         mExpandedClockColor = Settings.System.getInt(resolver,
                 Settings.System.STATUSBAR_EXPANDED_CLOCK_COLOR, defaultColor);

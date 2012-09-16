@@ -447,7 +447,13 @@ class KeyguardStatusViewManager implements OnClickListener {
                 if (resID != 0) {
                     mWeatherImage.setImageDrawable(res.getDrawable(resID));
                 } else {
-                    mWeatherImage.setImageResource(R.drawable.weather_na);
+                    if (mWeatherFancy) {
+                        mWeatherImage.setImageResource(R.drawable.weather_fancy_na);
+                    } else if (mWeatherWhiteHighres) {
+                        mWeatherImage.setImageResource(R.drawable.weather_white_highres_na);
+                    } else {
+                        mWeatherImage.setImageResource(R.drawable.weather_na);
+                    }
                 }
             }
             if (mWeatherCity != null) {
