@@ -403,6 +403,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     int mLongPressOnPowerBehavior = -1;
     boolean mScreenOnEarly = false;
     boolean mScreenOnFully = false;
+    int mScreenOffReason;
     boolean mOrientationSensorEnabled = false;
     int mCurrentAppOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     boolean mHasSoftInput = false;
@@ -3825,8 +3826,22 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (keyCode == KeyEvent.KEYCODE_POWER) {
             policyFlags |= WindowManagerPolicy.FLAG_WAKE;
         }
-        final boolean isWakeKey = (policyFlags
-                & (WindowManagerPolicy.FLAG_WAKE | WindowManagerPolicy.FLAG_WAKE_DROPPED)) != 0;
+        boolean isWakeKey = (policyFlags
+                & (WindowManagerPolicy.FLAG_WAKE | WindowManagerPolicy.FLAG_WAKE_DROPPED)) != 0 ||
+                             ((keyCode == KeyEvent.KEYCODE_VOLUME_UP) && mVolumeWakeScreen) ||
+                             ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) && mVolumeWakeScreen);
+
+            // volume-wake: heed to proximity sensor
+            final boolean isOffByProx = (mScreenOffReason == WindowManagerPolicy.OFF_BECAUSE_OF_PROX_SENSOR);
+            if (isWakeKey && (!mVolumeWakeScreen || isOffByProx)
+                        && ((keyCode == KeyEvent.KEYCODE_VOLUME_UP) || (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN))) {
+                isWakeKey = false;
+            }
+
+            // music is playing, don't wake the screen in case we need to skip track
+            if (isMusicActive() && mVolBtnMusicControls && mVolumeWakeScreen && isWakeKey
+                        && ((keyCode == KeyEvent.KEYCODE_VOLUME_UP) || (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)))
+                isWakeKey = false;
 
         // Basic policy based on screen state and keyguard.
         // FIXME: This policy isn't quite correct.  We shouldn't care whether the screen
@@ -3846,10 +3861,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             result = 0;
             if (down && isWakeKey) {
                 if (keyguardActive) {
-                    // If the keyguard is showing, let it decide what to do with the wake key.
-                    mKeyguardMediator.onWakeKeyWhenKeyguardShowingTq(keyCode,
-                            mDockMode != Intent.EXTRA_DOCK_STATE_UNDOCKED);
-                } else if ((keyCode != KeyEvent.KEYCODE_VOLUME_UP) && (keyCode != KeyEvent.KEYCODE_VOLUME_DOWN)) {
+                    // send power key code to wake the screen
+                    if((keyCode == KeyEvent.KEYCODE_VOLUME_UP) || (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) && isWakeKey) {
+                        mKeyguardMediator.onWakeKeyWhenKeyguardShowingTq(KeyEvent.KEYCODE_POWER,
+                                mDockMode != Intent.EXTRA_DOCK_STATE_UNDOCKED);
+                    } else {
+                        // If the keyguard is showing, let it decide what to do with the wake key.
+                        mKeyguardMediator.onWakeKeyWhenKeyguardShowingTq(keyCode,
+                                mDockMode != Intent.EXTRA_DOCK_STATE_UNDOCKED);
+                    }
+                } else {
                     // Otherwise, wake the device ourselves.
                     result |= ACTION_POKE_USER_ACTIVITY;
                 }
@@ -3890,6 +3911,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             case KeyEvent.KEYCODE_VOLUME_DOWN:
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_MUTE: {
+                if (mVolBtnMusicControls && !down) {
+                    handleVolumeLongPressAbort();
+
+                    // delay handling volume events if mVolBtnMusicControls is desired
+                    if (!mIsLongPress && (result & ACTION_PASS_TO_USER) == 0)
+                        handleVolumeKey(AudioManager.STREAM_MUSIC, keyCode);
+                }
                 if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
                     if (down) {
                         if (isScreenOn && !mVolumeDownKeyTriggered
@@ -3957,39 +3985,25 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             Log.w(TAG, "ITelephony threw RemoteException", ex);
                         }
                     }
-                }
-                if (isMusicActive() && (result & ACTION_PASS_TO_USER) == 0) {
-                    if (mVolBtnMusicControls && down && (keyCode != KeyEvent.KEYCODE_VOLUME_MUTE)) {
-                        mIsLongPress = false;
-                        int newKeyCode = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ?
-                                KeyEvent.KEYCODE_MEDIA_NEXT : KeyEvent.KEYCODE_MEDIA_PREVIOUS;
-                        Message msg = mHandler.obtainMessage(MSG_DISPATCH_VOLKEY_WITH_WAKE_LOCK,
-                                new KeyEvent(event.getDownTime(), event.getEventTime(), event.getAction(), newKeyCode, 0));
-                        msg.setAsynchronous(true);
-                        mHandler.sendMessageDelayed(msg, ViewConfiguration.getLongPressTimeout());
-                        break;
-                    } else {
-                        if (mVolBtnMusicControls && !down) {
-                            mHandler.removeMessages(MSG_DISPATCH_VOLKEY_WITH_WAKE_LOCK);
-                            if (mIsLongPress) {
-                                break;
-                            }
-                        }
-                        if (!isScreenOn && !mVolumeWakeScreen) {
+
+                    if (isMusicActive() && (result & ACTION_PASS_TO_USER) == 0) {
+                        // Care for long-press actions to skip tracks
+                        if (mVolBtnMusicControls) {
+                            // initialize long press flag to false for volume events
+                            mIsLongPress = false;
+
+                            // if the button is held long enough, the following
+                            // procedure will set mIsLongPress=true
+                            handleVolumeLongPress(keyCode);
+                        } else {
+                            // If music is playing but we decided not to pass the key to the
+                            // application, handle the volume change here.
                             handleVolumeKey(AudioManager.STREAM_MUSIC, keyCode);
                         }
+                        break;
                     }
                 }
-                if (isScreenOn || !mVolumeWakeScreen) {
-                    break;
-                } else if (keyguardActive) {
-                    keyCode = KeyEvent.KEYCODE_POWER;
-                    mKeyguardMediator.onWakeKeyWhenKeyguardShowingTq(keyCode,
-                            mDockMode != Intent.EXTRA_DOCK_STATE_UNDOCKED);
-                } else {
-                    result |= ACTION_POKE_USER_ACTIVITY;
-                    break;
-                }
+                break;
             }
 
             case KeyEvent.KEYCODE_POWER: {
