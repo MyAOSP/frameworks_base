@@ -2572,6 +2572,12 @@ public final class Settings {
         public static final String QUIET_HOURS_DIM = "quiet_hours_dim";
 
         /**
+         * Sets the alpha (transparency) of lockscreen wallpaper
+         * @hide
+         */
+        public static final String LOCKSCREEN_WALLPAPER_ALPHA = "lockscreen_wallpaper_alpha";
+
+        /**
          * Sets the lockscreen background style
          * @hide
          */

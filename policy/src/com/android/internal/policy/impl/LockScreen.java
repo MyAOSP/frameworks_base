@@ -21,6 +21,7 @@ import android.app.ActivityManagerNative;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -28,7 +29,9 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.content.res.Resources.NotFoundException;
+import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -37,6 +40,7 @@ import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.media.AudioManager;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.os.Vibrator;
 import android.provider.MediaStore;
@@ -55,6 +59,7 @@ import com.android.internal.R;
 import com.android.internal.policy.impl.KeyguardUpdateMonitor.InfoCallbackImpl;
 import com.android.internal.policy.impl.KeyguardUpdateMonitor.SimStateCallback;
 import com.android.internal.telephony.IccCard.State;
+import com.android.internal.widget.DigitalClock;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.internal.widget.SlidingTab;
 import com.android.internal.widget.WaveView;
@@ -74,6 +79,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
 
     private static final int ON_RESUME_PING_DELAY = 500; // delay first ping until the screen is on
     private static final boolean DBG = false;
+    private static final boolean DEBUG = DBG;
     private static final String TAG = "LockScreen";
     private static final String ENABLE_MENU_KEY_FILE = "/data/local/enable_menu_key";
     private static final int WAIT_FOR_ANIMATION_TIMEOUT = 0;
@@ -81,9 +87,11 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
     private static final String ASSIST_ICON_METADATA_NAME =
             "com.android.systemui.action_assist_icon";
 
+   private static final int COLOR_WHITE = 0xFFFFFFFF;
     private LockPatternUtils mLockPatternUtils;
     private KeyguardUpdateMonitor mUpdateMonitor;
     private KeyguardScreenCallback mCallback;
+    private SettingsObserver mSettingsObserver;
 
     // set to 'true' to show the ring/silence target when camera isn't available
     private boolean mEnableRingSilenceFallback = false;
@@ -102,6 +110,8 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
     private boolean mSearchDisabled;
     // Is there a vibrator
     private final boolean mHasVibrator;
+
+    private DigitalClock mDigitalClock;
 
     InfoCallbackImpl mInfoCallback = new InfoCallbackImpl() {
 
@@ -491,8 +501,13 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                     target -= 1 + mTargetOffset;
                     if (target < mStoredTargets.length && mStoredTargets[target] != null) {
                         try {
-                            launchActivity(Intent.parseUri(mStoredTargets[target], 0));
+                            Intent tIntent = Intent.parseUri(mStoredTargets[target], 0);
+                            tIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            mContext.startActivity(tIntent);
+                            mCallback.goToUnlockScreen();
+                            return;
                         } catch (URISyntaxException e) {
+                        } catch (ActivityNotFoundException e) {
                         }
                     }
                 }
@@ -591,7 +606,8 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         final boolean configDisabled = res.getBoolean(R.bool.config_disableMenuKeyInLockScreen);
         final boolean isTestHarness = ActivityManager.isRunningInTestHarness();
         final boolean fileOverride = (new File(ENABLE_MENU_KEY_FILE)).exists();
-        final boolean menuOverride = Settings.System.getInt(getContext().getContentResolver(), Settings.System.MENU_UNLOCK_SCREEN, 0) == 1;
+        final boolean menuOverride = Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.MENU_UNLOCK_SCREEN, 0) == 1;
         return !configDisabled || isTestHarness || fileOverride || menuOverride;
     }
 
@@ -642,6 +658,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
         mSilentMode = isSilentMode();
         mUnlockWidget = findViewById(R.id.unlock_widget);
         mUnlockWidgetMethods = createUnlockMethods(mUnlockWidget);
+        updateSettings();
 
         if (DBG) Log.v(TAG, "*** LockScreen accel is "
                 + (mUnlockWidget.isHardwareAccelerated() ? "on":"off"));
@@ -697,10 +714,10 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
     }
 
     public static void setBackground(Context context, ViewGroup layout) {
-        final String WALLPAPER_IMAGE_PATH = "/data/data/com.baked.romcontrol/files/lockwallpaper.jpg";
-        File file = new File(WALLPAPER_IMAGE_PATH);
-
-        String lockBack = Settings.System.getString(context.getContentResolver(), Settings.System.LOCKSCREEN_BACKGROUND);
+        float wallpaperAlpha = Settings.System.getFloat(context
+                .getContentResolver(), Settings.System.LOCKSCREEN_WALLPAPER_ALPHA, 1.0f);
+        String lockBack = Settings.System.getString(context.getContentResolver(),
+                Settings.System.LOCKSCREEN_BACKGROUND);
         if (lockBack != null) {
             if (!lockBack.isEmpty()) {
                 try {
@@ -708,27 +725,35 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
                 } catch(NumberFormatException e) {
                     e.printStackTrace();
                 }
-            }
-        } else if (file.exists()) {
-            ViewParent parent =  layout.getParent();
-            if (parent != null) {
-                //change parent to show background correctly on scale
-                RelativeLayout rlout = new RelativeLayout(context);
-                ((ViewGroup) parent).removeView(layout);
-                layout.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                ((ViewGroup) parent).addView(rlout); // change parent to new layout
-                rlout.addView(layout);
-                // create framelayout and add imageview to set background
-                FrameLayout flayout = new FrameLayout(context);
-                flayout.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                ImageView mLockScreenWallpaperImage = new ImageView(flayout.getContext());
-                mLockScreenWallpaperImage.setScaleType(ScaleType.CENTER_CROP);
-                flayout.addView(mLockScreenWallpaperImage, -1, -1);
-                Bitmap background = BitmapFactory.decodeFile(WALLPAPER_IMAGE_PATH);
-                Drawable d = new BitmapDrawable(context.getResources(), background);
-                mLockScreenWallpaperImage.setImageDrawable(d);
-                // add background to lock screen.
-                rlout.addView(flayout,0);
+            } else {
+                try {
+                    ViewParent parent =  layout.getParent();
+                    if (parent != null) {
+                        //change parent to show background correctly on scale
+                        RelativeLayout rlout = new RelativeLayout(context);
+                        ((ViewGroup) parent).removeView(layout);
+                        layout.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT));
+                        ((ViewGroup) parent).addView(rlout); // change parent to new layout
+                        rlout.addView(layout);
+                        // create framelayout and add imageview to set background
+                        FrameLayout flayout = new FrameLayout(context);
+                        flayout.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT));
+                        ImageView mLockScreenWallpaperImage = new ImageView(flayout.getContext());
+                        mLockScreenWallpaperImage.setScaleType(ScaleType.CENTER_CROP);
+                        flayout.addView(mLockScreenWallpaperImage, -1, -1);
+                        Context settingsContext = context.createPackageContext("com.baked.romcontrol", 0);
+                        String wallpaperFile = settingsContext.getFilesDir() + "/lockwallpaper";
+                        Bitmap background = BitmapFactory.decodeFile(wallpaperFile);
+                        Drawable d = new BitmapDrawable(context.getResources(), background);
+                        d.setAlpha((int) (wallpaperAlpha * 255));
+                        mLockScreenWallpaperImage.setImageDrawable(d);
+                        // add background to lock screen.
+                        rlout.addView(flayout,0);
+                    }
+                } catch (NameNotFoundException e) {
+                }
             }
         }
     }
@@ -808,15 +833,63 @@ class LockScreen extends LinearLayout implements KeyguardScreen {
 
         mStatusViewManager.onResume();
         postDelayed(mOnResumePing, ON_RESUME_PING_DELAY);
+        // update the settings when we resume
+        if (DEBUG) Log.d(TAG, "We are resuming and want to update settings");
+        updateSettings();
     }
 
     /** {@inheritDoc} */
     public void cleanUp() {
         mUpdateMonitor.removeCallback(mInfoCallback); // this must be first
         mUpdateMonitor.removeCallback(mSimStateCallback);
+        mSettingsObserver = null;
         mUnlockWidgetMethods.cleanUp();
         mLockPatternUtils = null;
         mUpdateMonitor = null;
         mCallback = null;
+    }
+
+    public void onPhoneStateChanged(String newState) {
+    }
+
+    class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.LOCKSCREEN_CUSTOM_TEXT_COLOR), false,
+                    this);
+            updateSettings();
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            updateSettings();
+        }
+    }
+
+    private void updateSettings() {
+        if (DEBUG) Log.d(TAG, "Settings for lockscreen have changed lets update");
+        ContentResolver resolver = mContext.getContentResolver();
+
+        int mLockscreenColor = Settings.System.getInt(resolver,
+                Settings.System.LOCKSCREEN_CUSTOM_TEXT_COLOR, COLOR_WHITE);
+
+        // digital clock first (see @link com.android.internal.widget.DigitalClock.updateTime())
+        try {
+            mDigitalClock.updateTime();
+        } catch (NullPointerException npe) {
+            if (DEBUG) Log.d(TAG, "date update time failed: NullPointerException");
+        }
+
+        // then the rest (see @link com.android.internal.policy.impl.KeyguardStatusViewManager.updateColors())
+        try {
+            mStatusViewManager.updateColors();
+        } catch (NullPointerException npe) {
+            if (DEBUG) Log.d(TAG, "KeyguardStatusViewManager.updateColors() failed: NullPointerException");
+        }
     }
 }

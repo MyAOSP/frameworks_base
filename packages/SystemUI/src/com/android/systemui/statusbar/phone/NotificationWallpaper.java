@@ -3,8 +3,9 @@ package com.android.systemui.statusbar.phone;
 import java.io.File;
 import java.io.IOException;
 
-
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -22,24 +23,21 @@ class NotificationWallpaper extends FrameLayout {
 
     private final String TAG = "NotificationWallpaperUpdater";
 
-    private final String NOTIF_WALLPAPER_IMAGE_PATH = "/data/data/com.baked.romcontrol/files/notification_wallpaper.jpg";
-
     private ImageView mNotificationWallpaperImage;
-
-    Bitmap bitmapWallpaper;
+    private Bitmap bitmapWallpaper;
+    private Context mContext;
 
     float wallpaperAlpha = Settings.System.getFloat(getContext()
             .getContentResolver(), Settings.System.NOTIF_WALLPAPER_ALPHA, 1.0f);
 
     public NotificationWallpaper(Context context, AttributeSet attrs) {
         super(context);
+        mContext = context;
 
         setNotificationBackground();
     }
 
     public void setNotificationBackground() {
-        File file = new File(NOTIF_WALLPAPER_IMAGE_PATH);
-
         String notifBack = Settings.System.getString(getContext().
                 getContentResolver(), Settings.System.NOTIF_BACKGROUND);
 
@@ -50,17 +48,20 @@ class NotificationWallpaper extends FrameLayout {
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
                 }
+            } else {
+                try {
+                    mNotificationWallpaperImage = new ImageView(getContext());
+                    mNotificationWallpaperImage.setScaleType(ScaleType.CENTER_CROP);
+                    addView(mNotificationWallpaperImage, -1, -1);
+                    Context settingsContext = mContext.createPackageContext("com.baked.romcontrol", 0);
+                    String wallpaperFile = settingsContext.getFilesDir() + "/notifwallpaper";
+                    bitmapWallpaper = BitmapFactory.decodeFile(wallpaperFile);
+                    Drawable d = new BitmapDrawable(getResources(), bitmapWallpaper);
+                    d.setAlpha((int) (wallpaperAlpha * 255));
+                    mNotificationWallpaperImage.setImageDrawable(d);
+                } catch (NameNotFoundException e) {
+                }
             }
-
-        } else if (file.exists()) {
-            mNotificationWallpaperImage = new ImageView(getContext());
-            mNotificationWallpaperImage.setScaleType(ScaleType.CENTER_CROP);
-            addView(mNotificationWallpaperImage, -1, -1);
-            bitmapWallpaper = BitmapFactory.decodeFile(NOTIF_WALLPAPER_IMAGE_PATH);
-            Drawable d = new BitmapDrawable(getResources(), bitmapWallpaper);
-            d.setAlpha((int) (wallpaperAlpha * 255));
-            mNotificationWallpaperImage.setImageDrawable(d);
-
         } else {
             setBackgroundColor(0xFF000000);
         }
