@@ -3236,6 +3236,12 @@ public final class Settings {
         public static final String STATUSBAR_TOGGLES_ALPHA = "statusbar_toggles_alpha";
 
         /**
+         * Statusbar background color/alpha chooser
+         * @hide
+         */
+        public static final String STATUSBAR_BACKGROUND_COLOR = "statusbar_background_color";
+
+        /**
          * @hide
          * AM/PM Style for clock options
          * 0 - Normal AM/PM
