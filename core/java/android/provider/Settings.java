@@ -2478,6 +2478,12 @@ public final class Settings {
         */
         public static final String EXPANDED_FLASH_MODE = "expanded_flash_mode";
 
+         /**
+         * Statusbar State
+         * @hide
+         */
+        public static final String EXPANDED_DESKTOP_STATE = "expanded_desktop_state";
+
         /**
          * Whether to use a separate delay for "slide to unlock" and security
          * lock
@@ -3116,6 +3122,12 @@ public final class Settings {
          * @hide
          */
         public static final String POWER_DIALOG_SHOW_AIRPLANE_TOGGLE = "power_dialog_show_airplane_toggle";
+
+        /**
+         * Whether power menu expanded desktop is enabled
+         * @hide
+         */
+         public static final String POWER_DIALOG_SHOW_EXPANDED_DESKTOP_TOGGLE = "power_dialog_show_expanded_desktop_toggle";
 
         /**
          * @hide
