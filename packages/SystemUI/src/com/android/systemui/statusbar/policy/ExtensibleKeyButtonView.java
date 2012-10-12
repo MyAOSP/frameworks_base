@@ -5,10 +5,15 @@ import java.net.URISyntaxException;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.hardware.input.InputManager;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
@@ -21,7 +26,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 
 import com.android.internal.statusbar.IStatusBarService;
-import com.android.systemui.statusbar.phone.NavigationBarView;
 import com.android.systemui.statusbar.policy.KeyButtonView;
 import com.android.systemui.R;
 
@@ -31,6 +35,7 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
     final static String ACTION_HOME = "**home**";
     final static String ACTION_BACK = "**back**";
     final static String ACTION_SEARCH = "**search**";
+    final static String ACTION_SCREENSHOT = "**screenshot**";
     final static String ACTION_MENU = "**menu**";
     final static String ACTION_POWER = "**power**";
     final static String ACTION_NOTIFICATIONS = "**notifications**";
@@ -164,9 +169,14 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
                         getContext().sendBroadcast(new Intent("android.settings.SHOW_INPUT_METHOD_PICKER"));
                         return;
 
-            } else if (mClickAction.equals(ACTION_KILL)) {
-                mHandler.postDelayed(mKillTask,ViewConfiguration.getGlobalActionKeyTimeout());
+            } else if (mClickAction.equals(ACTION_SCREENSHOT)) {
+                takeScreenshot();
                 return;
+
+        	} else if (mClickAction.equals(ACTION_KILL)) {
+
+        		mHandler.postDelayed(mKillTask,ViewConfiguration.getGlobalActionKeyTimeout());
+        		return;
 
             } else if (mClickAction.equals(ACTION_WIDGETS)) {
         		Intent toggleWidgets = new Intent(
@@ -194,40 +204,35 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
         public boolean onLongClick(View v) {
             if (mLongpress == null) {
                 return true;
-            }
-
-            if (mLongpress.equals(ACTION_NULL)) {
-                // attempt to keep long press functionality of 'keys' if
-                // they haven't been overridden.
+        	}
+        	if (mLongpress.equals(ACTION_NULL)) {
+        		// attempt to keep long press functionality of 'keys' if
+        		// they haven't been overridden.
                 return true;
-
-            } else if (mLongpress.equals(ACTION_HOME)) {
-                injectKeyDelayed(KeyEvent.KEYCODE_HOME);
+        	} else if (mLongpress.equals(ACTION_HOME)) {
+        		injectKeyDelayed(KeyEvent.KEYCODE_HOME);
+        		return true;
+        	} else if (mLongpress.equals(ACTION_BACK)) {
+        		injectKeyDelayed(KeyEvent.KEYCODE_BACK);
+        		return true;
+        	} else if (mLongpress.equals(ACTION_SEARCH)) {
+        		injectKeyDelayed(KeyEvent.KEYCODE_SEARCH);
+        		return true;
+        	} else if (mLongpress.equals(ACTION_MENU)) {
+        		injectKeyDelayed(KeyEvent.KEYCODE_MENU);
+        		return true;
+        	} else if (mLongpress.equals(ACTION_POWER)) {
+        		injectKeyDelayed(KeyEvent.KEYCODE_POWER);
+        		return true;
+                } else if (mLongpress.equals(ACTION_IME)) {
+                        getContext().sendBroadcast(new Intent("android.settings.SHOW_INPUT_METHOD_PICKER"));
+                        return true;
+            } else if (mLongpress.equals(ACTION_SCREENSHOT)) {
+                takeScreenshot();
                 return true;
-
-            } else if (mLongpress.equals(ACTION_BACK)) {
-                injectKeyDelayed(KeyEvent.KEYCODE_BACK);
-                return true;
-
-            } else if (mLongpress.equals(ACTION_SEARCH)) {
-                injectKeyDelayed(KeyEvent.KEYCODE_SEARCH);
-                return true;
-
-            } else if (mLongpress.equals(ACTION_MENU)) {
-                injectKeyDelayed(KeyEvent.KEYCODE_MENU);
-                return true;
-
-            } else if (mLongpress.equals(ACTION_POWER)) {
-                injectKeyDelayed(KeyEvent.KEYCODE_POWER);
-                return true;
-
-            } else if (mLongpress.equals(ACTION_IME)) {
-                getContext().sendBroadcast(new Intent("android.settings.SHOW_INPUT_METHOD_PICKER"));
-                return true;
-            } else if (mLongpress.equals(ACTION_KILL)) {
-                mHandler.post(mKillTask);
-                return true;
-
+        	} else if (mLongpress.equals(ACTION_KILL)) {
+        		mHandler.post(mKillTask);
+        		return true;
             } else if (mLongpress.equals(ACTION_WIDGETS)) {
                 Intent toggleWidgets = new Intent(
                         NavigationBarView.WidgetReceiver.ACTION_TOGGLE_WIDGETS);
@@ -265,4 +270,96 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
         }
     };
 
+    /**
+     * functions needed for taking screenhots. This leverages the built in ICS
+     * screenshot functionality
+     */
+    final Object mScreenshotLock = new Object();
+    ServiceConnection mScreenshotConnection = null;
+
+    final Runnable mScreenshotTimeout = new Runnable() {
+        @Override
+        public void run() {
+            synchronized (mScreenshotLock) {
+                if (mScreenshotConnection != null) {
+                    mContext.unbindService(mScreenshotConnection);
+                    mScreenshotConnection = null;
+                }
+            }
+        }
+    };
+
+    private void takeScreenshot() {
+        synchronized (mScreenshotLock) {
+            if (mScreenshotConnection != null) {
+                return;
+            }
+            ComponentName cn = new ComponentName("com.android.systemui",
+                    "com.android.systemui.screenshot.TakeScreenshotService");
+            Intent intent = new Intent();
+            intent.setComponent(cn);
+            ServiceConnection conn = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    synchronized (mScreenshotLock) {
+                        if (mScreenshotConnection != this) {
+                            return;
+                        }
+                        Messenger messenger = new Messenger(service);
+                        Message msg = Message.obtain(null, 1);
+                        final ServiceConnection myConn = this;
+                        Handler h = new Handler(H.getLooper()) {
+                            @Override
+                            public void handleMessage(Message msg) {
+                                synchronized (mScreenshotLock) {
+                                    if (mScreenshotConnection == myConn) {
+                                        mContext.unbindService(mScreenshotConnection);
+                                        mScreenshotConnection = null;
+                                        H.removeCallbacks(mScreenshotTimeout);
+                                    }
+                                }
+                            }
+                        };
+                        msg.replyTo = new Messenger(h);
+                        msg.arg1 = msg.arg2 = 0;
+
+                        /*
+                         * remove for the time being if (mStatusBar != null &&
+                         * mStatusBar.isVisibleLw()) msg.arg1 = 1; if
+                         * (mNavigationBar != null &&
+                         * mNavigationBar.isVisibleLw()) msg.arg2 = 1;
+                         */
+
+                        /* wait for the dialog box to close */
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ie) {
+                        }
+
+                        /* take the screenshot */
+                        try {
+                            messenger.send(msg);
+                        } catch (RemoteException e) {
+                        }
+                    }
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                }
+            };
+            if (mContext.bindService(intent, conn, Context.BIND_AUTO_CREATE)) {
+                mScreenshotConnection = conn;
+                H.postDelayed(mScreenshotTimeout, 10000);
+            }
+        }
+    }
+    private Handler H = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+
+            }
+        }
+    };
 }
+
