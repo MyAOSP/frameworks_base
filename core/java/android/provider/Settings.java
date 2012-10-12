@@ -1653,6 +1653,12 @@ public final class Settings {
         public static final String MODE_VOLUME_OVERLAY = "mode_volume_overlay";
 
         /**
+         * If checked hide extra system bar stuff
+         * ie compatmode button and extra ime switcher.
+         */
+        public static final String HIDE_EXTRAS_SYSTEM_BAR = "hide_extras_system_bar";
+
+        /**
          * Ringer mode. This is used internally, changing this value will not
          * change the ringer mode. See AudioManager.
          */

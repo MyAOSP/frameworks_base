@@ -1389,11 +1389,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // 720dp: "tablet" UI with a single combined status & navigation bar
             mHasSystemNavBar = true;
             mNavigationBarCanMove = false;
-
-            if (!mForceTabletUI) {
-                Settings.System.putInt(mContext.getContentResolver(),
+            Settings.System.putInt(mContext.getContentResolver(),
                     Settings.System.TABLET_UI, 1);
-            }
         }
 
         if (!mHasSystemNavBar) {
