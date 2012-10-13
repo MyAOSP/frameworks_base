@@ -949,9 +949,14 @@ public class RIL extends BaseCommands implements CommandsInterface {
 
         boolean oldRil = needsOldRilFeature("skipnullaid");
 
-        if (aid != null || !oldRil) {
-            rr.mp.writeInt(1);
-            rr.mp.writeString(aid);
+        if (oldRil) {
+                if (aid != null) {
+                        rr.mp.writeInt(1);
+                        rr.mp.writeString(aid);
+                }
+        } else {
+                rr.mp.writeInt(1);
+                rr.mp.writeString(aid);
         }
 
         if (RILJ_LOGD) riljLog(rr.serialString() +

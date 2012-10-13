@@ -100,7 +100,7 @@ public class NavigationBarView extends LinearLayout {
     int mNavigationIconHints = 0;
 
     private Drawable mBackIcon, mBackLandIcon, mBackAltIcon, mBackAltLandIcon;
-    
+
     private DelegateViewHelper mDelegateHelper;
 
     // workaround for LayoutTransitions leaving the nav buttons in a weird state (bug 5549288)
@@ -121,7 +121,7 @@ public class NavigationBarView extends LinearLayout {
     final static String ACTION_NULL = "**null**";
 
     int mNumberOfButtons = 3;
-    
+
     /* 0 = Phone UI
      * 1 = Tablet UI
      * 2 = Phablet UI
@@ -142,7 +142,7 @@ public class NavigationBarView extends LinearLayout {
     };
     FrameLayout rot0;
     FrameLayout rot90;
-    
+
     //Definitions for NavBar Menu button customization
     public final static int SHOW_LEFT_MENU = 1;
     public final static int SHOW_RIGHT_MENU = 0;
@@ -169,7 +169,7 @@ public class NavigationBarView extends LinearLayout {
     WidgetPagerAdapter mAdapter;
     int widgetIds[];
     boolean showing = false;
-    
+
     private class H extends Handler {
         public void handleMessage(Message m) {
             switch (m.what) {
@@ -215,7 +215,7 @@ public class NavigationBarView extends LinearLayout {
     }
 
     private H mHandler = new H();
-    
+
     public View getLeftMenuButton() {
         return mCurrentView.findViewById(R.id.menu_left);
     }
@@ -293,9 +293,9 @@ public class NavigationBarView extends LinearLayout {
                 v.setTag((landscape ? "key_land_" : "key_") + j);
                 addButton(navButtonLayout, v, landscape);
                 addLightsOutButton(lightsOut, v, landscape, false);
-                
+
                 if (v.getId() == R.id.back){
-                	mBackIcon = mBackLandIcon = v.getDrawable();
+                        mBackIcon = mBackLandIcon = v.getDrawable();
                 }
                 if (v.getId() == R.id.menu){
                     mHasBigMenuButton = true;
@@ -326,7 +326,7 @@ public class NavigationBarView extends LinearLayout {
         }
         createWidgetView();
     }
-    
+
     private void addLightsOutButton(LinearLayout root, View v, boolean landscape, boolean empty) {
 
         ImageView addMe = new ImageView(mContext);
@@ -349,23 +349,24 @@ public class NavigationBarView extends LinearLayout {
         else
             root.addView(addMe);
     }
-    
+
     private View generateKey(boolean landscape, int keyId) {
         KeyButtonView v = null;
         Resources r = getResources();
 
-        int btnWidth = 80;
+        int btnWidth = 60;
 
         switch (keyId) {
 
             case KEY_MENU_RIGHT:
                 v = new KeyButtonView(mContext, null);
-                v.setLayoutParams(getLayoutParams(landscape, (mTablet_UI == 1) ? 80 : 40));
+                v.setLayoutParams(getLayoutParams(landscape, (mTablet_UI == 1) ? 60 : 40));
 
                 v.setId(R.id.menu);
                 v.setCode(KeyEvent.KEYCODE_MENU);
                 if (mTablet_UI == 1) {
-                    v.setImageResource(R.drawable.ic_sysbar_menu_big);
+                    v.setImageResource(landscape ? R.drawable.ic_sysbar_menu_land
+                        : R.drawable.ic_sysbar_menu);
                     v.setVisibility(View.GONE);
                 } else {
                     v.setImageResource(landscape ? R.drawable.ic_sysbar_menu_land
@@ -379,12 +380,13 @@ public class NavigationBarView extends LinearLayout {
 
             case KEY_MENU_LEFT:
                 v = new KeyButtonView(mContext, null);
-                v.setLayoutParams(getLayoutParams(landscape, (mTablet_UI == 1) ? 80 : 40));
+                v.setLayoutParams(getLayoutParams(landscape, (mTablet_UI == 1) ? 60 : 40));
 
                 v.setId(R.id.menu_left);
                 v.setCode(KeyEvent.KEYCODE_MENU);
                 if (mTablet_UI == 1) {
-                    v.setImageResource(R.drawable.ic_sysbar_menu_big);
+                    v.setImageResource(landscape ? R.drawable.ic_sysbar_menu_land
+                        : R.drawable.ic_sysbar_menu);
                     v.setVisibility(View.GONE);
                 } else {
                     v.setImageResource(landscape ? R.drawable.ic_sysbar_menu_land
@@ -400,7 +402,7 @@ public class NavigationBarView extends LinearLayout {
 
         return null;
     }
-    
+
     private ExtensibleKeyButtonView generateKey(boolean landscape, String clickAction,
             String longpress,
             String iconUri) {
@@ -455,7 +457,7 @@ public class NavigationBarView extends LinearLayout {
                 : R.drawable.ic_sysbar_highlight);
         return v;
     }
-    
+
     private int[] getAppIconPadding() {
         int[] padding = new int[4];
         // left
@@ -474,7 +476,7 @@ public class NavigationBarView extends LinearLayout {
         return padding;
     }
 
-    
+
     private LayoutParams getLayoutParams(boolean landscape, float dp) {
         float px = dp * getResources().getDisplayMetrics().density;
         return landscape ?
@@ -488,7 +490,7 @@ public class NavigationBarView extends LinearLayout {
                 new LayoutParams(LayoutParams.MATCH_PARENT, (int) px) :
                 new LayoutParams((int) px, LayoutParams.MATCH_PARENT);
     }
-    
+
     View.OnTouchListener mLightsOutListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent ev) {
@@ -523,20 +525,20 @@ public class NavigationBarView extends LinearLayout {
         mNavigationIconHints = hints;
         // We can't gaurantee users will set these buttons as targets
         if (getBackButton() != null) {
-        	getBackButton().setAlpha(
-        			(0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_NOP)) ? 0.5f : 1.0f);
+                getBackButton().setAlpha(
+                                (0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_NOP)) ? 0.5f : 1.0f);
             ((ImageView)getBackButton()).setImageDrawable(
                     (0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_ALT))
                     ? (mVertical ? mBackAltLandIcon : mBackAltIcon)
                     : (mVertical ? mBackLandIcon : mBackIcon));
         }
         if (getHomeButton()!=null) {
-        	getHomeButton().setAlpha(
-        			(0 != (hints & StatusBarManager.NAVIGATION_HINT_HOME_NOP)) ? 0.5f : 1.0f);
+                getHomeButton().setAlpha(
+                                (0 != (hints & StatusBarManager.NAVIGATION_HINT_HOME_NOP)) ? 0.5f : 1.0f);
         }
         if (getRecentsButton()!=null) {
-        	getRecentsButton().setAlpha(
-        			(0 != (hints & StatusBarManager.NAVIGATION_HINT_RECENT_NOP)) ? 0.5f : 1.0f);
+                getRecentsButton().setAlpha(
+                                (0 != (hints & StatusBarManager.NAVIGATION_HINT_RECENT_NOP)) ? 0.5f : 1.0f);
         }
     }
 
@@ -584,7 +586,7 @@ public class NavigationBarView extends LinearLayout {
                 return;
             }
             WindowManagerImpl.getDefault().updateViewLayout(this, lp);
-            
+
         }
     }
 
@@ -598,7 +600,7 @@ public class NavigationBarView extends LinearLayout {
 
     public void setMenuVisibility(final boolean show, final boolean force) {
 
-    	if (!force && mShowMenu == show)
+        if (!force && mShowMenu == show)
             return;
 
         if ((currentSetting == SHOW_DONT) || mHasBigMenuButton) {
@@ -616,11 +618,13 @@ public class NavigationBarView extends LinearLayout {
                 localShow = true;
             case VISIBILITY_SYSTEM:
                 if (mTablet_UI == 1) {
-                    rightButton.setImageResource(R.drawable.ic_sysbar_menu_big);
-                    leftButton.setImageResource(R.drawable.ic_sysbar_menu_big);
+                    rightButton.setImageResource(mVertical ? R.drawable.ic_sysbar_menu_land
+                            : R.drawable.ic_sysbar_menu);
+                    leftButton.setImageResource(mVertical ? R.drawable.ic_sysbar_menu_land
+                            : R.drawable.ic_sysbar_menu);
                 } else {
                     rightButton.setImageResource(mVertical ? R.drawable.ic_sysbar_menu_land
-                        : R.drawable.ic_sysbar_menu);
+                            : R.drawable.ic_sysbar_menu);
                     leftButton.setImageResource(mVertical ? R.drawable.ic_sysbar_menu_land
                             : R.drawable.ic_sysbar_menu);
                 }
@@ -635,11 +639,13 @@ public class NavigationBarView extends LinearLayout {
             case VISIBILITY_SYSTEM_AND_INVIZ:
                 if (localShow) {
                     if (mTablet_UI == 1) {
-                        rightButton.setImageResource(R.drawable.ic_sysbar_menu_big);
-                        leftButton.setImageResource(R.drawable.ic_sysbar_menu_big);
+                        rightButton.setImageResource(mVertical ? R.drawable.ic_sysbar_menu_land
+                                : R.drawable.ic_sysbar_menu);
+                        leftButton.setImageResource(mVertical ? R.drawable.ic_sysbar_menu_land
+                                : R.drawable.ic_sysbar_menu);
                     } else {
                         rightButton.setImageResource(mVertical ? R.drawable.ic_sysbar_menu_land
-                            : R.drawable.ic_sysbar_menu);
+                                : R.drawable.ic_sysbar_menu);
                         leftButton.setImageResource(mVertical ? R.drawable.ic_sysbar_menu_land
                                 : R.drawable.ic_sysbar_menu);
                     }
@@ -746,7 +752,7 @@ public class NavigationBarView extends LinearLayout {
 
     @Override
     public void onFinishInflate() {
-    	 rot0 = (FrameLayout) findViewById(R.id.rot0);
+         rot0 = (FrameLayout) findViewById(R.id.rot0);
          rot90 = (FrameLayout) findViewById(R.id.rot90);
 
          mRotatedViews[Surface.ROTATION_0] =
@@ -776,7 +782,7 @@ public class NavigationBarView extends LinearLayout {
             mRotatedViews[i].setVisibility(View.GONE);
         }
         if (mTablet_UI !=0) { // this is either a tablet of Phablet.  Need to stay at Rot_0
-            mCurrentView = mRotatedViews[Surface.ROTATION_0];  
+            mCurrentView = mRotatedViews[Surface.ROTATION_0];
         } else {
             mCurrentView = mRotatedViews[rot];
         }
@@ -824,7 +830,7 @@ public class NavigationBarView extends LinearLayout {
     @Override
     protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
         if (DEBUG) Slog.d(TAG, String.format(
-                    "onLayout: %s (%d,%d,%d,%d)", 
+                    "onLayout: %s (%d,%d,%d,%d)",
                     changed?"changed":"notchanged", left, top, right, bottom));
         super.onLayout(changed, left, top, right, bottom);
     }
@@ -840,7 +846,7 @@ public class NavigationBarView extends LinearLayout {
         return super.onInterceptTouchEvent(ev);
     }
     */
-        
+
     class SettingsObserver extends ContentObserver {
         SettingsObserver(Handler handler) {
             super(handler);
@@ -848,7 +854,7 @@ public class NavigationBarView extends LinearLayout {
 
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
-          
+
             resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.MENU_LOCATION), false,
                     this);
@@ -889,7 +895,7 @@ public class NavigationBarView extends LinearLayout {
 
     protected void updateSettings() {
         ContentResolver resolver = mContext.getContentResolver();
-        
+
         currentSetting = Settings.System.getInt(resolver,
                 Settings.System.MENU_LOCATION, SHOW_RIGHT_MENU);
 
