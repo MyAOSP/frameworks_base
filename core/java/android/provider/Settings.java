@@ -3183,7 +3183,7 @@ public final class Settings {
         /**
          * @hide
          */
-        public static final String STATUS_BAR_BRIGHTNESS_SLIDER = "statusbar_brightness_slider";
+        public static final String STATUS_BAR_BRIGHTNESS_SLIDER = "status_bar_brightness_slider";
 
         /**
          * @hide
@@ -3286,7 +3286,7 @@ public final class Settings {
          */
         public static final String STATUSBAR_EXPANDED_CLOCK_COLOR = "statusbar_expanded_clock_color";
 
-		/**
+        /**
          * @hide
          * Vibrate when expanding notifications
          * 0 - no vibrate
@@ -3454,7 +3454,7 @@ public final class Settings {
                 "navigation_custom_app_icon_5",
                 "navigation_custom_app_icon_6",
         };
-        
+
         /**
          * Widgets to show, should be separated by |
          */
