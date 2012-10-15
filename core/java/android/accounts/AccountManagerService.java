@@ -220,8 +220,6 @@ public class AccountManagerService
 
         sThis.set(this);
 
-        UserAccounts accounts = initUser(0);
-
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
         intentFilter.addDataScheme("package");
@@ -240,6 +238,11 @@ public class AccountManagerService
                 onUserRemoved(intent);
             }
         }, userFilter);
+    }
+
+    public void systemReady() {
+        mAuthenticatorCache.generateServicesMap();
+        initUser(0);
     }
 
     private UserAccounts initUser(int userId) {
@@ -1065,7 +1068,7 @@ public class AccountManagerService
         if (notifyOnAuthFailure) {
             loginOptions.putBoolean(AccountManager.KEY_NOTIFY_ON_FAILURE, true);
         }
-        
+
         long identityToken = clearCallingIdentity();
         try {
             // if the caller has permission, do the peek. otherwise go the more expensive
@@ -1163,7 +1166,7 @@ public class AccountManagerService
         String subtitle = "";
         if (index > 0) {
             title = titleAndSubtitle.substring(0, index);
-            subtitle = titleAndSubtitle.substring(index + 1);            
+            subtitle = titleAndSubtitle.substring(index + 1);
         }
         n.setLatestEventInfo(mContext,
                 title, subtitle,

@@ -94,16 +94,16 @@ public class Notification implements Parcelable
 
     /**
      * A timestamp related to this notification, in milliseconds since the epoch.
-     * 
+     *
      * Default value: {@link System#currentTimeMillis() Now}.
      *
      * Choose a timestamp that will be most relevant to the user. For most finite events, this
      * corresponds to the time the event happened (or will happen, in the case of events that have
      * yet to occur but about which the user is being informed). Indefinite events should be
-     * timestamped according to when the activity began. 
-     * 
+     * timestamped according to when the activity began.
+     *
      * Some examples:
-     * 
+     *
      * <ul>
      *   <li>Notification of a new chat message should be stamped when the message was received.</li>
      *   <li>Notification of an ongoing file download (with a progress bar, for example) should be stamped when the download started.</li>
@@ -111,8 +111,8 @@ public class Notification implements Parcelable
      *   <li>Notification of an upcoming meeting should be stamped with the time the meeting will begin (that is, in the future).</li>
      *   <li>Notification of an ongoing stopwatch (increasing timer) should be stamped with the watch's start time.
      *   <li>Notification of an ongoing countdown timer should be stamped with the timer's end time.
-     * </ul> 
-     * 
+     * </ul>
+     *
      */
     public long when;
 
@@ -134,13 +134,13 @@ public class Notification implements Parcelable
     /**
      * The number of events that this notification represents. For example, in a new mail
      * notification, this could be the number of unread messages.
-     * 
+     *
      * The system may or may not use this field to modify the appearance of the notification. For
      * example, before {@link android.os.Build.VERSION_CODES#HONEYCOMB}, this number was
      * superimposed over the icon in the status bar. Starting with
      * {@link android.os.Build.VERSION_CODES#HONEYCOMB}, the template used by
      * {@link Notification.Builder} has displayed the number in the expanded notification view.
-     * 
+     *
      * If the number is 0 or negative, it is never shown.
      */
     public int number;
@@ -342,7 +342,7 @@ public class Notification implements Parcelable
 
     /**
      * Obsolete flag indicating high-priority notifications; use the priority field instead.
-     * 
+     *
      * @deprecated Use {@link #priority} with a positive value.
      */
     public static final int FLAG_HIGH_PRIORITY      = 0x00000080;
@@ -383,15 +383,15 @@ public class Notification implements Parcelable
 
     /**
      * Relative priority for this notification.
-     * 
+     *
      * Priority is an indication of how much of the user's valuable attention should be consumed by
      * this notification. Low-priority notifications may be hidden from the user in certain
      * situations, while the user might be interrupted for a higher-priority notification. The
-     * system will make a determination about how to interpret notification priority as described in 
+     * system will make a determination about how to interpret notification priority as described in
      * MUMBLE MUMBLE.
      */
     public int priority;
-    
+
     /**
      * @hide
      * Notification type: incoming call (voice or video) or similar synchronous communication request.
@@ -651,7 +651,7 @@ public class Notification implements Parcelable
         that.flags = this.flags;
 
         that.priority = this.priority;
-        
+
         final String[] thiskind = this.kind;
         if (thiskind != null) {
             final int N = thiskind.length;
@@ -750,9 +750,9 @@ public class Notification implements Parcelable
         }
 
         parcel.writeInt(priority);
-        
+
         parcel.writeStringArray(kind); // ok for null
-        
+
         if (extras != null) {
             parcel.writeInt(1);
             extras.writeToParcel(parcel, 0);
@@ -904,14 +904,18 @@ public class Notification implements Parcelable
 
     /**
      * Builder class for {@link Notification} objects.
-     * 
+     *
      * Provides a convenient way to set the various fields of a {@link Notification} and generate
-     * content views using the platform's notification layout template. 
-     * 
-     * Example:
-     * 
+     * content views using the platform's notification layout template. If your app supports
+     * versions of Android as old as API level 4, you can instead use
+     * {@link android.support.v4.app.NotificationCompat.Builder NotificationCompat.Builder},
+     * available in the <a href="{@docRoot}tools/extras/support-library.html">Android Support
+     * library</a>.
+     *
+     * <p>Example:
+     *
      * <pre class="prettyprint">
-     * Notification noti = new Notification.Builder()
+     * Notification noti = new Notification.Builder(mContext)
      *         .setContentTitle(&quot;New mail from &quot; + sender.toString())
      *         .setContentText(subject)
      *         .setSmallIcon(R.drawable.new_mail)
@@ -998,8 +1002,8 @@ public class Notification implements Parcelable
 
         /**
          * Show the {@link Notification#when} field as a stopwatch.
-         * 
-         * Instead of presenting <code>when</code> as a timestamp, the notification will show an 
+         *
+         * Instead of presenting <code>when</code> as a timestamp, the notification will show an
          * automatically updating display of the minutes and seconds since <code>when</code>.
          *
          * Useful when showing an elapsed time (like an ongoing phone call).
@@ -1065,7 +1069,7 @@ public class Notification implements Parcelable
         }
 
         /**
-         * Set the third line of text in the platform notification template. 
+         * Set the third line of text in the platform notification template.
          * Don't use if you're also using {@link #setProgress(int, int, boolean)}; they occupy the same location in the standard template.
          */
         public Builder setSubText(CharSequence text) {
@@ -1327,12 +1331,12 @@ public class Notification implements Parcelable
             mPriority = pri;
             return this;
         }
-        
+
         /**
          * @hide
-         * 
+         *
          * Add a kind (category) to this notification. Optional.
-         * 
+         *
          * @see Notification#kind
          */
         public Builder addKind(String k) {
@@ -1537,7 +1541,7 @@ public class Notification implements Parcelable
 
         private RemoteViews generateActionButton(Action action) {
             final boolean tombstone = (action.actionIntent == null);
-            RemoteViews button = new RemoteViews(mContext.getPackageName(), 
+            RemoteViews button = new RemoteViews(mContext.getPackageName(),
                     tombstone ? R.layout.notification_action_tombstone
                               : R.layout.notification_action);
             button.setTextViewCompoundDrawables(R.id.action0, action.icon, 0, 0, 0);
@@ -1696,7 +1700,7 @@ public class Notification implements Parcelable
 
     /**
      * Helper class for generating large-format notifications that include a large image attachment.
-     * 
+     *
      * This class is a "rebuilder": It consumes a Builder object and modifies its behavior, like so:
      * <pre class="prettyprint">
      * Notification noti = new Notification.BigPictureStyle(
@@ -1708,7 +1712,7 @@ public class Notification implements Parcelable
      *      .bigPicture(aBigBitmap)
      *      .build();
      * </pre>
-     * 
+     *
      * @see Notification#bigContentView
      */
     public static class BigPictureStyle extends Style {
@@ -1740,6 +1744,9 @@ public class Notification implements Parcelable
             return this;
         }
 
+        /**
+         * Provide the bitmap to be used as the payload for the BigPicture notification.
+         */
         public BigPictureStyle bigPicture(Bitmap b) {
             mPicture = b;
             return this;
@@ -1776,7 +1783,7 @@ public class Notification implements Parcelable
 
     /**
      * Helper class for generating large-format notifications that include a lot of text.
-     * 
+     *
      * This class is a "rebuilder": It consumes a Builder object and modifies its behavior, like so:
      * <pre class="prettyprint">
      * Notification noti = new Notification.BigPictureStyle(
@@ -1788,7 +1795,7 @@ public class Notification implements Parcelable
      *      .bigText(aVeryLongString)
      *      .build();
      * </pre>
-     * 
+     *
      * @see Notification#bigContentView
      */
     public static class BigTextStyle extends Style {
@@ -1818,6 +1825,10 @@ public class Notification implements Parcelable
             return this;
         }
 
+        /**
+         * Provide the longer text to be displayed in the big form of the
+         * template in place of the content text.
+         */
         public BigTextStyle bigText(CharSequence cs) {
             mBigText = cs;
             return this;
@@ -1829,7 +1840,7 @@ public class Notification implements Parcelable
             mBuilder.mContentText = null;
 
             RemoteViews contentView = getStandardView(R.layout.notification_template_big_text);
-            
+
             if (hadThreeLines) {
                 // vertical centering
                 contentView.setViewPadding(R.id.line1, 0, 0, 0, 0);
@@ -1853,7 +1864,7 @@ public class Notification implements Parcelable
 
     /**
      * Helper class for generating large-format notifications that include a list of (up to 5) strings.
-     * 
+     *
      * This class is a "rebuilder": It consumes a Builder object and modifies its behavior, like so:
      * <pre class="prettyprint">
      * Notification noti = new Notification.InboxStyle(
@@ -1868,7 +1879,7 @@ public class Notification implements Parcelable
      *      .setSummaryText(&quot;+3 more&quot;)
      *      .build();
      * </pre>
-     * 
+     *
      * @see Notification#bigContentView
      */
     public static class InboxStyle extends Style {
@@ -1898,6 +1909,9 @@ public class Notification implements Parcelable
             return this;
         }
 
+        /**
+         * Append a line to the digest section of the Inbox notification.
+         */
         public InboxStyle addLine(CharSequence cs) {
             mTexts.add(cs);
             return this;
