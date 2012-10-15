@@ -1334,20 +1334,40 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
 
     private void onHandleUiTouchEvent(MotionEvent ev) {
         final ScaleGestureDetector detector =
-                mZoomManager.getMultiTouchGestureDetector();
+                mZoomManager.getScaleGestureDetector();
 
-        float x = ev.getX();
-        float y = ev.getY();
+        int action = ev.getActionMasked();
+        final boolean pointerUp = action == MotionEvent.ACTION_POINTER_UP;
+        final boolean configChanged =
+            action == MotionEvent.ACTION_POINTER_UP ||
+            action == MotionEvent.ACTION_POINTER_DOWN;
+        final int skipIndex = pointerUp ? ev.getActionIndex() : -1;
+
+        // Determine focal point
+        float sumX = 0, sumY = 0;
+        final int count = ev.getPointerCount();
+        for (int i = 0; i < count; i++) {
+            if (skipIndex == i) continue;
+            sumX += ev.getX(i);
+            sumY += ev.getY(i);
+        }
+        final int div = pointerUp ? count - 1 : count;
+        float x = sumX / div;
+        float y = sumY / div;
+
+        if (configChanged) {
+            mLastTouchX = Math.round(x);
+            mLastTouchY = Math.round(y);
+            mLastTouchTime = ev.getEventTime();
+            mWebView.cancelLongPress();
+            mPrivateHandler.removeMessages(SWITCH_TO_LONGPRESS);
+        }
 
         if (detector != null) {
             detector.onTouchEvent(ev);
             if (detector.isInProgress()) {
                 mLastTouchTime = ev.getEventTime();
-                x = detector.getFocusX();
-                y = detector.getFocusY();
 
-                mWebView.cancelLongPress();
-                mPrivateHandler.removeMessages(SWITCH_TO_LONGPRESS);
                 if (!mZoomManager.supportsPanDuringZoom()) {
                     return;
                 }
@@ -1358,14 +1378,9 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
             }
         }
 
-        int action = ev.getActionMasked();
         if (action == MotionEvent.ACTION_POINTER_DOWN) {
             cancelTouch();
             action = MotionEvent.ACTION_DOWN;
-        } else if (action == MotionEvent.ACTION_POINTER_UP && ev.getPointerCount() >= 2) {
-            // set mLastTouchX/Y to the remaining points for multi-touch.
-            mLastTouchX = Math.round(x);
-            mLastTouchY = Math.round(y);
         } else if (action == MotionEvent.ACTION_MOVE) {
             // negative x or y indicate it is on the edge, skip it.
             if (x < 0 || y < 0) {
@@ -3770,6 +3785,7 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
             invalidate();  // So we draw again
 
             if (!mScroller.isFinished()) {
+                mSendScroll.setPostpone(true);
                 int rangeX = computeMaxScrollX();
                 int rangeY = computeMaxScrollY();
                 int overflingDistance = mOverflingDistance;
@@ -3797,6 +3813,7 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
                 if (mOverScrollGlow != null) {
                     mOverScrollGlow.absorbGlow(x, y, oldX, oldY, rangeX, rangeY);
                 }
+                mSendScroll.setPostpone(false);
             } else {
                 if (mTouchMode == TOUCH_DRAG_LAYER_MODE) {
                     // Update the layer position instead of WebView.
@@ -3816,7 +3833,7 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
                     }
                 }
                 if (oldX != getScrollX() || oldY != getScrollY()) {
-                    sendOurVisibleRect();
+                    mSendScroll.send(true);
                 }
             }
         } else {
@@ -4357,7 +4374,7 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
 
         // A multi-finger gesture can look like a long press; make sure we don't take
         // long press actions if we're scaling.
-        final ScaleGestureDetector detector = mZoomManager.getMultiTouchGestureDetector();
+        final ScaleGestureDetector detector = mZoomManager.getScaleGestureDetector();
         if (detector != null && detector.isInProgress()) {
             return false;
         }
@@ -4525,11 +4542,11 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
     private void ensureSelectionHandles() {
         if (mSelectHandleCenter == null) {
             mSelectHandleCenter = mContext.getResources().getDrawable(
-                    com.android.internal.R.drawable.text_select_handle_middle);
+                    com.android.internal.R.drawable.text_select_handle_middle).mutate();
             mSelectHandleLeft = mContext.getResources().getDrawable(
-                    com.android.internal.R.drawable.text_select_handle_left);
+                    com.android.internal.R.drawable.text_select_handle_left).mutate();
             mSelectHandleRight = mContext.getResources().getDrawable(
-                    com.android.internal.R.drawable.text_select_handle_right);
+                    com.android.internal.R.drawable.text_select_handle_right).mutate();
             mHandleAlpha.setAlpha(mHandleAlpha.getAlpha());
             mSelectHandleCenterOffset = new Point(0,
                     -mSelectHandleCenter.getIntrinsicHeight());
@@ -4621,7 +4638,7 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
             if (oldScrollX != getScrollX() || oldScrollY != getScrollY()) {
                 mWebViewPrivate.onScrollChanged(getScrollX(), getScrollY(), oldScrollX, oldScrollY);
             } else {
-                sendOurVisibleRect();
+                mSendScroll.send(true);
             }
         }
     }
@@ -5596,10 +5613,31 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
         contentScrollTo(scrollX, scrollY, false);
     }
 
+    private final class SendScrollToWebCore implements Runnable {
+        public void run() {
+            if (!mInOverScrollMode) {
+                sendOurVisibleRect();
+            }
+        }
+        private boolean mPostpone = false;
+        public void setPostpone(boolean set) { mPostpone = set; }
+        public void send(boolean force) {
+            mPrivateHandler.removeCallbacks(this);
+            if (!mPostpone || force) {
+                run();
+            } else {
+                mPrivateHandler.postAtFrontOfQueue(this);
+            }
+        }
+    }
+
+    SendScrollToWebCore mSendScroll = new SendScrollToWebCore();
+
     @Override
     public void onScrollChanged(int l, int t, int oldl, int oldt) {
+        mSendScroll.send(false);
+
         if (!mInOverScrollMode) {
-            sendOurVisibleRect();
             // update WebKit if visible title bar height changed. The logic is same
             // as getVisibleTitleHeightImpl.
             int titleHeight = getTitleHeight();
@@ -5764,7 +5802,7 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
     * and the middle point for multi-touch.
     */
     private void handleTouchEventCommon(MotionEvent event, int action, int x, int y) {
-        ScaleGestureDetector detector = mZoomManager.getMultiTouchGestureDetector();
+        ScaleGestureDetector detector = mZoomManager.getScaleGestureDetector();
 
         long eventTime = event.getEventTime();
 

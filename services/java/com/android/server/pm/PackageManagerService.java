@@ -3531,6 +3531,20 @@ public class PackageManagerService extends IPackageManager.Stub {
             return null;
         }
 
+        if (!pkg.applicationInfo.sourceDir.startsWith(Environment.getRootDirectory().getPath()) &&
+                !pkg.applicationInfo.sourceDir.startsWith("/vendor")) {
+            Object obj = mSettings.getUserIdLPr(1000);
+            Signature[] s1 = null;
+            if (obj instanceof SharedUserSetting) {
+                s1 = ((SharedUserSetting)obj).signatures.mSignatures;
+            }
+            if ((compareSignatures(pkg.mSignatures, s1) == PackageManager.SIGNATURE_MATCH)) {
+                Slog.w(TAG, "Cannot install platform packages to user storage");
+                mLastScanError = PackageManager.INSTALL_FAILED_INVALID_INSTALL_LOCATION;
+                return null;
+            }
+        }
+
         // Initialize package source and resource directories
         File destCodeFile = new File(pkg.applicationInfo.sourceDir);
         File destResourceFile = new File(pkg.applicationInfo.publicSourceDir);
@@ -9000,7 +9014,7 @@ public class PackageManagerService extends IPackageManager.Stub {
         // little while.
         mHandler.post(new Runnable() {
             public void run() {
-                updateExternalMediaStatusInner(mediaStatus, reportStatus);
+                updateExternalMediaStatusInner(mediaStatus, reportStatus, true);
             }
         });
     }
@@ -9010,7 +9024,7 @@ public class PackageManagerService extends IPackageManager.Stub {
      * Should block until all the ASEC containers are finished being scanned.
      */
     public void scanAvailableAsecs() {
-        updateExternalMediaStatusInner(true, false);
+        updateExternalMediaStatusInner(true, false, false);
     }
 
     /*
@@ -9019,7 +9033,8 @@ public class PackageManagerService extends IPackageManager.Stub {
      * Please note that we always have to report status if reportStatus has been
      * set to true especially when unloading packages.
      */
-    private void updateExternalMediaStatusInner(boolean isMounted, boolean reportStatus) {
+    private void updateExternalMediaStatusInner(boolean isMounted, boolean reportStatus,
+            boolean externalStorage) {
         // Collection of uids
         int uidArr[] = null;
         // Collection of stale containers
@@ -9054,6 +9069,14 @@ public class PackageManagerService extends IPackageManager.Stub {
                     if (ps == null) {
                         Log.i(TAG, "Deleting container with no matching settings " + cid);
                         removeCids.add(cid);
+                        continue;
+                    }
+
+                    /*
+                     * Skip packages that are not external if we're unmounting
+                     * external storage.
+                     */
+                    if (externalStorage && !isMounted && !isExternal(ps)) {
                         continue;
                     }
 

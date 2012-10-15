@@ -42,12 +42,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * Samsung CDMA RIL doesn't send CDMA NV in RIUM infomation format which causes
- * the CDMA RIL stack to crash and end up not being provisioned. Samsung put
- * CDMA NV in GSM format. I forced the RIL stack to process CDMA NV request as a
- * GSM SIM in CDMA mode. Custom Qualcomm No SimReady RIL using the latest Uicc
- * stack
- * 
+ * As stands, the RIL supports calling get subscription source which can
+ * handle both ruim and nv qc devices. The lteOnCdma property allows
+ * for the devices to provision for multiple cdma dun types at run time. This
+ * extension of shared merely fixes nuance issues arising from the differences
+ * caused by embedded SIM and legacy CDMA.
  * {@hide}
  */
 public class SamsungCDMAQualcommRIL extends QualcommSharedRIL implements
@@ -133,21 +132,6 @@ CommandsInterface {
             p.readInt(); // - perso_unblock_retries
             status.addApplication(ca);
         }
-        int appIndex = -1;
-        appIndex = status.getGsmUmtsSubscriptionAppIndex();
-        Log.d(LOG_TAG, "This is a CDMA PHONE " + appIndex);
-
-        if (numApplications > 0) {
-            IccCardApplication application = status.getApplication(appIndex);
-            mAid = application.aid;
-            mUSIM = application.app_type == IccCardApplication.AppType.APPTYPE_USIM;
-            mSetPreferredNetworkType = mPreferredNetworkType;
-
-            if (TextUtils.isEmpty(mAid))
-                mAid = "";
-            Log.d(LOG_TAG, "mAid " + mAid);
-        }
-
         return status;
     }
 
