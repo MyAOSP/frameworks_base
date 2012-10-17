@@ -469,7 +469,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         mSettingsButton = mStatusBarWindow.findViewById(R.id.settings_button);
         mSettingsButton.setOnClickListener(mSettingsButtonListener);
         mRotationButton = (RotationToggle) mStatusBarWindow.findViewById(R.id.rotation_lock_button);
-        
+
         mScrollView = (ScrollView)mStatusBarWindow.findViewById(R.id.scroll);
         mScrollView.setVerticalScrollBarEnabled(false); // less drawing during pulldowns
 
@@ -1041,7 +1041,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         final boolean makeVisible =
             !(emergencyCallsShownElsewhere && mNetworkController.isEmergencyOnly())
             && mPile.getHeight() < (mScrollView.getHeight() - mCarrierLabelHeight);
-        
+
         if (force || mCarrierLabelVisible != makeVisible) {
             mCarrierLabelVisible = makeVisible;
             if (DEBUG) {
@@ -2544,7 +2544,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         private final int mColor;
 
         public FastColorDrawable(int color) {
-            mColor = 0xff000000 | color;
+            mColor = 0x00000000 | color;
         }
 
         @Override
@@ -2562,7 +2562,7 @@ public class PhoneStatusBar extends BaseStatusBar {
 
         @Override
         public int getOpacity() {
-            return PixelFormat.OPAQUE;
+            return PixelFormat.TRANSLUCENT;
         }
 
         @Override
