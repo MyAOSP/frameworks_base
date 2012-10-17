@@ -3321,6 +3321,18 @@ public final class Settings {
         public static final String STATUSBAR_BATTERY_TEXT_COLOR = "statusbar_battery_text_color";
 
         /**
+         * Statusbar battery cm circle ring colorpicker
+         * @hide
+         */
+        public static final String STATUSBAR_CMCIRLE_RING_COLOR = "statusbar_cmcircle_ring_color";
+
+        /**
+         * Statusbar battery cm circle charging animation ring colorpicker
+         * @hide
+         */
+        public static final String STATUSBAR_CMCIRLE_RING_COLOR_CHARGE = "statusbar_cmcircle_ring_color_charge";
+
+        /**
          * @hide
          * Shows the battery icon in the notification pull down
          */
