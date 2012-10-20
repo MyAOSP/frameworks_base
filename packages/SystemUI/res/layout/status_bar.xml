@@ -115,6 +115,7 @@
             android:singleLine="true"
             android:paddingLeft="6dip"
             android:gravity="center_vertical|left"
+            android:clickable="false"
             />
     </LinearLayout>
 
@@ -131,6 +132,7 @@
             android:paddingLeft="6.0dip"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
+            android:clickable="false"
             android:singleLine="true" />
     </LinearLayout>
 

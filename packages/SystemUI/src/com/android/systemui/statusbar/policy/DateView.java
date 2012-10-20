@@ -16,11 +16,16 @@
 
 package com.android.systemui.statusbar.policy;
 
+import android.app.ActivityManagerNative;
+import android.app.StatusBarManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentUris;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
+import android.provider.CalendarContract;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -38,7 +43,10 @@ import android.text.style.RelativeSizeSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewParent;
 import android.widget.TextView;
 
@@ -46,12 +54,13 @@ import com.android.systemui.R;
 
 import java.util.Date;
 
-public final class DateView extends TextView {
+public final class DateView extends TextView implements OnClickListener, OnTouchListener {
     private static final String TAG = "DateView";
 
     private boolean mAttachedToWindow;
     private boolean mWindowVisible;
     private boolean mUpdating;
+    private int mDefaultColor;
 
     protected int mExpandedClockColor = com.android.internal.R.color.white;
 
@@ -69,6 +78,9 @@ public final class DateView extends TextView {
 
     public DateView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        setOnClickListener(this);
+        setOnTouchListener(this);
     }
 
     @Override
@@ -109,16 +121,9 @@ public final class DateView extends TextView {
 
     private final void updateClock() {
         final Context context = getContext();
-        ContentResolver resolver = context.getContentResolver();
-        int defaultColor = getResources().getColor(
-                com.android.internal.R.color.white);
-        mExpandedClockColor = Settings.System.getInt(resolver,
-                Settings.System.STATUSBAR_EXPANDED_CLOCK_COLOR, defaultColor);
 
-        if (mExpandedClockColor == Integer.MIN_VALUE) {
-            // flag to reset the color
-            mExpandedClockColor = defaultColor;
-        }
+        updateDateColor();
+
         Date now = new Date();
         CharSequence dow = DateFormat.format("EEEE", now);
         CharSequence date = DateFormat.getLongDateFormat(context).format(now);
@@ -176,5 +181,63 @@ public final class DateView extends TextView {
                 mContext.unregisterReceiver(mIntentReceiver);
             }
         }
+    }
+
+    private void updateDateColor() {
+        final Context context = getContext();
+        ContentResolver resolver = context.getContentResolver();
+
+        int defaultColor = getResources().getColor(
+                com.android.internal.R.color.white);
+        mExpandedClockColor = Settings.System.getInt(resolver,
+                Settings.System.STATUSBAR_EXPANDED_CLOCK_COLOR, defaultColor);
+
+        if (mExpandedClockColor == Integer.MIN_VALUE) {
+            // flag to reset the color
+            mExpandedClockColor = defaultColor;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        updateDateColor();
+        setTextColor(mExpandedClockColor);
+
+        // collapse status bar
+        StatusBarManager statusBarManager = (StatusBarManager) getContext().getSystemService(
+                Context.STATUS_BAR_SERVICE);
+        statusBarManager.collapse();
+
+        // dismiss keyguard in case it was active and no passcode set
+        try {
+            ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();
+        } catch (Exception ex) {
+            // no action needed here
+        }
+
+        // start calendar - today is selected
+        long nowMillis = System.currentTimeMillis();
+
+        Uri.Builder builder = CalendarContract.CONTENT_URI.buildUpon();
+        builder.appendPath("time");
+        ContentUris.appendId(builder, nowMillis);
+        Intent intent = new Intent(Intent.ACTION_VIEW)
+                .setData(builder.build());
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.startActivity(intent);
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        int a = event.getAction();
+        if (a == MotionEvent.ACTION_DOWN) {
+            int cTouch = getResources().getColor(com.android.internal.R.color.holo_blue_light);
+            setTextColor(cTouch);
+        } else if (a == MotionEvent.ACTION_CANCEL || a == MotionEvent.ACTION_UP) {
+            updateDateColor();
+            setTextColor(mExpandedClockColor);
+        }
+        // never consume touch event, so onClick is propperly processed
+        return false;
     }
 }
