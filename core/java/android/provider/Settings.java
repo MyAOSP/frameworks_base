@@ -3299,6 +3299,12 @@ public final class Settings {
         public static final String STATUSBAR_EXPANDED_CLOCK_COLOR = "statusbar_expanded_clock_color";
 
         /**
+         * Switch to disable notification pulldown clock open/date opens press
+         * @hide
+         */
+        public static final String CLOCK_DATE_OPENS = "clock_date_opens";
+
+        /**
          * @hide
          * Vibrate when expanding notifications
          * 0 - no vibrate

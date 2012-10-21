@@ -1,4 +1,4 @@
- 	/*
+/*
  * Copyright (C) 2006 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,6 @@
 
 package com.android.systemui.statusbar.policy;
 
-import android.app.ActivityManagerNative;
-import android.app.StatusBarManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -30,7 +28,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.database.ContentObserver;
 import android.os.Handler;
-import android.provider.AlarmClock;
 import android.provider.Settings;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -41,10 +38,7 @@ import android.text.style.RelativeSizeSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -57,7 +51,7 @@ import com.android.internal.R;
  * This widget display an analogic clock with two hands for hours and
  * minutes.
  */
-public class Clock extends TextView implements OnClickListener, OnTouchListener {
+public class Clock extends TextView {
 
     protected boolean mAttached;
     protected Calendar mCalendar;
@@ -123,10 +117,6 @@ public class Clock extends TextView implements OnClickListener, OnTouchListener 
 
         SettingsObserver settingsObserver = new SettingsObserver(new Handler());
         settingsObserver.observe();
-        if (isClickable()) {
-            setOnClickListener(this);
-            setOnTouchListener(this);
-        }
         updateSettings();
     }
 
@@ -216,8 +206,8 @@ public class Clock extends TextView implements OnClickListener, OnTouchListener 
             }
         }
         if (mWeekdayStyle != WEEKDAY_STYLE_NORMAL) {
-        	if (todayIs != null) {
-        		if (mWeekdayStyle == WEEKDAY_STYLE_GONE) {
+                if (todayIs != null) {
+                        if (mWeekdayStyle == WEEKDAY_STYLE_GONE) {
                     formatted.delete(result.indexOf(todayIs), result.lastIndexOf(todayIs)+todayIs.length());
                 } else {
                     if (mWeekdayStyle == WEEKDAY_STYLE_SMALL) {
@@ -235,31 +225,31 @@ public class Clock extends TextView implements OnClickListener, OnTouchListener 
      * pull the int given by DAY_OF_WEEK into a day string
      */
     private String whatDay(int today) {
-    	String todayIs = null;
-    	switch (today) {
-    	case 1:
-			todayIs = getResources().getString(R.string.day_of_week_medium_sunday);
-			break;
-		case 2:
-			todayIs = getResources().getString(R.string.day_of_week_medium_monday);
-			break;
-		case 3:
-			todayIs = getResources().getString(R.string.day_of_week_medium_tuesday);
-			break;
-		case 4:
-			todayIs = getResources().getString(R.string.day_of_week_medium_wednesday);
-			break;
-		case 5:
-			todayIs = getResources().getString(R.string.day_of_week_medium_thursday);
-			break;
-		case 6:
-			todayIs = getResources().getString(R.string.day_of_week_medium_friday);
-			break;
-		case 7:
-			todayIs = getResources().getString(R.string.day_of_week_medium_saturday);
-			break;
-    	}
-    		
+        String todayIs = null;
+        switch (today) {
+            case 1:
+                todayIs = getResources().getString(R.string.day_of_week_medium_sunday);
+                break;
+            case 2:
+                todayIs = getResources().getString(R.string.day_of_week_medium_monday);
+                break;
+            case 3:
+                todayIs = getResources().getString(R.string.day_of_week_medium_tuesday);
+                break;
+            case 4:
+                todayIs = getResources().getString(R.string.day_of_week_medium_wednesday);
+                break;
+            case 5:
+                todayIs = getResources().getString(R.string.day_of_week_medium_thursday);
+                break;
+            case 6:
+                todayIs = getResources().getString(R.string.day_of_week_medium_friday);
+                break;
+            case 7:
+                todayIs = getResources().getString(R.string.day_of_week_medium_saturday);
+                break;
+        }
+
         return todayIs.toUpperCase() + " ";
     }
 
@@ -301,24 +291,16 @@ public class Clock extends TextView implements OnClickListener, OnTouchListener 
                 Settings.System.STATUSBAR_CLOCK_STYLE, STYLE_CLOCK_RIGHT);
         mWeekdayStyle = Settings.System.getInt(resolver,
                 Settings.System.STATUSBAR_CLOCK_WEEKDAY, WEEKDAY_STYLE_GONE);
-
-        updateClockColor();
-        setTextColor(mClockColor);
-
-        updateClockVisibility();
-        updateClock();
-    }
-
-    private void updateClockColor() {
-        ContentResolver resolver = mContext.getContentResolver();
-        int defaultColor = getResources().getColor(R.color.holo_blue_light);
-
         mClockColor = Settings.System.getInt(resolver,
                 Settings.System.STATUSBAR_CLOCK_COLOR, defaultColor);
         if (mClockColor == Integer.MIN_VALUE) {
             // flag to reset the color
             mClockColor = defaultColor;
         }
+        setTextColor(mClockColor);
+
+        updateClockVisibility();
+        updateClock();
     }
 
     protected void updateClockVisibility() {
@@ -327,41 +309,4 @@ public class Clock extends TextView implements OnClickListener, OnTouchListener 
         else
             setVisibility(View.GONE);
     }
-
-    @Override
-    public void onClick(View v) {
-        updateClockColor();
-        setTextColor(mClockColor);
-
-        // collapse status bar
-        StatusBarManager statusBarManager = (StatusBarManager) getContext().getSystemService(
-                Context.STATUS_BAR_SERVICE);
-        statusBarManager.collapse();
-
-        // dismiss keyguard in case it was active and no passcode set
-        try {
-            ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();
-        } catch (Exception ex) {
-            // no action needed here
-        }
-
-        // start alarm clock intent
-        Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        mContext.startActivity(intent);
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        int a = event.getAction();
-        if (a == MotionEvent.ACTION_DOWN) {
-            setTextColor(getResources().getColor(R.color.holo_blue_light));
-        } else if (a == MotionEvent.ACTION_CANCEL || a == MotionEvent.ACTION_UP) {
-            updateClockColor();
-            setTextColor(mClockColor);
-        }
-        // never consume touch event, so onClick is propperly processed
-        return false;
-    }
 }
-
