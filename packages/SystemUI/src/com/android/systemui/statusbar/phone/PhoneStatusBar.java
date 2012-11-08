@@ -39,6 +39,7 @@ import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
+import android.graphics.ColorFilterMaker;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
@@ -2584,6 +2585,8 @@ public class PhoneStatusBar extends BaseStatusBar {
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_BRIGHTNESS_SLIDER), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_BACKGROUND_STYLE), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NAVIGATION_BAR_BACKGROUND_COLOR), false, this);
         }
 
@@ -2663,23 +2666,25 @@ public class PhoneStatusBar extends BaseStatusBar {
         mIsStatusBarBrightNess = Settings.System.getBoolean(mStatusBarView.getContext()
                 .getContentResolver(), Settings.System.STATUS_BAR_BRIGHTNESS_SLIDER, true);
 
-        // NavigationBar background color
         try {
             boolean showNav = mWindowManager.hasNavigationBar();
             if (showNav) {
                 // NavigationBar background color
-                final int DEFAULT_BACKGROUND_COLOR = 0xFF000000;
+                int defaultBg = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.NAVIGATION_BAR_BACKGROUND_STYLE, 2);
                 int navbarBackgroundColor = Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.NAVIGATION_BAR_BACKGROUND_COLOR, DEFAULT_BACKGROUND_COLOR);
-                if (DEBUG) {
-                    if (DEFAULT_BACKGROUND_COLOR != navbarBackgroundColor) Log.d(TAG, String.format
-                        ("background navbar color found to be: %d", navbarBackgroundColor));
-                    else Log.d(TAG, "default navbar color found");
-                }
-                if (navbarBackgroundColor != DEFAULT_BACKGROUND_COLOR)
+                        Settings.System.NAVIGATION_BAR_BACKGROUND_COLOR, 0xFF000000);
+
+                if (defaultBg == 0) {
                     mNavigationBarView.setBackgroundColor(navbarBackgroundColor);
-                else
-                    mNavigationBarView.setBackgroundColor(DEFAULT_BACKGROUND_COLOR);
+                } else if (defaultBg == 1) {
+                    mNavigationBarView.setBackgroundResource(R.drawable.nav_bar_bg);
+                    mNavigationBarView.getBackground().setColorFilter(ColorFilterMaker.
+                            changeColorAlpha(navbarBackgroundColor, .32f, 0f));
+                } else {
+                    mNavigationBarView.setBackground(mContext.getResources().getDrawable(
+                            R.drawable.nav_bar_bg));
+                }
             }
         } catch (RemoteException ex) {
             // no window manager? good luck with that
