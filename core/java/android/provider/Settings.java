@@ -1162,7 +1162,7 @@ public final class Settings {
          * with that name.  Note that internally setting values are always
          * stored as strings, so this function converts the given value to a
          * string (1 or 0) before storing it.
-         * 
+         *
          * @param cr The ContentResolver to access.
          * @param name The name of the setting to modify.
          * @param value The new value for the setting.
@@ -2612,6 +2612,50 @@ public final class Settings {
          * @hide
          */
         public static final String VOLUME_MUSIC_CONTROLS = "volume_music_controls";
+
+       /**
+        * Lefty mode
+        * @hide
+        */
+        public static final String NAVIGATION_BAR_LEFTY_MODE = "navigation_bar_lefty_mode";
+
+       /**
+        *
+        * @hide
+        */
+        public static final String SYSTEMUI_NAVRING_AMOUNT = "systemui_navring_amount";
+
+       /**
+        *
+        * @hide
+        */
+        public static final String SYSTEMUI_NAVRING_LONG_ENABLE = "systemui_navring_long_enable";
+
+        /**
+         * Custom navring actions
+         *
+         * @hide
+         */
+        public static final String[] SYSTEMUI_NAVRING = new String[] {
+                "navring_0",
+                "navring_1",
+                "navring_2",
+                "navring_3",
+                "navring_4",
+        };
+
+        /**
+         * Custom navring long press actions
+         *
+         * @hide
+         */
+        public static final String[] SYSTEMUI_NAVRING_LONG = new String[] {
+                "navring_long_0",
+                "navring_long_1",
+                "navring_long_2",
+                "navring_long_3",
+                "navring_long_4",
+        };
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
