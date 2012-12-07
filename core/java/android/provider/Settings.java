@@ -1706,6 +1706,35 @@ public final class Settings {
         public static final String ALWAYS_FINISH_ACTIVITIES = Global.ALWAYS_FINISH_ACTIVITIES;
 
         /**
+         * Volume Overlay Mode. This is the style of the volume overlay panel.
+         *      0 - Single
+         *      1 - Expandable (default)
+         *      2 - Expanded
+         *      3 - None
+         * @hide
+         */
+        public static final String MODE_VOLUME_OVERLAY = "mode_volume_overlay";
+
+        /** @hide */
+        public static final int VOLUME_OVERLAY_SINGLE = 0;
+
+        /** @hide */
+        public static final int VOLUME_OVERLAY_EXPANDABLE = 1;
+
+        /** @hide */
+        public static final int VOLUME_OVERLAY_EXPANDED = 2;
+
+        /** @hide */
+        public static final int VOLUME_OVERLAY_NONE = 3;
+
+        /**
+         * Boolean value whether to link ringtone and notification volumes
+         *
+         * @hide
+         */
+        public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
+
+        /**
          * Determines which streams are affected by ringer mode changes. The
          * stream type's bit should be set to 1 if it should be muted when going
          * into an inaudible ringer mode.
@@ -2224,13 +2253,13 @@ public final class Settings {
          * Whether to remove the sound from outgoing notifications during quiet hours.
          * @hide
          */
-        public static final String QUIET_HOURS_NOTIFICATIONS = "quiet_hours_notifications";
+        public static final String QUIET_HOURS_MUTE = "quiet_hours_mute";
 
         /**
-         * Whether to mute phone ringtones during quiet hours.
+         * Whether to disable haptic feedback during quiet hours.
          * @hide
          */
-        public static final String QUIET_HOURS_RINGER = "quiet_hours_ringer";
+        public static final String QUIET_HOURS_HAPTIC = "quiet_hours_haptic";
 
         /**
          * Whether to disable vibrations during quiet hours.
