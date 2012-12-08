@@ -116,11 +116,13 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
         super.onFinishInflate();
         mLockPatternUtils = mLockPatternUtils == null
                 ? new LockPatternUtils(mContext) : mLockPatternUtils;
+        mLockPatternUtils.updateLockPatternSize();
 
         mLockPatternView = (LockPatternView) findViewById(R.id.lockPatternView);
         mLockPatternView.setSaveEnabled(false);
         mLockPatternView.setFocusable(false);
         mLockPatternView.setOnPatternListener(new UnlockPatternListener());
+        mLockPatternView.setLockPatternSize(mLockPatternUtils.getLockPatternSize());
 
         // stealth mode will be the same for the life of this screen
         mLockPatternView.setInStealthMode(!mLockPatternUtils.isVisiblePatternEnabled());
@@ -260,6 +262,7 @@ public class KeyguardPatternView extends LinearLayout implements KeyguardSecurit
         }
 
         public void onPatternDetected(List<LockPatternView.Cell> pattern) {
+            mLockPatternUtils.updateLockPatternSize();
             if (mLockPatternUtils.checkPattern(pattern)) {
                 mCallback.reportSuccessfulUnlockAttempt();
                 mLockPatternView.setDisplayMode(LockPatternView.DisplayMode.Correct);
