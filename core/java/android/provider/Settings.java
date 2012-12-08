@@ -1717,11 +1717,8 @@ public final class Settings {
         public static final String ALWAYS_FINISH_ACTIVITIES = Global.ALWAYS_FINISH_ACTIVITIES;
 
         /**
-         * Volume Overlay Mode. This is the style of the volume overlay panel.
-         *      0 - Single
-         *      1 - Expandable (default)
-         *      2 - Expanded
-         *      3 - None
+         * Volume Overlay Mode, This is behaviour of the volume overlay panel
+         * Defaults to 0 - which is simple
          * @hide
          */
         public static final String MODE_VOLUME_OVERLAY = "mode_volume_overlay";
@@ -2483,6 +2480,12 @@ public final class Settings {
         public static final String POINTER_SPEED = "pointer_speed";
 
         /**
+         * Show the pending notification counts as overlays on the status bar
+         * @hide
+         */
+        public static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
@@ -2533,6 +2536,8 @@ public final class Settings {
             AUTO_TIME_ZONE,             // moved to global
             TIME_12_24,
             DATE_FORMAT,
+            ACCELEROMETER_ROTATION,
+            USER_ROTATION,
             DTMF_TONE_WHEN_DIALING,
             DTMF_TONE_TYPE_WHEN_DIALING,
             HEARING_AID,
@@ -2553,7 +2558,10 @@ public final class Settings {
             VIBRATE_WHEN_RINGING,
             QUIET_HOURS_ENABLED,
             QUIET_HOURS_START,
-            QUIET_HOURS_END
+            QUIET_HOURS_END,
+            QUIET_HOURS_MUTE,
+            QUIET_HOURS_STILL,
+            QUIET_HOURS_DIM,
         };
 
         // Settings moved to Settings.Secure

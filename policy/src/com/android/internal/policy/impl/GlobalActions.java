@@ -118,6 +118,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private Profile mChosenProfile;
 
+    private static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
+
     /**
      * @param context everything needs a context :(
      */
@@ -271,6 +273,65 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 }
             });
 
+        // next: reboot
+        mItems.add(
+            new SinglePressAction(R.drawable.ic_lock_reboot, R.string.global_action_reboot) {
+                public void onPress() {
+                    mWindowManagerFuncs.reboot();
+                }
+
+                public boolean onLongPress() {
+                    mWindowManagerFuncs.rebootSafeMode(true);
+                    return true;
+                }
+
+                public boolean showDuringKeyguard() {
+                    return true;
+                }
+
+                public boolean showBeforeProvisioning() {
+                    return true;
+                }
+            });
+
+        // next: profile - only shown if enabled, which is true by default
+        if (Settings.System.getInt(mContext.getContentResolver(), SYSTEM_PROFILES_ENABLED, 1) == 1) {
+            mItems.add(
+                new ProfileChooseAction() {
+                    public void onPress() {
+                        createProfileDialog();
+                    }
+
+                    public boolean onLongPress() {
+                        return true;
+                    }
+
+                    public boolean showDuringKeyguard() {
+                        return false;
+                    }
+
+                    public boolean showBeforeProvisioning() {
+                        return false;
+                    }
+                });
+        }
+
+        // next: screenshot
+        mItems.add(
+            new SinglePressAction(R.drawable.ic_lock_screenshot, R.string.global_action_screenshot) {
+                public void onPress() {
+                    takeScreenshot();
+                }
+
+                public boolean showDuringKeyguard() {
+                    return true;
+                }
+
+                public boolean showBeforeProvisioning() {
+                    return true;
+                }
+            });
+
         // next: airplane mode
         mItems.add(mAirplaneModeOn);
 
@@ -322,63 +383,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                     }
                 });
         }
-
-        // next: reboot
-        mItems.add(
-            new SinglePressAction(R.drawable.ic_lock_reboot, R.string.global_action_reboot) {
-                public void onPress() {
-                    mWindowManagerFuncs.reboot();
-                }
-
-                public boolean onLongPress() {
-                    mWindowManagerFuncs.rebootSafeMode(true);
-                    return true;
-                }
-
-                public boolean showDuringKeyguard() {
-                    return true;
-                }
-
-                public boolean showBeforeProvisioning() {
-                    return true;
-                }
-            });
-
-        // next: profile
-        mItems.add(
-            new ProfileChooseAction() {
-                public void onPress() {
-                    createProfileDialog();
-                }
-
-                public boolean onLongPress() {
-                    return true;
-                }
-
-                public boolean showDuringKeyguard() {
-                    return false;
-                }
-
-                public boolean showBeforeProvisioning() {
-                    return false;
-                }
-            });
-
-        // next: screenshot
-        mItems.add(
-            new SinglePressAction(R.drawable.ic_lock_screenshot, R.string.global_action_screenshot) {
-                public void onPress() {
-                    takeScreenshot();
-                }
-
-                public boolean showDuringKeyguard() {
-                    return true;
-                }
-
-                public boolean showBeforeProvisioning() {
-                    return true;
-                }
-            });
 
         // last: silent mode
         if (SHOW_SILENT_TOGGLE) {
