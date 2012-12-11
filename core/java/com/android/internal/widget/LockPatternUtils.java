@@ -967,6 +967,30 @@ public class LockPatternUtils {
     }
 
     /**
+     * Set whether tactile feedback for the pattern is enabled.
+     */
+    public void setTactileFeedbackEnabled(boolean enabled) {
+        setBoolean(Settings.Secure.LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED, enabled);
+    }
+
+    public void setVisibleDotsEnabled(boolean enabled) {
+        setBoolean(Settings.Secure.LOCK_DOTS_VISIBLE, enabled);
+    }
+
+    public boolean isVisibleDotsEnabled() {
+        return getBoolean(Settings.Secure.LOCK_DOTS_VISIBLE, true);
+    }
+
+    public void setShowErrorPath(boolean enabled) {
+        setBoolean(Settings.Secure.LOCK_SHOW_ERROR_PATH, enabled);
+    }
+
+    public boolean isShowErrorPath() {
+        return getBoolean(Settings.Secure.LOCK_SHOW_ERROR_PATH, true);
+    }
+
+
+    /**
      * @return the pattern lockscreen size
      */
     public int getLockPatternSize() {
@@ -1388,6 +1412,24 @@ public class LockPatternUtils {
             // Shouldn't happen!
         }
         return false;
+    }
+
+    /**
+     * @hide
+     * Set the lock-before-unlock option (show widgets before the secure
+     * unlock screen). See config_enableLockBeforeUnlockScreen
+     */
+    public void setLockBeforeUnlock(boolean enabled) {
+        setBoolean(Settings.Secure.LOCK_BEFORE_UNLOCK, enabled);
+    }
+
+    /**
+     * @hide
+     * Get the lock-before-unlock option (show widgets before the secure
+     * unlock screen).
+     */
+    public boolean getLockBeforeUnlock() {
+        return getBoolean(Settings.Secure.LOCK_BEFORE_UNLOCK, false);
     }
 
 }
