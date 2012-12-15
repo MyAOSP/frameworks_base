@@ -3710,6 +3710,12 @@ public final class Settings {
         public static final String NOTIF_WALLPAPER_ALPHA = "notif_wallpaper_alpha";
 
         /**
+         * Sets the background of the notification pulldown
+         * @hide
+         */
+        public static final String NOTIF_BACKGROUND = "notif_background";
+
+        /**
           * Sets text size in statusbar
           * @hide
           */
