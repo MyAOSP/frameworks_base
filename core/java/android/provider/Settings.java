@@ -2854,6 +2854,60 @@ public final class Settings {
         public static final String LOCKSCREEN_QUICK_UNLOCK_CONTROL = "lockscreen_quick_unlock_control";
 
         /**
+         * Option to hide power off in power menu.
+         * @hide
+         */
+        public static final String POWER_DIALOG_SHOW_POWER_OFF = "power_dialog_show_power_off";
+
+        /**
+         * Option to hide reboot dialog in power menu.
+         * @hide
+         */
+        public static final String POWER_DIALOG_SHOW_REBOOT_CHOOSER = "power_dialog_show_reboot_chooser";
+
+        /**
+         * Option to hide the Navbar hide options in power menu
+         * @hide
+         */
+        public static final String POWER_DIALOG_SHOW_NAVBAR_HIDE = "power_dialog_show_navbar_hide";
+
+        /**
+         * Option to hide screenshot in the power menu
+         * @hide
+         */
+        public static final String POWER_DIALOG_SHOW_SCREENSHOT = "power_dialog_show_screenshot";
+
+        /**
+         * @hide
+         */
+        public static final String POWER_DIALOG_SHOW_AIRPLANE_TOGGLE = "power_dialog_show_airplane_toggle";
+
+        /**
+         * Option to hide expanded desktop in power menu
+         * @hide
+         */
+         public static final String POWER_DIALOG_SHOW_EXPANDED_DESKTOP_TOGGLE = "power_dialog_show_expanded_desktop_toggle";
+
+        /**
+         * Option to hide the profile chooser in power menu
+         * @hide
+         */
+        public static final String POWER_DIALOG_SHOW_PROFILE_CHOOSER = "power_dialog_show_profile_chooser";
+
+        /**
+         * Option to hide the sound chooser in power menu
+         * @hide
+         */
+        public static final String POWER_DIALOG_SHOW_SOUND_CHOOSER = "power_dialog_show_sound_chooser";
+
+
+        /**
+         * Statusbar State
+         * @hide
+         */
+        public static final String EXPANDED_DESKTOP_STATE = "expanded_desktop_state";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *

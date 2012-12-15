@@ -245,13 +245,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     // Vibrator pattern for haptic feedback of virtual key press.
     long[] mVirtualKeyVibePattern;
-    
+
     // Vibrator pattern for a short vibration.
     long[] mKeyboardTapVibePattern;
 
     // Vibrator pattern for haptic feedback during boot when safe mode is disabled.
     long[] mSafeModeDisabledVibePattern;
-    
+
     // Vibrator pattern for haptic feedback during boot when safe mode is enabled.
     long[] mSafeModeEnabledVibePattern;
 
@@ -321,7 +321,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     boolean mOrientationSensorEnabled = false;
     int mCurrentAppOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     boolean mHasSoftInput = false;
-    
+
     int mPointerLocationMode = 0; // guarded by mLock
 
     // The last window we were told about in focusChanged.
@@ -410,7 +410,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     static final Rect mTmpContentFrame = new Rect();
     static final Rect mTmpVisibleFrame = new Rect();
     static final Rect mTmpNavigationFrame = new Rect();
-    
+
     WindowState mTopFullscreenOpaqueWindowState;
     boolean mTopIsFullscreen;
     boolean mForceStatusBar;
@@ -567,6 +567,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             resolver.registerContentObserver(Settings.System.getUriFor(
                     "fancy_rotation_anim"), false, this,
                     UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.EXPANDED_DESKTOP_STATE), false, this);
             updateSettings();
         }
 
@@ -575,12 +577,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             updateRotation(false);
         }
     }
-    
+
     class MyOrientationListener extends WindowOrientationListener {
         MyOrientationListener(Context context) {
             super(context);
         }
-        
+
         @Override
         public void onProposedRotationChanged(int rotation) {
             if (localLOGV) Log.v(TAG, "onProposedRotationChanged, rotation=" + rotation);
@@ -634,11 +636,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
         return true;
     }
-    
+
     /*
      * Various use cases for invoking this function
      * screen turning off, should always disable listeners if already enabled
-     * screen turned on and current app has sensor based orientation, enable listeners 
+     * screen turned on and current app has sensor based orientation, enable listeners
      * if not already enabled
      * screen turned on and current app does not have sensor orientation, disable listeners if
      * already enabled
@@ -665,8 +667,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     if(localLOGV) Log.v(TAG, "Enabling listeners");
                     mOrientationSensorEnabled = true;
                 }
-            } 
-        } 
+            }
+        }
         //check if sensors need to be disabled
         if (disable && mOrientationSensorEnabled) {
             mOrientationListener.disable();
@@ -1062,7 +1064,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             /*
              * at first boot up, we need to make sure navbar gets created
              * (or obey framework setting).
-             * this should quickly get over-ridden by the settings observer	
+             * this should quickly get over-ridden by the settings observer
              * if it was disabled by the user.
             */
             if (mNavBarFirstBootFlag) {
@@ -1184,7 +1186,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 Settings.System.NAVIGATION_BAR_SHOW, showByDefault) == 1;
         if (mHasNavigationBar != showNavBarNow) {
             mHasNavigationBar = showNavBarNow;
-            if(mDisplay != null)	
+            if(mDisplay != null)
                 setInitialDisplaySize(mDisplay, mUnrestrictedScreenWidth, mUnrestrictedScreenHeight, density);
         }
     }
@@ -1264,7 +1266,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     @Override
     public int checkAddPermission(WindowManager.LayoutParams attrs) {
         int type = attrs.type;
-        
+
         if (type < WindowManager.LayoutParams.FIRST_SYSTEM_WINDOW
                 || type > WindowManager.LayoutParams.LAST_SYSTEM_WINDOW) {
             return WindowManagerGlobal.ADD_OKAY;
@@ -1360,11 +1362,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 break;
         }
     }
-    
+
     void readLidState() {
         mLidState = mWindowManagerFuncs.getLidState();
     }
-    
+
     private boolean isHidden(int accessibilityMode) {
         switch (accessibilityMode) {
             case 1:
@@ -1709,16 +1711,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     /**
      * Preflight adding a window to the system.
-     * 
+     *
      * Currently enforces that three window types are singletons:
      * <ul>
      * <li>STATUS_BAR_TYPE</li>
      * <li>KEYGUARD_TYPE</li>
      * </ul>
-     * 
+     *
      * @param win The window to be added
      * @param attrs Information about the window to be added
-     * 
+     *
      * @return If ok, WindowManagerImpl.ADD_OKAY.  If too many singletons,
      * WindowManagerImpl.ADD_MULTIPLE_SINGLETON
      */
@@ -1784,7 +1786,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     static final boolean PRINT_ANIM = false;
-    
+
     /** {@inheritDoc} */
     public int selectAnimationLw(WindowState win, int transit) {
         if (PRINT_ANIM) Log.i(TAG, "selectAnimation in " + win
@@ -1832,7 +1834,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 ? com.android.internal.R.anim.lock_screen_wallpaper_behind_enter
                 : com.android.internal.R.anim.lock_screen_behind_enter);
     }
-    
+
     static ITelephony getTelephonyService() {
         return ITelephony.Stub.asInterface(
                 ServiceManager.checkService(Context.TELEPHONY_SERVICE));
@@ -2250,7 +2252,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         Intent intent = new Intent(Intent.ACTION_SEARCH_LONG_PRESS);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
-            // TODO: This only stops the factory-installed search manager.  
+            // TODO: This only stops the factory-installed search manager.
             // Need to formalize an API to handle others
             SearchManager searchManager = getSearchManager();
             if (searchManager != null) {
@@ -2507,6 +2509,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // decided that it can't be hidden (because of the screen aspect ratio),
             // then take that into account.
             navVisible |= !mCanHideNavigationBar;
+            navVisible &= (Settings.System.getInt(mContext.getContentResolver(),
+            Settings.System.EXPANDED_DESKTOP_STATE, 0) == 0);
 
             if (mNavigationBar != null) {
                 // Force the navigation bar to its appropriate place and
@@ -2754,7 +2758,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     == (FLAG_LAYOUT_IN_SCREEN | FLAG_LAYOUT_INSET_DECOR)
                     && (sysUiFl & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
                 if (DEBUG_LAYOUT)
-                    Log.v(TAG, "layoutWindowLw(" + attrs.getTitle() 
+                    Log.v(TAG, "layoutWindowLw(" + attrs.getTitle()
                             + "): IN_SCREEN, INSET_DECOR, !FULLSCREEN");
                 // This is the case for a normal activity window: we want it
                 // to cover all of the screen space, and it can take care of
@@ -2969,7 +2973,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         if (DEBUG_LAYOUT) Log.v(TAG, "Compute frame " + attrs.getTitle()
                 + ": sim=#" + Integer.toHexString(sim)
-                + " attach=" + attached + " type=" + attrs.type 
+                + " attach=" + attached + " type=" + attrs.type
                 + String.format(" flags=0x%08x", fl)
                 + " pf=" + pf.toShortString() + " df=" + df.toShortString()
                 + " cf=" + cf.toShortString() + " vf=" + vf.toShortString());
@@ -3013,7 +3017,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mTopFullscreenOpaqueWindowState = null;
         mForceStatusBar = false;
         mForceStatusBarFromKeyguard = false;
-        
+
         mHideLockScreen = false;
         mAllowLockscreenWhenOn = false;
         mDismissKeyguard = DISMISS_KEYGUARD_NONE;
@@ -3114,7 +3118,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // and mTopIsFullscreen is that that mTopIsFullscreen is set only if the window
                 // has the FLAG_FULLSCREEN set.  Not sure if there is another way that to be the
                 // case though.
-                if (topIsFullscreen) {
+                if (topIsFullscreen || Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.EXPANDED_DESKTOP_STATE, 0) == 1) {
+
                     if (DEBUG_LAYOUT) Log.v(TAG, "** HIDING status bar");
                     if (mStatusBar.hideLw(true)) {
                         changes |= FINISH_LAYOUT_REDO_LAYOUT;
@@ -3446,7 +3452,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             isWakeKey = false;
         }
 
-        // music is playing, don't wake the screen in case we need to skip track	
+        // music is playing, don't wake the screen in case we need to skip track
         if (isMusicActive()
                     && mVolBtnMusicControls
                     && mVolumeWakeScreen
@@ -3580,16 +3586,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             // initialize long press flag to false for volume events
                             mIsLongPress = false;
 
-                            // Use a message dispatcher to the Audio Service for track control	
-                            // The dispatcher will set the long press flag once called	
+                            // Use a message dispatcher to the Audio Service for track control
+                            // The dispatcher will set the long press flag once called
                             int newKeyCode = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP ?
                                 KeyEvent.KEYCODE_MEDIA_NEXT : KeyEvent.KEYCODE_MEDIA_PREVIOUS;
-                            Message msg = mHandler.obtainMessage(MSG_DISPATCH_VOLKEY_WITH_WAKE_LOCK,	
-                                new KeyEvent(event.getDownTime(), event.getEventTime(), event.getAction(), newKeyCode, 0));	
+                            Message msg = mHandler.obtainMessage(MSG_DISPATCH_VOLKEY_WITH_WAKE_LOCK,
+                                new KeyEvent(event.getDownTime(), event.getEventTime(), event.getAction(), newKeyCode, 0));
                             msg.setAsynchronous(true);
                             mHandler.sendMessageDelayed(msg, ViewConfiguration.getLongPressTimeout());
                         } else {
-                            // If music is playing but we decided not to pass the key to the	
+                            // If music is playing but we decided not to pass the key to the
                             // application, handle the volume change here.
                             handleVolumeKey(AudioManager.STREAM_MUSIC, keyCode);
                         }
@@ -4281,7 +4287,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 ? HapticFeedbackConstants.SAFE_MODE_ENABLED
                 : HapticFeedbackConstants.SAFE_MODE_DISABLED, true);
     }
-    
+
     static long[] getLongIntArray(Resources r, int resid) {
         int[] ar = r.getIntArray(resid);
         if (ar == null) {
@@ -4293,7 +4299,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
         return out;
     }
-    
+
     /** {@inheritDoc} */
     public void systemReady() {
         if (mKeyguardMediator != null) {
@@ -4488,7 +4494,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // We don't have dock home anymore. Home is home. If you lived here, you'd be home by now.
         mContext.startActivityAsUser(mHomeIntent, UserHandle.CURRENT);
     }
-    
+
     /**
      * goes to the home screen
      * @return whether it did anything
@@ -4528,7 +4534,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
         return true;
     }
-    
+
     public void setCurrentOrientationLw(int newOrientation) {
         synchronized (mLock) {
             if (newOrientation != mCurrentAppOrientation) {

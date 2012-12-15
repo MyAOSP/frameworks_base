@@ -110,6 +110,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
     private Action mSilentModeAction;
     private ToggleAction mAirplaneModeOn;
+    private ToggleAction mExpandDesktopModeOn;
 
     private MyAdapter mAdapter;
 
@@ -119,6 +120,15 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private boolean mIsWaitingForEcmExit = false;
     private boolean mHasTelephony;
     private boolean mHasVibrator;
+    private boolean mEnableNavBarHideToggle = true;
+    private boolean mEnableScreenshotToggle = false;
+    private boolean mEnableTorchToggle = true;
+    private boolean mEnableAirplaneToggle = true;
+    private boolean mReceiverRegistered = false;
+    private boolean mEnableProfileChooser = true;
+    private boolean mEnableSoundChooser = true;
+    private boolean mEnableRebootChooser = true;
+    private boolean mEnablePowerOff = true;
 
     private Profile mChosenProfile;
 
@@ -210,12 +220,53 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
      * @return A new dialog.
      */
     private GlobalActionsDialog createDialog() {
+        mEnableScreenshotToggle = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_DIALOG_SHOW_SCREENSHOT, 0) == 1;
+
+        mEnableRebootChooser = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_DIALOG_SHOW_REBOOT_CHOOSER, 1) == 1;
+
+        mEnableAirplaneToggle = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_DIALOG_SHOW_AIRPLANE_TOGGLE, 1) == 1;
+
+        mEnableProfileChooser = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_DIALOG_SHOW_PROFILE_CHOOSER, 1) == 1;
+
+        mEnableSoundChooser = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_DIALOG_SHOW_SOUND_CHOOSER, 1) == 1;
+
+        mEnablePowerOff = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_DIALOG_SHOW_POWER_OFF, 1) == 1;
+
         // Simple toggle style if there's no vibrator, otherwise use a tri-state
         if (!mHasVibrator) {
             mSilentModeAction = new SilentModeToggleAction();
         } else {
             mSilentModeAction = new SilentModeTriStateAction(mContext, mAudioManager, mHandler);
         }
+        
+        mExpandDesktopModeOn = new ToggleAction(
+                R.drawable.ic_lock_expanded_desktop,
+                R.drawable.ic_lock_expanded_desktop,
+                R.string.global_actions_toggle_expanded_desktop_mode,
+                R.string.global_actions_expanded_desktop_mode_on_status,
+                R.string.global_actions_expanded_desktop_mode_off_status) {
+
+            void onToggle(boolean on) {
+                changeExpandDesktopModeSystemSetting(on);
+            }
+
+            public boolean showDuringKeyguard() {
+                return false;
+            }
+
+            public boolean showBeforeProvisioning() {
+                return false;
+            }
+        };
+        
+        onExpandDesktopModeChanged();
+
         mAirplaneModeOn = new ToggleAction(
                 R.drawable.ic_lock_airplane_mode,
                 R.drawable.ic_lock_airplane_mode_off,
@@ -262,91 +313,108 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         mItems = new ArrayList<Action>();
 
         // first: power off
-        mItems.add(
-            new SinglePressAction(
-                    com.android.internal.R.drawable.ic_lock_power_off,
-                    R.string.global_action_power_off) {
-
-                public void onPress() {
-                    // shutdown by making sure radio and power are handled accordingly.
-                    mWindowManagerFuncs.shutdown(true);
-                }
-
-                public boolean onLongPress() {
-                    mWindowManagerFuncs.rebootSafeMode(true);
-                    return true;
-                }
-
-                public boolean showDuringKeyguard() {
-                    return true;
-                }
-
-                public boolean showBeforeProvisioning() {
-                    return true;
-                }
-            });
-
-        // next: reboot
-        mItems.add(
-            new SinglePressAction(R.drawable.ic_lock_reboot, R.string.global_action_reboot) {
-                public void onPress() {
-                    mWindowManagerFuncs.reboot();
-                }
-
-                public boolean onLongPress() {
-                    mWindowManagerFuncs.rebootSafeMode(true);
-                    return true;
-                }
-
-                public boolean showDuringKeyguard() {
-                    return true;
-                }
-
-                public boolean showBeforeProvisioning() {
-                    return true;
-                }
-            });
-
-        // next: profile - only shown if enabled, which is true by default
-        if (Settings.System.getInt(mContext.getContentResolver(), SYSTEM_PROFILES_ENABLED, 1) == 1) {
+        if (mEnablePowerOff) {
             mItems.add(
-                new ProfileChooseAction() {
+                new SinglePressAction(
+                        com.android.internal.R.drawable.ic_lock_power_off,
+                        R.string.global_action_power_off) {
+
                     public void onPress() {
-                        createProfileDialog();
+                        // shutdown by making sure radio and power are handled accordingly.
+                        mWindowManagerFuncs.shutdown(true);
                     }
 
                     public boolean onLongPress() {
+                        mWindowManagerFuncs.rebootSafeMode(true);
                         return true;
                     }
 
                     public boolean showDuringKeyguard() {
-                        return false;
+                        return true;
                     }
+
+                    public boolean showBeforeProvisioning() {
+                        return true;
+                    }
+                });
+        }
+
+        if (mEnableRebootChooser) {
+            // next: reboot
+            mItems.add(
+                new SinglePressAction(R.drawable.ic_lock_reboot, R.string.global_action_reboot) {
+                    public void onPress() {
+                        mWindowManagerFuncs.reboot();
+                    }
+
+                    public boolean onLongPress() {
+                        mWindowManagerFuncs.rebootSafeMode(true);
+                        return true;
+                    }
+
+                    public boolean showDuringKeyguard() {
+                        return true;
+                    }
+
+                    public boolean showBeforeProvisioning() {
+                        return true;
+                    }
+                });
+        }
+
+        // next: profile - only shown if enabled, which is true by default
+        if ((mEnableProfileChooser) && (Settings.System.getInt(mContext.getContentResolver(),
+                    SYSTEM_PROFILES_ENABLED, 1) == 1)) {
+                mItems.add(
+                    new ProfileChooseAction() {
+                        public void onPress() {
+                            createProfileDialog();
+                        }
+
+                        public boolean onLongPress() {
+                            return true;
+                        }
+
+                        public boolean showDuringKeyguard() {
+                            return false;
+                        }
 
                     public boolean showBeforeProvisioning() {
                         return false;
                     }
                 });
+            }
         }
 
         // next: screenshot
-        mItems.add(
-            new SinglePressAction(R.drawable.ic_lock_screenshot, R.string.global_action_screenshot) {
-                public void onPress() {
-                    takeScreenshot();
-                }
+        if (mEnableScreenshotToggle) {
+            mItems.add(
+                new SinglePressAction(R.drawable.ic_lock_screenshot, R.string.global_action_screenshot) {
+                    public void onPress() {
+                        takeScreenshot();
+                    }
 
-                public boolean showDuringKeyguard() {
-                    return true;
-                }
+                    public boolean showDuringKeyguard() {
+                        return true;
+                    }
 
-                public boolean showBeforeProvisioning() {
-                    return true;
-                }
-            });
+                    public boolean showBeforeProvisioning() {
+                        return true;
+                    }
+                });
+        }
+
+        // next: expanded desktop toggle
+        // only shown if enabled, disabled by default
+        if(Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.POWER_DIALOG_SHOW_EXPANDED_DESKTOP_TOGGLE, 0) == 1){
+            mItems.add(mExpandDesktopModeOn);
+        }
 
         // next: airplane mode
-        mItems.add(mAirplaneModeOn);
+        if (mEnableAirplaneToggle) {
+            mItems.add(mAirplaneModeOn);
+        }
 
         // next: bug report, if enabled
         if (Settings.Secure.getInt(mContext.getContentResolver(),
@@ -398,8 +466,9 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
 
         // last: silent mode
-        if (SHOW_SILENT_TOGGLE) {
-            mItems.add(mSilentModeAction);
+        if ((mEnableSoundChooser) && (SHOW_SILENT_TOGGLE)) {
+                mItems.add(mSilentModeAction);
+            }
         }
 
         // one more thing: optionally add a list of users to switch to
@@ -1178,6 +1247,16 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         if (!mHasTelephony) {
             mAirplaneState = on ? ToggleAction.State.On : ToggleAction.State.Off;
         }
+    }
+
+    /**
+     * Change the expand desktop mode system setting
+     */
+    private void changeExpandDesktopModeSystemSetting(boolean on) {
+        Settings.System.putInt(
+                mContext.getContentResolver(),
+                Settings.System.EXPANDED_DESKTOP_STATE,
+                on ? 1 : 0);
     }
 
     private static final class GlobalActionsDialog extends Dialog implements DialogInterface {
