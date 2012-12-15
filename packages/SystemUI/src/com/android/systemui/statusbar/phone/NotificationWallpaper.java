@@ -54,7 +54,7 @@ class NotificationWallpaper extends FrameLayout {
 
         } else if (file.exists()) {
             mNotificationWallpaperImage = new ImageView(getContext());
-            mNotificationWallpaperImage.setScaleType(ScaleType.CENTER);
+            mNotificationWallpaperImage.setScaleType(ScaleType.CENTER_CROP);
             addView(mNotificationWallpaperImage, -1, -1);
             bitmapWallpaper = BitmapFactory.decodeFile(NOTIF_WALLPAPER_IMAGE_PATH);
             Drawable d = new BitmapDrawable(getResources(), bitmapWallpaper);
@@ -63,7 +63,6 @@ class NotificationWallpaper extends FrameLayout {
 
         } else {
             setBackgroundColor(0xFF000000);
-            setAlpha((int) (wallpaperAlpha * 255));
         }
     }
 
