@@ -796,6 +796,7 @@ public class NotificationManagerService extends INotificationManager.Stub
         mContext.registerReceiver(mIntentReceiver, pkgFilter);
         IntentFilter sdFilter = new IntentFilter(Intent.ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE);
         mContext.registerReceiver(mIntentReceiver, sdFilter);
+        ThemeUtils.registerThemeChangeReceiver(mContext, mThemeChangeReceiver);
 
         LEDSettingsObserver ledObserver = new LEDSettingsObserver(mHandler);
         ledObserver.observe();

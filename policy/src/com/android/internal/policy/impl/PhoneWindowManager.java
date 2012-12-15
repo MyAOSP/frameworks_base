@@ -3891,6 +3891,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     };
 
     @Override
+    /** {@inheritDoc} */
     public void screenTurnedOff(int why) {
         EventLog.writeEvent(70000, 0);
         synchronized (mLock) {

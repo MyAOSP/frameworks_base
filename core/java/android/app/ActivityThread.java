@@ -17,13 +17,6 @@
 
 package android.app;
 
-import com.android.internal.app.IAssetRedirectionManager;
-import com.android.internal.os.BinderInternal;
-import com.android.internal.os.RuntimeInit;
-import com.android.internal.os.SamplingProfilerIntegration;
-
-import org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl;
-
 import android.app.backup.BackupAgent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentCallbacks2;
@@ -32,10 +25,11 @@ import android.content.ContentProvider;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.IContentProvider;
-import android.content.IIntentReceiver;
 import android.content.Intent;
+import android.content.IIntentReceiver;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.IPackageManager;
 import android.content.pm.InstrumentationInfo;
 import android.content.pm.PackageInfo;
@@ -79,6 +73,7 @@ import android.os.ServiceManager;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.os.SystemProperties;
+import android.text.TextUtils;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.text.TextUtils;
@@ -102,7 +97,13 @@ import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
 import android.renderscript.RenderScript;
 
+import com.android.internal.app.IAssetRedirectionManager;
+import com.android.internal.os.BinderInternal;
+import com.android.internal.os.RuntimeInit;
+import com.android.internal.os.SamplingProfilerIntegration;
 import com.android.internal.util.Objects;
+
+import org.apache.harmony.xnet.provider.jsse.OpenSSLSocketImpl;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -1572,7 +1573,10 @@ public final class ActivityThread {
             if (mScale != peer.mScale) {
                 return false;
             }
-            return mIsThemeable == peer.mIsThemeable;
+            if (mIsThemeable != peer.mIsThemeable) {
+                return false;
+            }
+            return true;
         }
     }
 
@@ -1714,6 +1718,18 @@ public final class ActivityThread {
             return null;
         }
 
+        /* Attach theme information to the resulting AssetManager when appropriate. */
+        Configuration themeConfig = getConfiguration();
+        if (compInfo.isThemeable && themeConfig != null) {
+            if (themeConfig.customTheme == null) {
+                themeConfig.customTheme = CustomTheme.getBootTheme();
+            }
+
+            if (!TextUtils.isEmpty(themeConfig.customTheme.getThemePackageName())) {
+                attachThemeAssets(assets, themeConfig.customTheme);
+            }
+        }
+
         //Slog.i(TAG, "Resource: key=" + key + ", display metrics=" + metrics);
         DisplayMetrics dm = getDisplayMetricsLocked(displayId, null);
         Configuration config;
@@ -1729,18 +1745,6 @@ public final class ActivityThread {
         } else {
             config = getConfiguration();
         }
-
-        /* Attach theme information to the resulting AssetManager when appropriate. */
-        if (compInfo.isThemeable && config != null) {
-            if (config.customTheme == null) {
-                config.customTheme = CustomTheme.getBootTheme();
-            }
-
-            if (!TextUtils.isEmpty(config.customTheme.getThemePackageName())) {
-                attachThemeAssets(assets, config.customTheme);
-            }
-        }
-
         r = new Resources(assets, dm, config, compInfo);
         if (false) {
             Slog.i(TAG, "Created app resources " + resDir + " " + r + ": "
@@ -1781,8 +1785,8 @@ public final class ActivityThread {
      *
      * @param assets
      * @param theme
-     * @return true if the AssetManager is now theme-aware; false otherwise.
-     *         This can fail, for example, if the theme package has been been
+     * @return true if the AssetManager is now theme-aware; false otherwise
+     *         this can fail, for example, if the theme package has been
      *         removed and the theme manager has yet to revert formally back to
      *         the framework default.
      */
@@ -3984,10 +3988,6 @@ public final class ActivityThread {
             if (r != null) {
                 if (DEBUG_CONFIGURATION) Slog.v(TAG, "Changing resources "
                         + r + " config to: " + config);
-                int displayId = entry.getKey().mDisplayId;
-                boolean isDefaultDisplay = (displayId == Display.DEFAULT_DISPLAY);
-                DisplayMetrics dm = defaultDisplayMetrics;
-                Configuration overrideConfig = entry.getKey().mOverrideConfiguration;
                 boolean themeChanged = (changes & ActivityInfo.CONFIG_THEME_RESOURCE) != 0;
                 if (themeChanged) {
                     AssetManager am = r.getAssets();
@@ -3998,6 +3998,10 @@ public final class ActivityThread {
                         }
                     }
                 }
+                int displayId = entry.getKey().mDisplayId;
+                boolean isDefaultDisplay = (displayId == Display.DEFAULT_DISPLAY);
+                DisplayMetrics dm = defaultDisplayMetrics;
+                Configuration overrideConfig = entry.getKey().mOverrideConfiguration;
                 if (!isDefaultDisplay || overrideConfig != null) {
                     if (tmpConfig == null) {
                         tmpConfig = new Configuration();

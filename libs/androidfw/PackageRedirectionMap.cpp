@@ -32,6 +32,24 @@ PackageRedirectionMap::PackageRedirectionMap()
 {
 }
 
+/*
+ * Round up to the next highest power of 2.
+ *
+ * Found on http://graphics.stanford.edu/~seander/bithacks.html.
+ */
+static unsigned int roundUpPower2(unsigned int val)
+{
+    val--;
+    val |= val >> 1;
+    val |= val >> 2;
+    val |= val >> 4;
+    val |= val >> 8;
+    val |= val >> 16;
+    val++;
+
+    return val;
+}
+
 static void clearEntriesByType(uint32_t** entriesByType)
 {
     SharedBuffer* buf = SharedBuffer::bufferFromData(entriesByType);
@@ -52,18 +70,6 @@ PackageRedirectionMap::~PackageRedirectionMap()
     }
 }
 
-unsigned int roundUpPower2(unsigned int val)
-{
-    val--;
-    val |= val >> 1;
-    val |= val >> 2;
-    val |= val >> 4;
-    val |= val >> 8;
-    val |= val >> 16;
-    val++;
-
-    return val;
-}
 static void* ensureCapacity(void* data, size_t nmemb, size_t size)
 {
     SharedBuffer* buf;
