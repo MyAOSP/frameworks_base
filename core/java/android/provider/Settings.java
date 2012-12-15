@@ -2542,6 +2542,18 @@ public final class Settings {
         public static final String STATUSBAR_BATTERY_ICON = "statusbar_battery_icon";
 
         /**
+         * Statusbar battery text charging colorpicker
+         * @hide
+         */
+        public static final String STATUSBAR_BATTERY_CHARGE_TEXT_COLOR = "statusbar_battery_charge_text_color";
+
+        /**
+         * Statusbar battery text colorpicker
+         * @hide
+         */
+        public static final String STATUSBAR_BATTERY_TEXT_COLOR = "statusbar_battery_text_color";
+
+        /**
          * AM/PM Style for clock options
          * 0 - Normal AM/PM
          * 1 - Small AM/PM
