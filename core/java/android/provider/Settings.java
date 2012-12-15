@@ -3703,6 +3703,18 @@ public final class Settings {
         @Deprecated
         public static final String HTTP_PROXY = Global.HTTP_PROXY;
 
+         /**
+          * Sets the alpha (transparency) of notification wallpaper
+          * @hide
+          */
+        public static final String NOTIF_WALLPAPER_ALPHA = "notif_wallpaper_alpha";
+
+        /**
+          * Sets text size in statusbar
+          * @hide
+          */
+        public static final String STATUSBAR_FONT_SIZE = "statusbar_font_size";
+
         /**
          * @deprecated Use {@link android.provider.Settings.Global#INSTALL_NON_MARKET_APPS} instead
          */
