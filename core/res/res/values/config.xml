@@ -1030,4 +1030,7 @@
 
     <!-- Device has a h/w rotation lock switch -->
     <bool name="config_hasRotationLockSwitch">false</bool>
+
+    <!-- Set to true for Tegra3 devices -->
+    <bool name="config_isTegra3">false</bool>
 </resources>
