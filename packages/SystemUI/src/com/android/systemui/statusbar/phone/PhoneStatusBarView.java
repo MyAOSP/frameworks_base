@@ -23,6 +23,7 @@ import android.content.ContentResolver;
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 import android.database.ContentObserver;
+import android.graphics.ColorFilterMaker;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.AttributeSet;
@@ -47,7 +48,6 @@ public class PhoneStatusBarView extends PanelBar {
     PanelView mNotificationPanel, mSettingsPanel;
     private boolean mShouldFade;
 
-    private int mBackgroundColor;
     Handler mHandler;
 
     public PhoneStatusBarView(Context context, AttributeSet attrs) {
@@ -252,6 +252,8 @@ public class PhoneStatusBarView extends PanelBar {
 
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUSBAR_BACKGROUND_COLOR), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUSBAR_BACKGROUND_STYLE), false, this);
             updateSettings();
         }
 
@@ -262,10 +264,19 @@ public class PhoneStatusBarView extends PanelBar {
     }
 
     private void updateSettings() {
-        ContentResolver resolver = mContext.getContentResolver();
-        mBackgroundColor = Settings.System.getInt(resolver,
+        int defaultBg = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.STATUSBAR_BACKGROUND_STYLE, 2);
+        int mStatusBarBgColor = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.STATUSBAR_BACKGROUND_COLOR, 0xFF000000);
 
-        setBackgroundColor(mBackgroundColor);
+        if (defaultBg == 0) {
+            setBackgroundColor(mStatusBarBgColor);
+        } else if (defaultBg == 1) {
+            setBackgroundResource(R.drawable.status_bar_background);
+            getBackground().setColorFilter(ColorFilterMaker.
+                    changeColorAlpha(mStatusBarBgColor, .32f, 0f));
+        } else {
+            setBackground(mContext.getResources().getDrawable(R.drawable.status_bar_background));
+        }
     }
 }
