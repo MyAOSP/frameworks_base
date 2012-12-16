@@ -2948,6 +2948,13 @@ public final class Settings {
         public static final String EXPANDED_DESKTOP_STATE = "expanded_desktop_state";
 
         /**
+         * whether to enable end app on back longpress functionality
+         *
+         * @hide
+         */
+        public static final String KILL_APP_LONGPRESS_BACK = "kill_app_longpress_back";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
