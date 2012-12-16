@@ -828,7 +828,7 @@ public class PhoneStatusBar extends BaseStatusBar {
                     | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                     | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
                     | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
-                PixelFormat.OPAQUE);
+                PixelFormat.TRANSPARENT);
         // this will allow the navbar to run in an overlay on devices that support this
         if (ActivityManager.isHighEndGfx()) {
             lp.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
@@ -850,7 +850,7 @@ public class PhoneStatusBar extends BaseStatusBar {
                     | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                     | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
                     | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
-                PixelFormat.TRANSLUCENT);
+                PixelFormat.TRANSPARENT);
         lp.gravity = Gravity.TOP | Gravity.FILL_HORIZONTAL;
         //lp.y += height * 1.5; // FIXME
         lp.setTitle("IntruderAlert");
@@ -2470,9 +2470,11 @@ public class PhoneStatusBar extends BaseStatusBar {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.CURRENT_UI_MODE), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_BACKGROUND_COLOR), false, this);
         }
 
-         @Override
+        @Override
         public void onChange(boolean selfChange) {
             updateSettings();
         }
@@ -2482,5 +2484,27 @@ public class PhoneStatusBar extends BaseStatusBar {
         ContentResolver cr = mContext.getContentResolver();
         mCurrentUIMode = Settings.System.getInt(cr,
                 Settings.System.CURRENT_UI_MODE, 0);
+
+        // NavigationBar background color
+        try {
+            boolean showNav = mWindowManager.hasNavigationBar();
+            if (showNav) {
+                // NavigationBar background color
+                final int DEFAULT_BACKGROUND_COLOR = 0xFF000000;
+                int navbarBackgroundColor = Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.NAVIGATION_BAR_BACKGROUND_COLOR, DEFAULT_BACKGROUND_COLOR);
+                if (DEBUG) {
+                    if (DEFAULT_BACKGROUND_COLOR != navbarBackgroundColor) Log.d(TAG, String.format
+                        ("background navbar color found to be: %d", navbarBackgroundColor));
+                    else Log.d(TAG, "default navbar color found");
+                }
+                if (navbarBackgroundColor != DEFAULT_BACKGROUND_COLOR)
+                    mNavigationBarView.setBackgroundColor(navbarBackgroundColor);
+                else
+                    mNavigationBarView.setBackgroundColor(DEFAULT_BACKGROUND_COLOR);
+            }
+        } catch (RemoteException ex) {
+            // no window manager? good luck with that
+        }
     }
 }

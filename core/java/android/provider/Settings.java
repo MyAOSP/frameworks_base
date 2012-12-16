@@ -2851,6 +2851,12 @@ public final class Settings {
         public static final String NAVIGATION_BAR_GLOW_TINT = "navigation_bar_glow_tint";
 
         /**
+         * Sets navbar background color/alpha
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_BACKGROUND_COLOR = "navigation_bar_background_color";
+
+        /**
          * @hide
          */
         public static final String[] NAVIGATION_BAR_GLOW_DURATION = new String[] {
