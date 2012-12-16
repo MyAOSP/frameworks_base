@@ -2631,6 +2631,12 @@ public final class Settings {
         public static final String STATUSBAR_BATTERY_BAR_ANIMATE = "statusbar_battery_bar_animate";
 
         /**
+         * Statusbar background color/alpha chooser
+         * @hide
+         */
+        public static final String STATUSBAR_BACKGROUND_COLOR = "statusbar_background_color";
+
+        /**
          * use Alt Activity Resolver Grid (GB style)
          * boolean
          *
