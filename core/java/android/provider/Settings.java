@@ -2578,6 +2578,12 @@ public final class Settings {
         public static final String STATUSBAR_CLOCK_COLOR = "statusbar_clock_color";
 
         /**
+         * Statusbar clock colorpicker
+         * @hide
+         */
+        public static final String STATUSBAR_EXPANDED_CLOCK_COLOR = "statusbar_expanded_clock_color";
+
+        /**
          * Switch to disable notification pulldown clock open/date opens press
          * @hide
          */
@@ -2644,12 +2650,6 @@ public final class Settings {
          * @hide
          */
         public static final String VIBRATE_NOTIF_EXPAND = "vibrate_notif_expand";
-
-        /**
-         * Whether the volume keys wake the screen.
-         * @hide
-         */
-        public static final String VOLUME_WAKE_SCREEN = "volume_wake_screen";
 
         /**
          * Whether volume up/down can be long pressed to skip tracks
@@ -2953,6 +2953,32 @@ public final class Settings {
          * @hide
          */
         public static final String KILL_APP_LONGPRESS_BACK = "kill_app_longpress_back";
+
+        /**
+         * @hide
+         * Style of Battery
+         * 0 - Icon Only
+         * 1 - Text Only
+         * 2 - Icon Text
+         * 3 - Icon Centered Text
+         * 4 - Icon Circle
+         * 5 - CM circle w/o %
+         * 6 - CM circle w %
+         * 7 - Hide
+         */
+        public static final String STATUSBAR_BATTERY_ICON = "statusbar_battery_icon";
+
+        /**
+         * Sets the alpha (transparency) of notification wallpaper
+         * @hide
+         */
+        public static final String NOTIF_WALLPAPER_ALPHA = "notif_wallpaper_alpha";
+
+        /**
+         * Sets the background of the notification pulldown
+         * @hide
+         */
+        public static final String NOTIF_BACKGROUND = "notif_background";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
@@ -3885,36 +3911,10 @@ public final class Settings {
         public static final String HTTP_PROXY = Global.HTTP_PROXY;
 
         /**
-         * Sets the alpha (transparency) of notification wallpaper
-         * @hide
-         */
-        public static final String NOTIF_WALLPAPER_ALPHA = "notif_wallpaper_alpha";
-
-        /**
-         * Sets the background of the notification pulldown
-         * @hide
-         */
-        public static final String NOTIF_BACKGROUND = "notif_background";
-
-        /**
           * Sets text size in statusbar
           * @hide
           */
         public static final String STATUSBAR_FONT_SIZE = "statusbar_font_size";
-
-        /**
-         * @hide
-         * Style of Battery
-         * 0 - Icon Only
-         * 1 - Text Only
-         * 2 - Icon Text
-         * 3 - Icon Centered Text
-         * 4 - Icon Circle
-         * 5 - CM circle w/o %
-         * 6 - CM circle w %
-         * 7 - Hide
-         */
-        public static final String STATUSBAR_BATTERY_ICON = "statusbar_battery_icon";
 
         /**
          * @deprecated Use {@link android.provider.Settings.Global#INSTALL_NON_MARKET_APPS} instead

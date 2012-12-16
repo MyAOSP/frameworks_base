@@ -166,6 +166,8 @@ public class SbBatteryController extends LinearLayout {
 
         // do my stuff here
         if (mBatteryGroup != null) {
+            int defaultColor = getResources().getColor(
+                    com.android.internal.R.color.holo_blue_light);
             mBatteryText.setText(Integer.toString(level));
             mBatteryCenterText.setText(Integer.toString(level));
             mBatteryTextOnly.setText(Integer.toString(level));

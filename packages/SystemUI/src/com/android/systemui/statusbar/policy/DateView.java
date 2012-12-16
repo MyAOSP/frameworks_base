@@ -24,8 +24,11 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.ContentObserver;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.CalendarContract;
+import android.provider.Settings;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -81,7 +84,7 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
         mAttachedToWindow = true;
         setUpdates();
     }
-    
+
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
@@ -188,7 +191,7 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
         // collapse status bar
         StatusBarManager statusBarManager = (StatusBarManager) getContext().getSystemService(
                 Context.STATUS_BAR_SERVICE);
-        statusBarManager.collapse();
+        statusBarManager.collapsePanels();
 
         // dismiss keyguard in case it was active and no passcode set
         try {

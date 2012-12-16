@@ -122,8 +122,8 @@ public class CircleBattery extends ImageView {
             int batteryStyle = (Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.STATUSBAR_BATTERY_ICON, 0));
 
-            mActivated = (batteryStyle == BatteryController.BATTERY_STYLE_CIRCLE || batteryStyle == BatteryController.BATTERY_STYLE_CIRCLE_PERCENT);
-            mPercentage = (batteryStyle == BatteryController.BATTERY_STYLE_CIRCLE_PERCENT);
+            mActivated = (batteryStyle == SbBatteryController.BATTERY_STYLE_CIRCLE || batteryStyle == SbBatteryController.BATTERY_STYLE_CIRCLE_PERCENT);
+            mPercentage = (batteryStyle == SbBatteryController.BATTERY_STYLE_CIRCLE_PERCENT);
 
             setVisibility(mActivated ? View.VISIBLE : View.GONE);
             if (mBatteryReceiver != null) {

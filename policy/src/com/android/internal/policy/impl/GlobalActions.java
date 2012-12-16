@@ -252,7 +252,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         mEnableNavBarHideToggle= Settings.System.getBoolean(mContext.getContentResolver(),
                 Settings.System.POWER_DIALOG_SHOW_NAVBAR_HIDE, false);
         mNavBarHideToggle = new NavBarAction(mHandler);
-        
+
         mExpandDesktopModeOn = new ToggleAction(
                 R.drawable.ic_lock_expanded_desktop,
                 R.drawable.ic_lock_expanded_desktop,
@@ -272,7 +272,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 return false;
             }
         };
-        
+
         onExpandDesktopModeChanged();
 
         mAirplaneModeOn = new ToggleAction(
@@ -391,7 +391,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                         return false;
                     }
                 });
-            }
         }
 
         // next: screenshot
@@ -480,8 +479,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
 
         // last: silent mode
         if ((mEnableSoundChooser) && (SHOW_SILENT_TOGGLE)) {
-                mItems.add(mSilentModeAction);
-            }
+            mItems.add(mSilentModeAction);
         }
 
         // one more thing: optionally add a list of users to switch to
@@ -1361,6 +1359,15 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         mAirplaneState = airplaneModeOn ? ToggleAction.State.On : ToggleAction.State.Off;
         mAirplaneModeOn.updateState(mAirplaneState);
     }
+
+    private void onExpandDesktopModeChanged() {
+        boolean expandDesktopModeOn = Settings.System.getInt(
+                mContext.getContentResolver(),
+                Settings.System.EXPANDED_DESKTOP_STATE,
+                0) == 1;
+        mExpandDesktopModeOn.updateState(expandDesktopModeOn ? ToggleAction.State.On : ToggleAction.State.Off);
+    }
+
 
     /**
      * Change the airplane mode system setting

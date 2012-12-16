@@ -246,7 +246,7 @@ public class ClockStock extends TextView implements OnClickListener, OnTouchList
                 return formatted;
             }
         }
- 
+
         return result;
 
     }
@@ -276,7 +276,7 @@ public class ClockStock extends TextView implements OnClickListener, OnTouchList
         // collapse status bar
         StatusBarManager statusBarManager = (StatusBarManager) getContext().getSystemService(
                 Context.STATUS_BAR_SERVICE);
-        statusBarManager.collapse();
+        statusBarManager.collapsePanels();
 
         // dismiss keyguard in case it was active and no passcode set
         try {

@@ -144,13 +144,6 @@ final class UiModeManagerService extends IUiModeManager.Stub {
         }
     };
 
-    private final BroadcastReceiver mThemeChangeReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mUiContext = null;
-        }
-    };
-
     private final TwilightService.TwilightListener mTwilightListener =
             new TwilightService.TwilightListener() {
         @Override

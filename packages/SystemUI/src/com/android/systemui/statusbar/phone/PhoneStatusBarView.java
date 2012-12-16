@@ -82,19 +82,13 @@ public class PhoneStatusBarView extends PanelBar {
         }
         pv.setRubberbandingEnabled(!mFullWidthNotifications);
     }
-   
+
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mBar.onBarViewDetached();
     }
- 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        mBar.onBarViewDetached();
-    }
- 
+
     @Override
     public boolean panelsEnabled() {
         return ((mBar.mDisabled & StatusBarManager.DISABLE_EXPAND) == 0);
@@ -121,9 +115,9 @@ public class PhoneStatusBarView extends PanelBar {
 
         if (mFullWidthNotifications) {
             // No double swiping. If either panel is open, nothing else can be pulled down.
-            return ((mSettingsPanel == null ? 0 : mSettingsPanel.getExpandedHeight()) 
-                        + mNotificationPanel.getExpandedHeight() > 0) 
-                    ? null 
+            return ((mSettingsPanel == null ? 0 : mSettingsPanel.getExpandedHeight())
+                        + mNotificationPanel.getExpandedHeight() > 0)
+                    ? null
                     : mNotificationPanel;
         }
 
