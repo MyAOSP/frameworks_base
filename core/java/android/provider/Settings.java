@@ -2578,6 +2578,12 @@ public final class Settings {
         public static final String STATUSBAR_CLOCK_COLOR = "statusbar_clock_color";
 
         /**
+         * Switch to disable notification pulldown clock open/date opens press
+         * @hide
+         */
+        public static final String CLOCK_DATE_OPENS = "clock_date_opens";
+
+        /**
          * Shows weekday before clock time
          * 0 - No Day
          * 1 - Small Day

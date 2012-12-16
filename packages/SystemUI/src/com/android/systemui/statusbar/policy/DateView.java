@@ -45,6 +45,7 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
     private boolean mAttachedToWindow;
     private boolean mWindowVisible;
     private boolean mUpdating;
+    private boolean mClockDateOpens;
     private int mDefaultColor;
 
     protected int mExpandedClockColor = com.android.internal.R.color.white;
@@ -63,9 +64,15 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
 
     public DateView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mClockDateOpens = Settings.System.getBoolean(context.getContentResolver(),
+                Settings.System.CLOCK_DATE_OPENS, true);
 
-        setOnClickListener(this);
-        setOnTouchListener(this);
+        if (mClockDateOpens) {
+            setOnClickListener(this);
+            setOnTouchListener(this);
+        } else {
+            setClickable(false);
+        }
     }
 
     @Override
@@ -129,9 +136,8 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
 
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
-            resolver.registerContentObserver(Settings.System
-                    .getUriFor(Settings.System.STATUSBAR_EXPANDED_CLOCK_COLOR),
-                    false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUSBAR_EXPANDED_CLOCK_COLOR), false, this);
             updateClock();
         }
 
