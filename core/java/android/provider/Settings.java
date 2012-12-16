@@ -2542,6 +2542,18 @@ public final class Settings {
         public static final String STATUSBAR_BATTERY_TEXT_COLOR = "statusbar_battery_text_color";
 
         /**
+         * Statusbar battery cm circle ring colorpicker
+         * @hide
+         */
+        public static final String STATUSBAR_CMCIRLE_RING_COLOR = "statusbar_cmcircle_ring_color";
+
+        /**
+         * Statusbar battery cm circle charging animation ring colorpicker
+         * @hide
+         */
+        public static final String STATUSBAR_CMCIRLE_RING_COLOR_CHARGE = "statusbar_cmcircle_ring_color_charge";
+
+        /**
          * AM/PM Style for clock options
          * 0 - Normal AM/PM
          * 1 - Small AM/PM

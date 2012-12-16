@@ -16,6 +16,8 @@
 
 package com.android.systemui.statusbar.policy;
 
+import java.lang.Integer;
+
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -61,7 +63,6 @@ public class CircleBattery extends ImageView {
     private boolean mIsCharging;    // whether or not device is currently charging
     private int     mLevel;         // current battery level
     private int     mAnimLevel;     // current level of charging animation
-
     private int     mCircleSize;    // draw size of circle. read rather complicated from
                                     // another status bar icon, so it fits the icon size
                                     // no matter the dps and resolution
@@ -75,6 +76,16 @@ public class CircleBattery extends ImageView {
     private Paint   mPaintSystem;
     private Paint   mPaintRed;
     private Paint   mPaintAnim;
+    private Paint   mPaintFontColor;
+    private Paint   mPaintFontChargeColor;
+    private Paint   mPaintRingColor;
+
+    private int defaultColor = getResources().getColor(R.color.holo_blue_dark);
+    private int defaultChargeColor = getResources().getColor(R.color.holo_green_dark);
+    private int mColor;
+    private int mChargeColor;
+    private int mRingColor;
+    private int mRingColorCharging;
 
     // runnable to invalidate view via mHandler.postDelayed() call
     private final Runnable mInvalidate = new Runnable() {
@@ -95,6 +106,14 @@ public class CircleBattery extends ImageView {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUSBAR_BATTERY_ICON), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUSBAR_BATTERY_TEXT_COLOR), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUSBAR_BATTERY_CHARGE_TEXT_COLOR), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUSBAR_CMCIRLE_RING_COLOR), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUSBAR_CMCIRLE_RING_COLOR_CHARGE), false, this);
             onChange(true);
         }
 
@@ -193,6 +212,9 @@ public class CircleBattery extends ImageView {
         mPaintFont.setDither(true);
         mPaintFont.setStyle(Paint.Style.STROKE);
 
+        mPaintFontColor = new Paint(mPaintFont);
+        mPaintFontChargeColor = new Paint(mPaintFont);
+        mPaintRingColor = new Paint(mPaintFont);
         mPaintGray = new Paint(mPaintFont);
         mPaintSystem = new Paint(mPaintFont);
         mPaintRed = new Paint(mPaintFont);
@@ -244,6 +266,15 @@ public class CircleBattery extends ImageView {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        mColor = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUSBAR_BATTERY_TEXT_COLOR, defaultColor);
+        mChargeColor = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUSBAR_BATTERY_CHARGE_TEXT_COLOR, defaultChargeColor);
+        mRingColor = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUSBAR_CMCIRLE_RING_COLOR, defaultColor);
+        mRingColorCharging = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUSBAR_CMCIRLE_RING_COLOR_CHARGE, defaultChargeColor);
+
         if (mCircleRect == null) {
             initSizeBasedStuff();
         }
@@ -255,7 +286,11 @@ public class CircleBattery extends ImageView {
         if (mLevel <= 14) {
             usePaint = mPaintRed;
         }
-        mPaintAnim.setColor(usePaint.getColor());
+        mPaintAnim.setColor(mRingColorCharging);
+        if (mRingColorCharging == Integer.MIN_VALUE) {
+            // flag to reset the color
+            mRingColorCharging = defaultChargeColor;
+        }
 
         // pad circle percentage to 100% once it reaches 97%
         // for one, the circle looks odd with a too small gap,
@@ -268,14 +303,36 @@ public class CircleBattery extends ImageView {
         // draw thin gray ring first
         canvas.drawArc(mCircleRect, 270, 360, false, mPaintGray);
         // if charging, draw thin animated colored ring next
-        if (mIsCharging){
-            canvas.drawArc(mCircleRect, 270, 3.6f * mAnimLevel, false, mPaintAnim);
+        if (mIsCharging) {
+            canvas.drawArc(mCircleRect, 270, 3.6f * mAnimLevel, true, mPaintAnim);
+            if (mIsCharging && mPercentage) {
+                canvas.drawArc(mCircleRect, 270, 3.6f * mAnimLevel, true, mPaintAnim);
+                if (mChargeColor == Integer.MIN_VALUE) {
+                    // flag to reset the color
+                    mChargeColor = defaultColor;
+                }
+                mPaintFontChargeColor.setColor(mChargeColor);
+                usePaint = mPaintFontChargeColor;
+                mPaintFont.setColor(usePaint.getColor());
+                canvas.drawText(Integer.toString(mLevel), mPercentX, mPercentY, mPaintFont);
+            }
         }
         // draw thin colored ring-level last
-        canvas.drawArc(mCircleRect, 270, 3.6f * padLevel, false, usePaint);
+        mPaintRingColor.setColor(mRingColor);
+        if (mRingColor == Integer.MIN_VALUE) {
+            // flag to reset the color
+            mRingColor = defaultChargeColor;
+        }
+        canvas.drawArc(mCircleRect, 270, 3.6f * padLevel, false, mPaintRingColor);
         // if chosen by options, draw percentage text in the middle
         // always skip percentage when 100, so layout doesnt break
-        if (mLevel < 100 && mPercentage){
+        if (!mIsCharging && mLevel < 100 && mPercentage) {
+            if (mColor == Integer.MIN_VALUE) {
+                // flag to reset the color
+                mColor = defaultChargeColor;
+            }
+            mPaintFontColor.setColor(mColor);
+            usePaint = mPaintFontColor;
             mPaintFont.setColor(usePaint.getColor());
             canvas.drawText(Integer.toString(mLevel), mPercentX, mPercentY, mPaintFont);
         }
@@ -320,8 +377,9 @@ public class CircleBattery extends ImageView {
         float strokeWidth = mCircleSize / 6.5f;
         mPaintRed.setStrokeWidth(strokeWidth);
         mPaintSystem.setStrokeWidth(strokeWidth);
+        mPaintRingColor.setStrokeWidth(strokeWidth);
         mPaintGray.setStrokeWidth(strokeWidth / 3.5f);
-        mPaintAnim.setStrokeWidth(strokeWidth / 3.5f);
+        mPaintAnim.setStrokeWidth(strokeWidth);
 
         // calculate rectangle for drawArc calls
         int pLeft = getPaddingLeft();

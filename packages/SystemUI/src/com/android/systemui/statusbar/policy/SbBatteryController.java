@@ -192,14 +192,20 @@ public class SbBatteryController extends LinearLayout {
             mBatteryTextOnly.setText(formatted);
             if (plugged) {
                 mBatteryTextOnly.setTextColor(mBatteryChargeTextColor);
+                mBatteryText.setTextColor(mBatteryChargeTextColor);
+                mBatteryCenterText.setTextColor(mBatteryChargeTextColor);
                 if (mBatteryChargeTextColor == Integer.MIN_VALUE) {
                     // flag to reset the color
                     mBatteryChargeTextColor = 0xFF99CC00;
                 }
             } else if (level < 16) {
                 mBatteryTextOnly.setTextColor(Color.RED);
+                mBatteryText.setTextColor(Color.RED);
+                mBatteryCenterText.setTextColor(Color.RED);
             } else {
                 mBatteryTextOnly.setTextColor(mBatteryTextColor);
+                mBatteryText.setTextColor(mBatteryTextColor);
+                mBatteryCenterText.setTextColor(mBatteryTextColor);
                 if (mBatteryTextColor == Integer.MIN_VALUE) {
                     // flag to reset the color
                     mBatteryTextColor = defaultColor;
