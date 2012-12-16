@@ -2467,7 +2467,7 @@ public class PhoneStatusBar extends BaseStatusBar {
             super(handler);
         }
 
-                void observe() {
+            void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.CURRENT_UI_MODE), false, this);
@@ -2489,7 +2489,7 @@ public class PhoneStatusBar extends BaseStatusBar {
                 Settings.System.CURRENT_UI_MODE, 0);
 
         try {
-            boolean showNav = mWindowManager.hasNavigationBar();
+            boolean showNav = mWindowManagerService.hasNavigationBar();
             if (showNav) {
                 // NavigationBar background color
                 int defaultBg = Settings.System.getInt(mContext.getContentResolver(),
