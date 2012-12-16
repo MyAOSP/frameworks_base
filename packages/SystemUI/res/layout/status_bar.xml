@@ -112,6 +112,15 @@
                 android:paddingLeft="6dip"
                 android:gravity="center_vertical|left"
                 />
+            <com.android.systemui.statusbar.policy.CircleBattery
+                android:id="@+id/circle_battery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.StatusBar.BatteryTextOnly"
+                android:singleLine="true"
+                android:gravity="bottom"
+                android:paddingLeft="4dip"
+                />
         </LinearLayout>
     </LinearLayout>
 

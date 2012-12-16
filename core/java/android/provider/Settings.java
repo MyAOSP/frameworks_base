@@ -2529,18 +2529,6 @@ public final class Settings {
          */
         public static final String SYSTEM_PROFILES_ENABLED = "system_profiles_enabled";
 
-
-        /**
-         * Style of Battery
-         * 0 - Icon Only
-         * 1 - Text Only
-         * 2 - Icon Text
-         * 3 - Icon Centered Text
-         * 4 - Icon Circle
-         * 5 - Hide
-         */
-        public static final String STATUSBAR_BATTERY_ICON = "statusbar_battery_icon";
-
         /**
          * Statusbar battery text charging colorpicker
          * @hide
@@ -3871,10 +3859,10 @@ public final class Settings {
         @Deprecated
         public static final String HTTP_PROXY = Global.HTTP_PROXY;
 
-         /**
-          * Sets the alpha (transparency) of notification wallpaper
-          * @hide
-          */
+        /**
+         * Sets the alpha (transparency) of notification wallpaper
+         * @hide
+         */
         public static final String NOTIF_WALLPAPER_ALPHA = "notif_wallpaper_alpha";
 
         /**
@@ -3888,6 +3876,20 @@ public final class Settings {
           * @hide
           */
         public static final String STATUSBAR_FONT_SIZE = "statusbar_font_size";
+
+        /**
+         * @hide
+         * Style of Battery
+         * 0 - Icon Only
+         * 1 - Text Only
+         * 2 - Icon Text
+         * 3 - Icon Centered Text
+         * 4 - Icon Circle
+         * 5 - CM circle w/o %
+         * 6 - CM circle w %
+         * 7 - Hide
+         */
+        public static final String STATUSBAR_BATTERY_ICON = "statusbar_battery_icon";
 
         /**
          * @deprecated Use {@link android.provider.Settings.Global#INSTALL_NON_MARKET_APPS} instead
