@@ -94,6 +94,11 @@ public class LockPatternUtils {
     public static final int MIN_LOCK_PATTERN_SIZE = 4;
 
     /**
+     * The default size of the pattern lockscreen. Ex: 3x3
+     */
+    public static final byte PATTERN_SIZE_DEFAULT = 3;
+
+    /**
      * The minimum number of dots the user must include in a wrong pattern
      * attempt for it to be counted against the counts that affect
      * {@link #FAILED_ATTEMPTS_BEFORE_TIMEOUT} and {@link #FAILED_ATTEMPTS_BEFORE_RESET}
@@ -160,8 +165,6 @@ public class LockPatternUtils {
 
     // The current user is set by KeyguardViewMediator and shared by all LockPatternUtils.
     private static volatile int sCurrentUserId = UserHandle.USER_NULL;
-
-    private static int PATTERN_SIZE = 3;
 
     public DevicePolicyManager getDevicePolicyManager() {
         if (mDevicePolicyManager == null) {
@@ -508,7 +511,7 @@ public class LockPatternUtils {
      */
     public void saveLockPattern(List<LockPatternView.Cell> pattern, boolean isFallback) {
         // Compute the hash
-        final byte[] hash = LockPatternUtils.patternToHash(pattern);
+        final byte[] hash = patternToHash(pattern);
         try {
             getLockSettings().setLockPattern(hash, getCurrentOrCallingUserId());
             DevicePolicyManager dpm = getDevicePolicyManager();
@@ -752,13 +755,16 @@ public class LockPatternUtils {
      * @param string The pattern serialized with {@link #patternToString}
      * @return The pattern.
      */
-    public static List<LockPatternView.Cell> stringToPattern(String string) {
+    public List<LockPatternView.Cell> stringToPattern(String string) {
         List<LockPatternView.Cell> result = Lists.newArrayList();
+
+        final byte size = getLockPatternSize();
+        LockPatternView.Cell.updateSize(size);
 
         final byte[] bytes = string.getBytes();
         for (int i = 0; i < bytes.length; i++) {
             byte b = bytes[i];
-            result.add(LockPatternView.Cell.of(b / PATTERN_SIZE, b % PATTERN_SIZE));
+            result.add(LockPatternView.Cell.of(b / size, b % size, size));
         }
         return result;
     }
@@ -768,7 +774,7 @@ public class LockPatternUtils {
      * @param pattern The pattern.
      * @return The pattern in string form.
      */
-    public static String patternToString(List<LockPatternView.Cell> pattern) {
+    public String patternToString(List<LockPatternView.Cell> pattern) {
         if (pattern == null) {
             return "";
         }
@@ -777,7 +783,7 @@ public class LockPatternUtils {
         byte[] res = new byte[patternSize];
         for (int i = 0; i < patternSize; i++) {
             LockPatternView.Cell cell = pattern.get(i);
-            res[i] = (byte) (cell.getRow() * PATTERN_SIZE + cell.getColumn());
+            res[i] = (byte) (cell.getRow() * getLockPatternSize() + cell.getColumn());
         }
         return new String(res);
     }
@@ -789,7 +795,7 @@ public class LockPatternUtils {
      * @param pattern the gesture pattern.
      * @return the hash of the pattern in a byte array.
      */
-    private static byte[] patternToHash(List<LockPatternView.Cell> pattern) {
+    private byte[] patternToHash(List<LockPatternView.Cell> pattern) {
         if (pattern == null) {
             return null;
         }
@@ -798,7 +804,7 @@ public class LockPatternUtils {
         byte[] res = new byte[patternSize];
         for (int i = 0; i < patternSize; i++) {
             LockPatternView.Cell cell = pattern.get(i);
-            res[i] = (byte) (cell.getRow() * PATTERN_SIZE + cell.getColumn());
+            res[i] = (byte) (cell.getRow() * getLockPatternSize() + cell.getColumn());
         }
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -967,51 +973,21 @@ public class LockPatternUtils {
     }
 
     /**
-     * Set whether tactile feedback for the pattern is enabled.
-     */
-    public void setTactileFeedbackEnabled(boolean enabled) {
-        setBoolean(Settings.Secure.LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED, enabled);
-    }
-
-    public void setVisibleDotsEnabled(boolean enabled) {
-        setBoolean(Settings.Secure.LOCK_DOTS_VISIBLE, enabled);
-    }
-
-    public boolean isVisibleDotsEnabled() {
-        return getBoolean(Settings.Secure.LOCK_DOTS_VISIBLE, true);
-    }
-
-    public void setShowErrorPath(boolean enabled) {
-        setBoolean(Settings.Secure.LOCK_SHOW_ERROR_PATH, enabled);
-    }
-
-    public boolean isShowErrorPath() {
-        return getBoolean(Settings.Secure.LOCK_SHOW_ERROR_PATH, true);
-    }
-
-
-    /**
      * @return the pattern lockscreen size
      */
-    public int getLockPatternSize() {
-        return getInteger(Settings.Secure.LOCK_PATTERN_SIZE, 3);
+    public byte getLockPatternSize() {
+        try {
+            return getLockSettings().getLockPatternSize(getCurrentOrCallingUserId());
+        } catch (RemoteException re) {
+            return PATTERN_SIZE_DEFAULT;
+        }
     }
 
     /**
      * Set the pattern lockscreen size
      */
-    public void setLockPatternSize(int size) {
-        setInteger(Settings.Secure.LOCK_PATTERN_SIZE, size);
-        PATTERN_SIZE = size;
-    }
-
-    /**
-     * Update PATTERN_SIZE for this LockPatternUtils instance
-     * This must be called before patternToHash, patternToString, etc
-     * will work correctly with a non-standard size
-     */
-    public void updateLockPatternSize() {
-        PATTERN_SIZE = getLockPatternSize();
+    public void setLockPatternSize(long size) {
+        setLong(Settings.Secure.LOCK_PATTERN_SIZE, size);
     }
 
     /**
@@ -1259,24 +1235,6 @@ public class LockPatternUtils {
         }
     }
 
-    private int getInteger(String secureSettingKey, int defaultValue) {
-        try {
-            return getLockSettings().getInteger(secureSettingKey, defaultValue,
-                    getCurrentOrCallingUserId());
-        } catch (RemoteException re) {
-            return defaultValue;
-        }
-    }
-
-    private void setInteger(String secureSettingKey, int value) {
-        try {
-            getLockSettings().setInteger(secureSettingKey, value, getCurrentOrCallingUserId());
-        } catch (RemoteException re) {
-            // What can we do?
-            Log.e(TAG, "Couldn't write boolean " + secureSettingKey + re);
-        }
-    }
-
     private String getString(String secureSettingKey) {
         return getString(secureSettingKey, getCurrentOrCallingUserId());
     }
@@ -1421,15 +1379,6 @@ public class LockPatternUtils {
      */
     public void setLockBeforeUnlock(boolean enabled) {
         setBoolean(Settings.Secure.LOCK_BEFORE_UNLOCK, enabled);
-    }
-
-    /**
-     * @hide
-     * Get the lock-before-unlock option (show widgets before the secure
-     * unlock screen).
-     */
-    public boolean getLockBeforeUnlock() {
-        return getBoolean(Settings.Secure.LOCK_BEFORE_UNLOCK, false);
     }
 
 }

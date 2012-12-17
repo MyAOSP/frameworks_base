@@ -26,6 +26,7 @@ interface ILockSettings {
     long getLong(in String key, in long defaultValue, in int userId);
     int getInteger(in String key, in int defaultValue, in int userId);
     String getString(in String key, in String defaultValue, in int userId);
+    byte getLockPatternSize(int userId);
     void setLockPattern(in byte[] hash, int userId);
     boolean checkPattern(in byte[] hash, int userId);
     void setLockPassword(in byte[] hash, int userId);
