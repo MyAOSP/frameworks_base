@@ -81,7 +81,7 @@ public class NavigationBarView extends LinearLayout {
     int mNavigationIconHints = 0;
 
     private Drawable mBackIcon, mBackLandIcon, mBackAltIcon, mBackAltLandIcon;
-    
+
     public DelegateViewHelper mDelegateHelper;
 
     private AokpTarget mAokpTarget;
@@ -281,7 +281,7 @@ public class NavigationBarView extends LinearLayout {
                 addLightsOutButton(lightsOut, v, landscape && !mLeftyMode, false);
 
                 if (v.getId() == R.id.back){
-                	mBackIcon = mBackLandIcon = v.getDrawable();
+                        mBackIcon = mBackLandIcon = v.getDrawable();
                 }
                 if (v.getId() == R.id.menu){
                     mHasBigMenuButton = true;
@@ -384,7 +384,7 @@ public class NavigationBarView extends LinearLayout {
 
         return null;
     }
-    
+
     private ExtensibleKeyButtonView generateKey(boolean landscape, String clickAction,
             String longpress,
             String iconUri) {
@@ -416,7 +416,7 @@ public class NavigationBarView extends LinearLayout {
         return padding;
     }
 
-    
+
     private LayoutParams getLayoutParams(boolean landscape, float dp) {
         float px = dp * getResources().getDisplayMetrics().density;
         return landscape ?
@@ -470,20 +470,20 @@ public class NavigationBarView extends LinearLayout {
         mNavigationIconHints = hints;
         // We can't gaurantee users will set these buttons as targets
         if (getBackButton() != null) {
-        	getBackButton().setAlpha(
-        			(0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_NOP)) ? 0.5f : 1.0f);
+                getBackButton().setAlpha(
+                                (0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_NOP)) ? 0.5f : 1.0f);
             ((ImageView)getBackButton()).setImageDrawable(
                     (0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_ALT))
                     ? (mVertical ? mBackAltLandIcon : mBackAltIcon)
                     : (mVertical ? mBackLandIcon : mBackIcon));
         }
         if (getHomeButton()!=null) {
-        	getHomeButton().setAlpha(
-        			(0 != (hints & StatusBarManager.NAVIGATION_HINT_HOME_NOP)) ? 0.5f : 1.0f);
+                getHomeButton().setAlpha(
+                                (0 != (hints & StatusBarManager.NAVIGATION_HINT_HOME_NOP)) ? 0.5f : 1.0f);
         }
         if (getRecentsButton()!=null) {
-        	getRecentsButton().setAlpha(
-        			(0 != (hints & StatusBarManager.NAVIGATION_HINT_RECENT_NOP)) ? 0.5f : 1.0f);
+                getRecentsButton().setAlpha(
+                                (0 != (hints & StatusBarManager.NAVIGATION_HINT_RECENT_NOP)) ? 0.5f : 1.0f);
         }
         setDisabledFlags(mDisabledFlags, true);
     }
@@ -558,7 +558,7 @@ public class NavigationBarView extends LinearLayout {
 
     public void setMenuVisibility(final boolean show, final boolean force) {
 
-    	if (!force && mShowMenu == show)
+        if (!force && mShowMenu == show)
             return;
 
         if ((mMenuLocation == SHOW_DONT) || mHasBigMenuButton) {
@@ -706,7 +706,7 @@ public class NavigationBarView extends LinearLayout {
 
     @Override
     public void onFinishInflate() {
-    	 rot0 = (FrameLayout) findViewById(R.id.rot0);
+         rot0 = (FrameLayout) findViewById(R.id.rot0);
          rot90 = (FrameLayout) findViewById(R.id.rot90);
 
          mRotatedViews[Surface.ROTATION_0] =
@@ -780,7 +780,7 @@ public class NavigationBarView extends LinearLayout {
     @Override
     protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
         if (DEBUG) Slog.d(TAG, String.format(
-                    "onLayout: %s (%d,%d,%d,%d)", 
+                    "onLayout: %s (%d,%d,%d,%d)",
                     changed?"changed":"notchanged", left, top, right, bottom));
         super.onLayout(changed, left, top, right, bottom);
     }
@@ -804,32 +804,23 @@ public class NavigationBarView extends LinearLayout {
 
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
-          
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.MENU_LOCATION), false,
-                    this);
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.MENU_VISIBILITY), false,
-                    this);
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_BUTTONS_QTY), false,
-                    this);
+
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.MENU_LOCATION), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.MENU_VISIBILITY), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_BUTTONS_QTY), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NAVIGATION_BAR_LEFTY_MODE), false, this);
 
             for (int j = 0; j < 7; j++) { // watch all 7 settings for changes.
-                resolver.registerContentObserver(
-                        Settings.System.getUriFor(Settings.System.NAVIGATION_CUSTOM_ACTIVITIES[j]),
-                        false,
-                        this);
-                resolver.registerContentObserver(
-                        Settings.System
-                                .getUriFor(Settings.System.NAVIGATION_LONGPRESS_ACTIVITIES[j]),
-                        false,
-                        this);
-                resolver.registerContentObserver(
-                        Settings.System.getUriFor(Settings.System.NAVIGATION_CUSTOM_APP_ICONS[j]),
-                        false,
+                resolver.registerContentObserver(Settings.System.getUriFor(
+                        Settings.System.NAVIGATION_CUSTOM_ACTIVITIES[j]), false, this);
+                resolver.registerContentObserver(Settings.System.getUriFor(
+                        Settings.System.NAVIGATION_LONGPRESS_ACTIVITIES[j]), false, this);
+                resolver.registerContentObserver(Settings.System.getUriFor(
+                        Settings.System.NAVIGATION_CUSTOM_APP_ICONS[j]),false,
                         this);
             }
             updateSettings();
@@ -843,7 +834,7 @@ public class NavigationBarView extends LinearLayout {
 
     protected void updateSettings() {
         ContentResolver resolver = mContext.getContentResolver();
-        
+
         mMenuLocation = Settings.System.getInt(resolver,
                 Settings.System.MENU_LOCATION, SHOW_RIGHT_MENU);
 
