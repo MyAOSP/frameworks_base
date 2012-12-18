@@ -447,14 +447,22 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
             }
         }
 
-        mRecentsKillAllButton = (Button) findViewById(R.id.recents_kill_all_button);
-        if (mRecentsKillAllButton != null){
+        boolean recent_kill_all_button = Settings.System.getInt(mContext.getContentResolver(),
+                      Settings.System.RECENT_KILL_ALL_BUTTON, 0) == 1;
+
+        if (recent_kill_all_button) {
+            mRecentsKillAllButton.setVisibility(View.VISIBLE);
+            mRecentsKillAllButton = (Button) findViewById(R.id.recents_kill_all_button);
+            if (mRecentsKillAllButton != null){
                 mRecentsKillAllButton.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         killAllRecentApps();
                     }
                 });
+            }
+        } else { // hide the button completely
+            mRecentsKillAllButton.setVisibility(View.GONE);
         }
     }
 
