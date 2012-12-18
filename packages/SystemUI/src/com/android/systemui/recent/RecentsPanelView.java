@@ -86,6 +86,7 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
 
     private RecentTasksLoader mRecentTasksLoader;
     private ArrayList<TaskDescription> mRecentTaskDescriptions;
+    private Runnable mPreloadTasksRunnable;
     private TaskDescriptionAdapter mListAdapter;
     private int mThumbnailWidth;
     private boolean mFitThumbnailToXY;
@@ -450,20 +451,31 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
         boolean recent_kill_all_button = Settings.System.getInt(mContext.getContentResolver(),
                       Settings.System.RECENT_KILL_ALL_BUTTON, 0) == 1;
 
-        if (recent_kill_all_button) {
-            mRecentsKillAllButton.setVisibility(View.VISIBLE);
-            mRecentsKillAllButton = (Button) findViewById(R.id.recents_kill_all_button);
-            if (mRecentsKillAllButton != null){
+        mRecentsKillAllButton = (Button) findViewById(R.id.recents_kill_all_button);
+        if (mRecentsKillAllButton != null) {
+            if (recent_kill_all_button) { // Set the listener
                 mRecentsKillAllButton.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         killAllRecentApps();
                     }
                 });
+            } else { // hide the btn completely
+                mRecentsKillAllButton.setVisibility(View.GONE);
             }
-        } else { // hide the button completely
-            mRecentsKillAllButton.setVisibility(View.GONE);
         }
+
+        mPreloadTasksRunnable = new Runnable() {
+            public void run() {
+                // If we set our visibility to INVISIBLE here, we avoid an extra call to
+                // onLayout later when we become visible (because onLayout is always called
+                // when going from GONE)
+                if (!mShowing) {
+                    setVisibility(INVISIBLE);
+                    refreshRecentTasksList();
+                }
+            }
+        };
     }
 
     public void setMinSwipeAlpha(float minAlpha) {
