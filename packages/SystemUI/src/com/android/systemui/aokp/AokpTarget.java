@@ -17,7 +17,6 @@
 package com.android.systemui.aokp;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -27,30 +26,23 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.Intent.ShortcutIconResource;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
-import android.os.Vibrator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.Parcelable;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
-import android.provider.Settings;
-import android.util.AttributeSet;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
@@ -199,12 +191,7 @@ public class AokpTarget {
         }
 
         if (action.equals(ACTION_RECENTS)) {
-            try {
-                IStatusBarService.Stub.asInterface(
-                        ServiceManager.getService(mContext.STATUS_BAR_SERVICE)).toggleRecentApps();
-            } catch (RemoteException e) {
-                // let it go.
-            }
+            mHandler.post(mToggleRecents);
             return true;
         }
         if (action.equals(ACTION_NOTIFICATIONS)) {
@@ -371,6 +358,17 @@ public class AokpTarget {
             if (!defaultHomePackage.equals(packageName)) {
                     am.forceStopPackage(packageName);
                     Toast.makeText(mContext, R.string.app_killed_message, Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
+
+    Runnable mToggleRecents = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                IStatusBarService.Stub.asInterface(
+                        ServiceManager.getService(Context.STATUS_BAR_SERVICE)).toggleRecentApps();
+            } catch (RemoteException e) {
             }
         }
     };
