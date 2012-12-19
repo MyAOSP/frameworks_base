@@ -122,6 +122,7 @@ public class QuickSettingsController {
     public static final int ALARM_TILE = 16;
     public static final int BUG_REPORT_TILE = 17;
     public static final int WIFI_DISPLAY_TILE = 18;
+    public static final int FLASHLIGHT_TILE = 19;
     public static final int USER_TILE = 99;
     private InputMethodTile IMETile;
 
@@ -185,7 +186,7 @@ public class QuickSettingsController {
             } else if (tile.equals(TILE_AIRPLANE)) {
                 mQuickSettings.add(AIRPLANE_MODE_TILE);
             } else if (tile.equals(TILE_FLASHLIGHT)) {
-                // Not available yet
+                mQuickSettings.add(FLASHLIGHT_TILE);
             } else if (tile.equals(TILE_SLEEP)) {
                 mQuickSettings.add(SLEEP_TILE);
             } else if (tile.equals(TILE_MEDIA_PLAY_PAUSE)) {
