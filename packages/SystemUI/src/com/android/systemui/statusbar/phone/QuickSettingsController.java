@@ -99,11 +99,10 @@ public class QuickSettingsController {
     public PanelBar mBar;
     private final ViewGroup mContainerView;
     private final Handler mHandler;
-    private final ArrayList<Integer> quicksettings;
+    private final ArrayList<Integer> mQuickSettings;
     public PhoneStatusBar mStatusBarService;
 
-    // Constants
-
+    // Constants for use in switch statement
     public static final int WIFI_TILE = 0;
     public static final int MOBILE_NETWORK_TILE = 1;
     public static final int AIRPLANE_MODE_TILE = 2;
@@ -117,13 +116,12 @@ public class QuickSettingsController {
     public static final int AUTO_ROTATION_TILE = 10;
     public static final int BRIGHTNESS_TILE = 11;
     public static final int MOBILE_NETWORK_TYPE_TILE = 12;
-    public static final int PREFERENCES_TILE = 13;
+    public static final int SETTINGS_TILE = 13;
     public static final int BATTERY_TILE = 14;
     public static final int IME_TILE = 15;
     public static final int ALARM_TILE = 16;
     public static final int BUG_REPORT_TILE = 17;
     public static final int WIFI_DISPLAY_TILE = 18;
-    public static final int FLASHLIGHT_TILE = 19;
     public static final int USER_TILE = 99;
     private InputMethodTile IMETile;
 
@@ -187,7 +185,7 @@ public class QuickSettingsController {
             } else if (tile.equals(TILE_AIRPLANE)) {
                 mQuickSettings.add(AIRPLANE_MODE_TILE);
             } else if (tile.equals(TILE_FLASHLIGHT)) {
-                mQuickSettings.add(FLASHLIGHT_TILE);
+                // Not available yet
             } else if (tile.equals(TILE_SLEEP)) {
                 mQuickSettings.add(SLEEP_TILE);
             } else if (tile.equals(TILE_MEDIA_PLAY_PAUSE)) {
@@ -235,6 +233,10 @@ public class QuickSettingsController {
     }
 
     void addQuickSettings(LayoutInflater inflater){
+        // Load the user configured tiles
+        loadTiles();
+
+        // Now add the actual tiles from the loaded list
         for (Integer entry: mQuickSettings) {
             QuickSettingsTile qs = null;
             switch (entry) {
@@ -248,65 +250,83 @@ public class QuickSettingsController {
                 break;
             case AIRPLANE_MODE_TILE:
                 qs = new AirplaneModeTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 break;
             case BLUETOOTH_TILE:
                 qs = new BluetoothTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 break;
             case SOUND_TILE:
                 qs = new RingerModeTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 break;
             case VIBRATION_TILE:
                 qs = new VibrationModeTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 break;
             case SOUND_VIBRATION_TILE:
                 qs = new RingerVibrationModeTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 break;
             case SLEEP_TILE:
                 qs = new SleepScreenTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 break;
             case TOGGLE_LOCKSCREEN_TILE:
                 qs = new ToggleLockscreenTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 break;
             case GPS_TILE:
                 qs = new GPSTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 break;
             case AUTO_ROTATION_TILE:
-                qs = new AutoRotateTile(mContext, inflater, (QuickSettingsContainerView) mContainerView, this, mHandler);
+                qs = new AutoRotateTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this, mHandler);
                 break;
             case BRIGHTNESS_TILE:
-                qs = new BrightnessTile(mContext, inflater, (QuickSettingsContainerView) mContainerView, this, mHandler);
+                qs = new BrightnessTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this, mHandler);
                 break;
             case MOBILE_NETWORK_TYPE_TILE:
-                qs = new MobileNetworkTypeTile(mContext, inflater, (QuickSettingsContainerView) mContainerView, this);
+                qs = new MobileNetworkTypeTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 break;
             case ALARM_TILE:
-                qs = new AlarmTile(mContext, inflater, (QuickSettingsContainerView) mContainerView, this, mHandler);
+                qs = new AlarmTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this, mHandler);
                 break;
             case BUG_REPORT_TILE:
-                qs = new BugReportTile(mContext, inflater, (QuickSettingsContainerView) mContainerView, this, mHandler);
+                qs = new BugReportTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this, mHandler);
                 break;
             case WIFI_DISPLAY_TILE:
-                qs = new WiFiDisplayTile(mContext, inflater, (QuickSettingsContainerView) mContainerView, this);
+                qs = new WiFiDisplayTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 break;
-            case PREFERENCES_TILE:
-                qs = new PreferencesTile(mContext, inflater, (QuickSettingsContainerView) mContainerView, this);
+            case SETTINGS_TILE:
+                qs = new PreferencesTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 break;
             case BATTERY_TILE:
-                qs = new BatteryTile(mContext, inflater, (QuickSettingsContainerView) mContainerView, this);
+                qs = new BatteryTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 break;
             case IME_TILE:
-                IMETile = new InputMethodTile(mContext, inflater, (QuickSettingsContainerView) mContainerView, this);
+                IMETile = new InputMethodTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 qs = IMETile;
                 break;
             case USER_TILE:
-                qs = new UserTile(mContext, inflater, (QuickSettingsContainerView) mContainerView, this);
+                qs = new UserTile(mContext, inflater,
+                        (QuickSettingsContainerView) mContainerView, this);
                 break;
             case FLASHLIGHT_TILE:
                 qs = new FlashLightTile(mContext, inflater,
                         (QuickSettingsContainerView) mContainerView, this, mHandler);
                 break;
             }
-            if(qs != null){
+            if (qs != null) {
                 qs.setupQuickSettingsTile();
             }
         }
@@ -316,13 +336,12 @@ public class QuickSettingsController {
         mStatusBarService = phoneStatusBar;
     }
 
-    public void setImeWindowStatus(boolean visible){
-        IMETile.toggleVisibility(visible);
+    public void setImeWindowStatus(boolean visible) {
+        if (IMETile != null) {
+            IMETile.toggleVisibility(visible);
+        }
     }
 
-    public void updateResources() {
-        // TODO Auto-generated method stub
-
-    }
+    public void updateResources() {}
 
 }
