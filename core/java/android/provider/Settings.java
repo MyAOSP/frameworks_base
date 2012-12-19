@@ -2931,6 +2931,12 @@ public final class Settings {
         public static final String STATUSBAR_BACKGROUND_COLOR = "statusbar_background_color";
 
         /**
+         * Statusbar brightness slider toggle on/off
+         * @hide
+         */
+        public static final String STATUSBAR_BRIGHTNESS_CONTROL = "statusbar_brightness_control";
+
+        /**
          * use Alt Activity Resolver Grid (GB style)
          * boolean
          *
