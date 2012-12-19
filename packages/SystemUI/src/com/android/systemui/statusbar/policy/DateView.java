@@ -147,6 +147,7 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
         @Override
         public void onChange(boolean selfChange) {
             updateClock();
+            updateDateColor();
         }
     }
 
