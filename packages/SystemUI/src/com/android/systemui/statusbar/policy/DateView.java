@@ -112,9 +112,19 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
     }
 
     protected void updateClock() {
+        ContentResolver resolver = getContext().getContentResolver();
         final String dateFormat = getContext().getString(R.string.abbrev_wday_month_day_no_year);
         setText(DateFormat.format(dateFormat, new Date()));
-        updateDateColor();
+
+        int defaultColor = getResources().getColor(
+                com.android.internal.R.color.white);
+        mExpandedClockColor = Settings.System.getInt(resolver,
+                Settings.System.STATUSBAR_EXPANDED_CLOCK_COLOR, defaultColor);
+
+        if (mExpandedClockColor == Integer.MIN_VALUE) {
+            // flag to reset the color
+            mExpandedClockColor = defaultColor;
+        }
     }
 
     private boolean isVisible() {
@@ -147,7 +157,6 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
         @Override
         public void onChange(boolean selfChange) {
             updateClock();
-            updateDateColor();
         }
     }
 
@@ -169,24 +178,8 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
         }
     }
 
-    private void updateDateColor() {
-        final Context context = getContext();
-        ContentResolver resolver = context.getContentResolver();
-
-        int defaultColor = getResources().getColor(
-                com.android.internal.R.color.white);
-        mExpandedClockColor = Settings.System.getInt(resolver,
-                Settings.System.STATUSBAR_EXPANDED_CLOCK_COLOR, defaultColor);
-
-        if (mExpandedClockColor == Integer.MIN_VALUE) {
-            // flag to reset the color
-            mExpandedClockColor = defaultColor;
-        }
-    }
-
     @Override
     public void onClick(View v) {
-        updateDateColor();
         setTextColor(mExpandedClockColor);
 
         // collapse status bar
@@ -220,7 +213,6 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
             int cTouch = getResources().getColor(com.android.internal.R.color.holo_blue_light);
             setTextColor(cTouch);
         } else if (a == MotionEvent.ACTION_CANCEL || a == MotionEvent.ACTION_UP) {
-            updateDateColor();
             setTextColor(mExpandedClockColor);
         }
         // never consume touch event, so onClick is propperly processed
