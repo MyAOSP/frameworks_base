@@ -3378,6 +3378,14 @@ public final class Settings {
             QUIET_HOURS_MUTE,
             QUIET_HOURS_STILL,
             QUIET_HOURS_DIM,
+            SYSTEM_PROFILES_ENABLED,
+            POWER_DIALOG_SHOW_POWER_OFF,
+            POWER_DIALOG_SHOW_REBOOT_CHOOSER,
+            POWER_DIALOG_SHOW_NAVBAR_HIDE,
+            POWER_DIALOG_SHOW_SCREENSHOT,
+            POWER_DIALOG_SHOW_AIRPLANE_TOGGLE,
+            POWER_DIALOG_SHOW_PROFILE_CHOOSER,
+            POWER_DIALOG_SHOW_SOUND_CHOOSER
         };
 
         // Settings moved to Settings.Secure
