@@ -67,6 +67,11 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
 
     public DateView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        // for clock color
+        SettingsObserver settingsObserver = new SettingsObserver(new Handler());
+        settingsObserver.observe();
+
         mClockDateOpens = Settings.System.getBoolean(context.getContentResolver(),
                 Settings.System.CLOCK_DATE_OPENS, true);
 
@@ -76,6 +81,8 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
         } else {
             setClickable(false);
         }
+        setTextColor(mExpandedClockColor);
+        updateClock();
     }
 
     @Override
@@ -125,6 +132,7 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
             // flag to reset the color
             mExpandedClockColor = defaultColor;
         }
+        setTextColor(mExpandedClockColor);
     }
 
     private boolean isVisible() {
@@ -151,6 +159,8 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUSBAR_EXPANDED_CLOCK_COLOR), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.CLOCK_DATE_OPENS), false, this);
             updateClock();
         }
 
@@ -180,7 +190,6 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
 
     @Override
     public void onClick(View v) {
-        setTextColor(mExpandedClockColor);
 
         // collapse status bar
         StatusBarManager statusBarManager = (StatusBarManager) getContext().getSystemService(
