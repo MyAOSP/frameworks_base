@@ -10,14 +10,14 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.android.systemui.R;
-import com.android.systemui.aokp.AokpTarget;
+import com.android.systemui.navbar.NavbarTarget;
 import com.android.systemui.recent.RecentTasksLoader;
 import com.android.systemui.recent.RecentsActivity;
 
 
 public class ExtensibleKeyButtonView extends KeyButtonView {
 
-    private AokpTarget mAokpTarget;
+    private NavbarTarget mNavbarTarget;
 
     public String mClickAction, mLongpress;
 
@@ -26,28 +26,28 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
         setActions(ClickAction,Longpress);
     }
 
-    public void setAokpTarget(AokpTarget targ){
-        mAokpTarget = targ;
+    public void setNavbarTarget(NavbarTarget targ){
+        mNavbarTarget = targ;
         }
 
     public void setActions(String ClickAction, String Longpress) {
         mClickAction = ClickAction;
         mLongpress = Longpress;
         if (ClickAction != null) {
-            if (ClickAction.equals(AokpTarget.ACTION_HOME)) {
+            if (ClickAction.equals(NavbarTarget.ACTION_HOME)) {
                 setCode(KeyEvent.KEYCODE_HOME);
                 setId(R.id.home);
-            } else if (ClickAction.equals(AokpTarget.ACTION_BACK)) {
+            } else if (ClickAction.equals(NavbarTarget.ACTION_BACK)) {
                 setCode(KeyEvent.KEYCODE_BACK);
                 setId(R.id.back);
-            } else if (ClickAction.equals(AokpTarget.ACTION_MENU)) {
+            } else if (ClickAction.equals(NavbarTarget.ACTION_MENU)) {
                 setCode(KeyEvent.KEYCODE_MENU);
                 setId(R.id.menu);
-            } else if (ClickAction.equals(AokpTarget.ACTION_POWER)) {
+            } else if (ClickAction.equals(NavbarTarget.ACTION_POWER)) {
                 setCode(KeyEvent.KEYCODE_POWER);
-            } else if (ClickAction.equals(AokpTarget.ACTION_SEARCH)) {
+            } else if (ClickAction.equals(NavbarTarget.ACTION_SEARCH)) {
                 setCode(KeyEvent.KEYCODE_SEARCH);
-            } else if (ClickAction.equals(AokpTarget.ACTION_RECENTS)) {
+            } else if (ClickAction.equals(NavbarTarget.ACTION_RECENTS)) {
                 setId(R.id.recent_apps);
                 setOnClickListener(mClickListener);
                 setOnTouchListener(mRecentsPreloadOnTouchListener);
@@ -56,7 +56,7 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
             }
             setSupportsLongPress(false);
             if (Longpress != null)
-                if ((!Longpress.equals(AokpTarget.ACTION_NULL)) || (getCode() != 0)) {
+                if ((!Longpress.equals(NavbarTarget.ACTION_NULL)) || (getCode() != 0)) {
                     // I want to allow long presses for defined actions, or if
                     // primary action is a 'key' and long press isn't defined
                     // otherwise
@@ -107,14 +107,14 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
     private OnClickListener mClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            mAokpTarget.launchAction(mClickAction);
+            mNavbarTarget.launchAction(mClickAction);
         }
     };
 
     private OnLongClickListener mLongPressListener = new OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
-            return mAokpTarget.launchAction(mLongpress);
+            return mNavbarTarget.launchAction(mLongpress);
         }
     };
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 AOKP by Mike Wilson - Zaphod-Beeblebrox
+ * Copyright (C) 2008 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.systemui.aokp;
+package com.android.systemui.navbar;
 
 import java.net.URISyntaxException;
 
@@ -53,12 +53,12 @@ import com.android.internal.statusbar.IStatusBarService;
 import com.android.systemui.R;
 
 /*
- * Helper classes for managing AOKP custom actions
+ * Helper classes for managing navbar custom actions
  */
 
-public class AokpTarget {
+public class NavbarTarget {
 
-    final String TAG = "AOKPTarget";
+    final String TAG = "NavbarTarget";
 
     public final static String ACTION_HOME = "**home**";
     public final static String ACTION_BACK = "**back**";
@@ -74,7 +74,7 @@ public class AokpTarget {
     public final static String ACTION_SILENT = "**ring_silent**";
     public final static String ACTION_VIB = "**ring_vib**";
     public final static String ACTION_SILENT_VIB = "**ring_vib_silent**";
-	public final static String ACTION_SEARCH = "**search**";
+    public final static String ACTION_SEARCH = "**search**";
     public final static String ACTION_NULL = "**null**";
 
     private int mInjectKeyCode;
@@ -84,7 +84,7 @@ public class AokpTarget {
     final Object mScreenshotLock = new Object();
     ServiceConnection mScreenshotConnection = null;
 
-    public AokpTarget (Context context){
+    public NavbarTarget (Context context){
         mContext = context;
         mHandler = new Handler();
     }
@@ -253,7 +253,7 @@ public class AokpTarget {
                 e.printStackTrace();
             }
         return mContext.getResources().getDrawable(R.drawable.ic_sysbar_null);
-    } 
+    }
 
     public String getProperSummary(String uri) {
         if (uri.equals(ACTION_HOME))
