@@ -44,6 +44,7 @@ import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.Log;
+import android.util.Slog;
 import android.view.InputDevice;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -77,6 +78,7 @@ public class NavbarTarget {
     public final static String ACTION_SEARCH = "**search**";
     public final static String ACTION_NULL = "**null**";
 
+    private boolean mRecentButtonLock = false;
     private int mInjectKeyCode;
     private Context mContext;
     private Handler mHandler;
@@ -91,6 +93,22 @@ public class NavbarTarget {
 
     public boolean launchAction (String action){
 
+        if (action.equals(ACTION_RECENTS)) {
+            if (!mRecentButtonLock) {
+                try {
+                    IStatusBarService.Stub.asInterface(
+                            ServiceManager.getService(Context.STATUS_BAR_SERVICE))
+                            .toggleRecentApps();
+                } catch (RemoteException e) {
+                    // nuu
+                }
+                mRecentButtonLock = true;
+                // 250ms animation duration + 150ms start delay of animation + 1 for good luck
+                mHandler.postDelayed(mUnlockRecents, 401);
+            }
+            return true;
+        }
+
         try {
             ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();
         } catch (RemoteException e) {
@@ -98,43 +116,33 @@ public class NavbarTarget {
 
         if (action == null || action.equals(ACTION_NULL)) {
             return false;
-        }
-        if (action.equals(ACTION_HOME)) {
+        } else if (action.equals(ACTION_HOME)) {
             injectKeyDelayed(KeyEvent.KEYCODE_HOME);
             return true;
-        }
-        if (action.equals(ACTION_BACK)) {
+        } else if (action.equals(ACTION_BACK)) {
             injectKeyDelayed(KeyEvent.KEYCODE_BACK);
             return true;
-        }
-        if (action.equals(ACTION_MENU)) {
+        } else if (action.equals(ACTION_MENU)) {
             injectKeyDelayed(KeyEvent.KEYCODE_MENU);
             return true;
-        }
-        if (action.equals(ACTION_POWER)) {
+        } else if (action.equals(ACTION_POWER)) {
             injectKeyDelayed(KeyEvent.KEYCODE_POWER);
             return true;
-        }
-        if (action.equals(ACTION_IME)) {
+        } else if (action.equals(ACTION_IME)) {
             mContext.sendBroadcast(new Intent("android.settings.SHOW_INPUT_METHOD_PICKER"));
             return true;
-        }
-        if (action.equals(ACTION_SCREENSHOT)) {
+        } else if (action.equals(ACTION_SCREENSHOT)) {
             takeScreenshot();
             return true;
-        }
-        if (action.equals(ACTION_ASSIST)) {
+        } else if (action.equals(ACTION_ASSIST)) {
             Intent intent = new Intent(Intent.ACTION_ASSIST);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mContext.startActivity(intent);
             return true;
-        }
-        if (action.equals(ACTION_KILL)) {
+        } else if (action.equals(ACTION_KILL)) {
             mHandler.post(mKillTask);
             return true;
-        }
-
-        if (action.equals(ACTION_VIB)) {
+        } else if (action.equals(ACTION_VIB)) {
             AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
             if(am != null){
                 if(am.getRingerMode() != AudioManager.RINGER_MODE_VIBRATE) {
@@ -152,8 +160,7 @@ public class NavbarTarget {
                 }
             }
             return true;
-        }
-        if (action.equals(ACTION_SILENT)) {
+        } else if (action.equals(ACTION_SILENT)) {
             AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
             if(am != null){
                 if(am.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
@@ -167,8 +174,7 @@ public class NavbarTarget {
                 }
             }
             return true;
-        }
-        if (action.equals(ACTION_SILENT_VIB)) {
+        } else if (action.equals(ACTION_SILENT_VIB)) {
             AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
             if(am != null){
                 if(am.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
@@ -188,16 +194,10 @@ public class NavbarTarget {
                 }
             }
             return true;
-        }
-
-        if (action.equals(ACTION_RECENTS)) {
-            mHandler.post(mToggleRecents);
-            return true;
-        }
-        if (action.equals(ACTION_NOTIFICATIONS)) {
+        } else if (action.equals(ACTION_NOTIFICATIONS)) {
             try {
-                IStatusBarService.Stub.asInterface(
-                        ServiceManager.getService(mContext.STATUS_BAR_SERVICE)).expandNotificationsPanel();
+                IStatusBarService.Stub.asInterface(ServiceManager.getService(
+                        mContext.STATUS_BAR_SERVICE)).expandNotificationsPanel();
             } catch (RemoteException e) {
                 // A RemoteException is like a cold
                 // Let's hope we don't catch one!
@@ -211,9 +211,9 @@ public class NavbarTarget {
             mContext.startActivity(intent);
             return true;
             } catch (URISyntaxException e) {
-                    Log.e(TAG, "URISyntaxException: [" + action + "]");
+                Log.e(TAG, "URISyntaxException: [" + action + "]");
             } catch (ActivityNotFoundException e){
-                    Log.e(TAG, "ActivityNotFound: [" + action + "]");
+                Log.e(TAG, "ActivityNotFound: [" + action + "]");
             }
         return false; // we didn't handle the action!
     }
@@ -362,14 +362,10 @@ public class NavbarTarget {
         }
     };
 
-    Runnable mToggleRecents = new Runnable() {
+    final Runnable mUnlockRecents = new Runnable() {
         @Override
         public void run() {
-            try {
-                IStatusBarService.Stub.asInterface(
-                        ServiceManager.getService(Context.STATUS_BAR_SERVICE)).toggleRecentApps();
-            } catch (RemoteException e) {
-            }
+            mRecentButtonLock = false;
         }
     };
 
