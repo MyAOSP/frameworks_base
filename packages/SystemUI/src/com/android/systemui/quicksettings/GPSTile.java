@@ -34,8 +34,8 @@ public class GPSTile extends QuickSettingsTile implements LocationGpsStateChange
         LocationController controller = new LocationController(mContext);
         controller.addStateChangedCallback(this);
 
-        mLabel = mContext.getString(R.string.quick_settings_gps);
         enabled = Settings.Secure.isLocationProviderEnabled(mContentResolver, LocationManager.GPS_PROVIDER);
+	setGenericLabel();
 
         mOnClick = new OnClickListener() {
             @Override
@@ -93,6 +93,13 @@ public class GPSTile extends QuickSettingsTile implements LocationGpsStateChange
     private void setGenericLabel() {
         // Show OFF next to the GPS label when in OFF state, ON/IN USE is indicated by the color
         String label = mContext.getString(R.string.quick_settings_gps);
-        mLabel = (enabled ? label : label + " " + mContext.getString(R.string.quick_settings_label_disabled));
+
+	if (enabled && working) {
+            mLabel = mLabel + " " + mContext.getString(R.string.quick_settings_gps_locked);
+        } else if (enabled) {
+            mLabel = mLabel + " " + mContext.getString(R.string.quick_settings_label_enabled);
+        } else {
+            mLabel = mLabel + " " + mContext.getString(R.string.quick_settings_label_disabled);
+        }
     }
 }
