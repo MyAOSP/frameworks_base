@@ -647,7 +647,7 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
         boolean locked = RotationPolicy.isRotationLocked(mContext);
         mRotationLockState.enabled = locked;
         mRotationLockState.iconId = locked
-                ? R.drawable.ic_qs_rotation_locked
+                ? R.drawable.ic_qs_auto_rotate_locked
                 : R.drawable.ic_qs_auto_rotate;
         mRotationLockState.label = locked
                 ? mContext.getString(R.string.quick_settings_rotation_locked_label)
