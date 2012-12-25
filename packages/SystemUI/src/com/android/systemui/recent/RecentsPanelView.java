@@ -816,18 +816,16 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                 Settings.System.RECENT_KILL_ALL_BUTTON, false);
 
         mRecentsKillAllButton = (Button) findViewById(R.id.recents_kill_all_button);
-        if (mRecentsKillAllEnabled) {
-            if (mRecentsKillAllButton != null) {
+        if (mRecentsKillAllButton != null) {
+            if (mRecentsKillAllEnabled) { // Figure out if the btn should be visible or gone.
+                mRecentsKillAllButton.setVisibility(View.VISIBLE);
                 mRecentsKillAllButton.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         killAllRecentApps();
                     }
                 });
-                mRecentsKillAllButton.setVisibility(View.VISIBLE);
-            }
-        } else {
-            if (mRecentsKillAllButton != null) {
+            } else {
                 mRecentsKillAllButton.setVisibility(View.GONE);
             }
         }
