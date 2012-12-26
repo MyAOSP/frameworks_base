@@ -95,11 +95,11 @@ public class GPSTile extends QuickSettingsTile implements LocationGpsStateChange
         String label = mContext.getString(R.string.quick_settings_gps);
 
 	if (enabled && working) {
-            mLabel = mLabel + " " + mContext.getString(R.string.quick_settings_gps_locked);
+            mLabel = label + " " + mContext.getString(R.string.quick_settings_gps_locked);
         } else if (enabled) {
-            mLabel = mLabel + " " + mContext.getString(R.string.quick_settings_label_enabled);
+            mLabel = label + " " + mContext.getString(R.string.quick_settings_label_enabled);
         } else {
-            mLabel = mLabel + " " + mContext.getString(R.string.quick_settings_label_disabled);
+            mLabel = label + " " + mContext.getString(R.string.quick_settings_label_disabled);
         }
     }
 }
