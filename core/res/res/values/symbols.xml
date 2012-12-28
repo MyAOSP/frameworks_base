@@ -1842,6 +1842,9 @@
   <java-symbol type="integer" name="config_backKillTimeout" />
   <java-symbol type="string" name="app_killed_message" />
 
+  <!-- Hardware Key ReMapping -->
+  <java-symbol type="integer" name="config_deviceHardwareKeys" />
+
   <!-- Notification and battery light -->
   <java-symbol type="bool" name="config_intrusiveBatteryLed" />
   <java-symbol type="bool" name="config_multiColorBatteryLed" />
