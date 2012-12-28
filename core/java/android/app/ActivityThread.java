@@ -1573,10 +1573,7 @@ public final class ActivityThread {
             if (mScale != peer.mScale) {
                 return false;
             }
-            if (mIsThemeable != peer.mIsThemeable) {
-                return false;
-            }
-            return true;
+            return mIsThemeable == peer.mIsThemeable;
         }
     }
 
@@ -1718,18 +1715,6 @@ public final class ActivityThread {
             return null;
         }
 
-        /* Attach theme information to the resulting AssetManager when appropriate. */
-        Configuration themeConfig = getConfiguration();
-        if (compInfo.isThemeable && themeConfig != null) {
-            if (themeConfig.customTheme == null) {
-                themeConfig.customTheme = CustomTheme.getBootTheme();
-            }
-
-            if (!TextUtils.isEmpty(themeConfig.customTheme.getThemePackageName())) {
-                attachThemeAssets(assets, themeConfig.customTheme);
-            }
-        }
-
         //Slog.i(TAG, "Resource: key=" + key + ", display metrics=" + metrics);
         DisplayMetrics dm = getDisplayMetricsLocked(displayId, null);
         Configuration config;
@@ -1745,6 +1730,18 @@ public final class ActivityThread {
         } else {
             config = getConfiguration();
         }
+
+        /* Attach theme information to the resulting AssetManager when appropriate. */
+        if (compInfo.isThemeable && config != null) {
+            if (config.customTheme == null) {
+                config.customTheme = CustomTheme.getBootTheme();
+            }
+
+            if (!TextUtils.isEmpty(config.customTheme.getThemePackageName())) {
+                attachThemeAssets(assets, config.customTheme);
+            }
+        }
+
         r = new Resources(assets, dm, config, compInfo);
         if (false) {
             Slog.i(TAG, "Created app resources " + resDir + " " + r + ": "
@@ -3988,6 +3985,10 @@ public final class ActivityThread {
             if (r != null) {
                 if (DEBUG_CONFIGURATION) Slog.v(TAG, "Changing resources "
                         + r + " config to: " + config);
+                int displayId = entry.getKey().mDisplayId;
+                boolean isDefaultDisplay = (displayId == Display.DEFAULT_DISPLAY);
+                DisplayMetrics dm = defaultDisplayMetrics;
+                Configuration overrideConfig = entry.getKey().mOverrideConfiguration;
                 boolean themeChanged = (changes & ActivityInfo.CONFIG_THEME_RESOURCE) != 0;
                 if (themeChanged) {
                     AssetManager am = r.getAssets();
@@ -3998,10 +3999,6 @@ public final class ActivityThread {
                         }
                     }
                 }
-                int displayId = entry.getKey().mDisplayId;
-                boolean isDefaultDisplay = (displayId == Display.DEFAULT_DISPLAY);
-                DisplayMetrics dm = defaultDisplayMetrics;
-                Configuration overrideConfig = entry.getKey().mOverrideConfiguration;
                 if (!isDefaultDisplay || overrideConfig != null) {
                     if (tmpConfig == null) {
                         tmpConfig = new Configuration();
