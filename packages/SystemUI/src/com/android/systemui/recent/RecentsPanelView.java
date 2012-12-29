@@ -23,11 +23,13 @@ import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.ActivityOptions;
 import android.app.TaskStackBuilder;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Shader.TileMode;
@@ -35,6 +37,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -92,6 +95,9 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
     private boolean mFitThumbnailToXY;
     private int mRecentItemLayoutId;
     private boolean mHighEndGfx;
+    boolean mRecentsKillAllEnabled;
+    Handler mHandler = new Handler();
+    SettingsObserver mSettingsObserver;
 
     public static interface RecentsScrollView {
         public int numItemsInOneScreenful();
@@ -259,6 +265,8 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
         mRecentItemLayoutId = a.getResourceId(R.styleable.RecentsPanelView_recentItemLayout, 0);
         mRecentTasksLoader = RecentTasksLoader.getInstance(context);
         a.recycle();
+        mSettingsObserver = new SettingsObserver(mHandler);
+        mSettingsObserver.observe();
     }
 
     public int numItemsInOneScreenful() {
@@ -447,35 +455,6 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                 ((BitmapDrawable) mRecentsScrim.getBackground()).setTileModeY(TileMode.REPEAT);
             }
         }
-
-        boolean recent_kill_all_button = Settings.System.getInt(mContext.getContentResolver(),
-                      Settings.System.RECENT_KILL_ALL_BUTTON, 0) == 1;
-
-        mRecentsKillAllButton = (Button) findViewById(R.id.recents_kill_all_button);
-        if (mRecentsKillAllButton != null) {
-            if (recent_kill_all_button) { // Set the listener
-                mRecentsKillAllButton.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        killAllRecentApps();
-                    }
-                });
-            } else { // hide the btn completely
-                mRecentsKillAllButton.setVisibility(View.GONE);
-            }
-        }
-
-        mPreloadTasksRunnable = new Runnable() {
-            public void run() {
-                // If we set our visibility to INVISIBLE here, we avoid an extra call to
-                // onLayout later when we become visible (because onLayout is always called
-                // when going from GONE)
-                if (!mShowing) {
-                    setVisibility(INVISIBLE);
-                    refreshRecentTasksList();
-                }
-            }
-        };
     }
 
     public void setMinSwipeAlpha(float minAlpha) {
@@ -811,5 +790,44 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
             mRecentTaskDescriptions.clear();
         }
         dismissAndGoBack();
+    }
+
+    class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.RECENT_KILL_ALL_BUTTON), false, this);
+            updateSettings();
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            updateSettings();
+        }
+    }
+
+    public void updateSettings() {
+        mRecentsKillAllEnabled = Settings.System.getBoolean(
+                mContext.getContentResolver(),
+                Settings.System.RECENT_KILL_ALL_BUTTON, false);
+
+        mRecentsKillAllButton = (Button) findViewById(R.id.recents_kill_all_button);
+        if (mRecentsKillAllButton != null) {
+            if (mRecentsKillAllEnabled) { // Figure out if the btn should be visible or gone.
+                mRecentsKillAllButton.setVisibility(View.VISIBLE);
+                mRecentsKillAllButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        killAllRecentApps();
+                    }
+                });
+            } else {
+                mRecentsKillAllButton.setVisibility(View.GONE);
+            }
+        }
     }
 }
