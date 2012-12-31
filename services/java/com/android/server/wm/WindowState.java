@@ -57,7 +57,7 @@ class WindowList extends ArrayList<WindowState> {
  */
 final class WindowState implements WindowManagerPolicy.WindowState {
     static final String TAG = "WindowState";
-    
+
     static final boolean DEBUG_VISIBILITY = WindowManagerService.DEBUG_VISIBILITY;
     static final boolean SHOW_TRANSACTIONS = WindowManagerService.SHOW_TRANSACTIONS;
     static final boolean SHOW_LIGHT_TRANSACTIONS = WindowManagerService.SHOW_LIGHT_TRANSACTIONS;
@@ -246,7 +246,7 @@ final class WindowState implements WindowManagerPolicy.WindowState {
     // Input channel and input window handle used by the input dispatcher.
     final InputWindowHandle mInputWindowHandle;
     InputChannel mInputChannel;
-    
+
     // Used to improve performance of toString()
     String mStringNameCache;
     CharSequence mLastTitle;
@@ -494,10 +494,10 @@ final class WindowState implements WindowManagerPolicy.WindowState {
             mCompatFrame.scale(mInvGlobalScale);
         }
 
-        if (mIsWallpaper && (fw != frame.width() || fh != frame.height())) {
-            final DisplayInfo displayInfo = mDisplayContent.getDisplayInfo();
-            mService.updateWallpaperOffsetLocked(this, displayInfo.appWidth, displayInfo.appHeight,
-                    false);
+        if (mIsWallpaper) {
+            final int rotation = mService.getRotation();
+            mService.updateWallpaperOffsetLocked(this, mPolicy.getWallpaperWidth(rotation),
+                    mPolicy.getWallpaperHeight(rotation), false);
         }
 
         if (WindowManagerService.localLOGV) {
@@ -870,7 +870,7 @@ final class WindowState implements WindowManagerPolicy.WindowState {
 
     void removeLocked() {
         disposeInputChannel();
-        
+
         if (mAttachedWindow != null) {
             if (WindowManagerService.DEBUG_ADD_REMOVE) Slog.v(TAG, "Removing " + this + " from " + mAttachedWindow);
             mAttachedWindow.mChildWindows.remove(this);
@@ -898,7 +898,7 @@ final class WindowState implements WindowManagerPolicy.WindowState {
     void disposeInputChannel() {
         if (mInputChannel != null) {
             mService.mInputManager.unregisterInputChannel(mInputChannel);
-            
+
             mInputChannel.dispose();
             mInputChannel = null;
         }
@@ -1233,7 +1233,7 @@ final class WindowState implements WindowManagerPolicy.WindowState {
                     pw.print(" mWallpaperYStep="); pw.println(mWallpaperYStep);
         }
     }
-    
+
     String makeInputChannelName() {
         return Integer.toHexString(System.identityHashCode(this))
             + " " + mAttrs.getTitle();

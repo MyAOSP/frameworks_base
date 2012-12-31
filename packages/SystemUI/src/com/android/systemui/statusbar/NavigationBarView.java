@@ -26,11 +26,13 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.ContentObserver;
+import android.graphics.ColorFilterMaker;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.provider.Settings;
 import android.util.AttributeSet;
@@ -38,12 +40,14 @@ import android.util.Slog;
 import android.util.TypedValue;
 import android.view.animation.AccelerateInterpolator;
 import android.view.Display;
+import android.view.IWindowManager;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Surface;
 import android.view.WindowManager;
+import android.view.WindowManagerGlobal;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -68,6 +72,7 @@ public class NavigationBarView extends LinearLayout {
     final static boolean ANIMATE_HIDE_TRANSITION = false; // turned off because it introduces unsightly delay when videos goes to full screen
 
     protected IStatusBarService mBarService;
+    protected IWindowManager mWindowManagerService;
     final Display mDisplay;
     View mCurrentView = null;
     View[] mRotatedViews = new View[4];
@@ -218,6 +223,8 @@ public class NavigationBarView extends LinearLayout {
 
     public NavigationBarView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        mWindowManagerService = WindowManagerGlobal.getWindowManagerService();
 
         mHidden = false;
 
@@ -727,6 +734,8 @@ public class NavigationBarView extends LinearLayout {
          }
          mCurrentView = mRotatedViews[Surface.ROTATION_0];
 
+         updateNavigationBarBackground();
+
          // this takes care of making the buttons
          SettingsObserver settingsObserver = new SettingsObserver(new Handler());
          settingsObserver.observe();
@@ -815,6 +824,10 @@ public class NavigationBarView extends LinearLayout {
                     Settings.System.NAVIGATION_BAR_BUTTONS_QTY), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NAVIGATION_BAR_LEFTY_MODE), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_BACKGROUND_STYLE), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_BACKGROUND_COLOR), false, this);
 
             for (int j = 0; j < 7; j++) { // watch all 7 settings for changes.
                 resolver.registerContentObserver(Settings.System.getUriFor(
@@ -826,11 +839,39 @@ public class NavigationBarView extends LinearLayout {
                         this);
             }
             updateSettings();
+            updateNavigationBarBackground();
         }
 
         @Override
         public void onChange(boolean selfChange) {
             updateSettings();
+            updateNavigationBarBackground();
+        }
+    }
+
+    protected void updateNavigationBarBackground() {
+        try {
+            boolean showNav = mWindowManagerService.hasNavigationBar();
+            if (showNav) {
+                // NavigationBar background color
+                int defaultBg = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.NAVIGATION_BAR_BACKGROUND_STYLE, 2);
+                int navbarBackgroundColor = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.NAVIGATION_BAR_BACKGROUND_COLOR, 0xFF000000);
+
+                if (defaultBg == 0) {
+                    this.setBackgroundColor(navbarBackgroundColor);
+                } else if (defaultBg == 1) {
+                    this.setBackgroundResource(R.drawable.nav_bar_bg);
+                    this.getBackground().setColorFilter(ColorFilterMaker.
+                            changeColorAlpha(navbarBackgroundColor, .32f, 0f));
+                } else {
+                    this.setBackground(mContext.getResources().getDrawable(
+                            R.drawable.nav_bar_bg));
+                }
+            }
+        } catch (RemoteException ex) {
+            // no window manager? good luck with that
         }
     }
 
