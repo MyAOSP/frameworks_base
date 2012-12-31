@@ -1045,6 +1045,9 @@
     <!-- Device has a h/w rotation lock switch -->
     <bool name="config_hasRotationLockSwitch">false</bool>
 
+    <!-- Workaround for devices with broken keyboards -->
+    <bool name="config_forceDisableHardwareKeyboard">false</bool>
+
     <!-- Set to true for Tegra3 devices -->
     <bool name="config_isTegra3">false</bool>
 
