@@ -2490,6 +2490,8 @@ public class PhoneStatusBar extends BaseStatusBar {
             iconSlots.add(iconView.getStatusBarSlot());
         }
 
+        mNavigationBarView.themeHasChanged();
+
         // extract notifications.
         int nNotifs = mNotificationData.size();
         ArrayList<Pair<IBinder, StatusBarNotification>> notifications =

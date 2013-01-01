@@ -923,6 +923,11 @@ public class NavigationBarView extends LinearLayout {
         setMenuVisibility(mShowMenu);
     }
 
+    public void themeHasChanged() {
+        updateSettings();
+        updateNavigationBarBackground();
+    }
+
     private void postCheckForInvalidLayout(final String how) {
         mHandler.obtainMessage(MSG_CHECK_INVALID_LAYOUT, 0, 0, how).sendToTarget();
     }
