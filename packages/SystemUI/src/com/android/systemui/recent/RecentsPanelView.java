@@ -455,6 +455,7 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                 ((BitmapDrawable) mRecentsScrim.getBackground()).setTileModeY(TileMode.REPEAT);
             }
         }
+        updateSettings();
     }
 
     public void setMinSwipeAlpha(float minAlpha) {
@@ -816,8 +817,8 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                 Settings.System.RECENT_KILL_ALL_BUTTON, false);
 
         mRecentsKillAllButton = (Button) findViewById(R.id.recents_kill_all_button);
-        if (mRecentsKillAllButton != null) {
-            if (mRecentsKillAllEnabled) { // Figure out if the btn should be visible or gone.
+        if (mRecentsKillAllEnabled) { // Figure out if the btn should be visible or gone.
+            if (mRecentsKillAllButton != null) {
                 mRecentsKillAllButton.setVisibility(View.VISIBLE);
                 mRecentsKillAllButton.setOnClickListener(new OnClickListener() {
                     @Override
@@ -825,7 +826,9 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                         killAllRecentApps();
                     }
                 });
-            } else {
+            }
+        } else {
+            if (mRecentsKillAllButton != null) {
                 mRecentsKillAllButton.setVisibility(View.GONE);
             }
         }
