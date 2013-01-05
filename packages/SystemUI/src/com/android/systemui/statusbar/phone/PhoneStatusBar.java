@@ -2778,26 +2778,18 @@ public class PhoneStatusBar extends BaseStatusBar {
 
         public void startObserving() {
             final ContentResolver cr = mContext.getContentResolver();
-            cr.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.QUICK_SETTINGS_TILES),
-                    false, this);
-
-            cr.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.QS_DYNAMIC_ALARM),
-                    false, this);
-
-            cr.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.QS_DYNAMIC_BUGREPORT),
-                    false, this);
-
-            cr.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.QS_DYNAMIC_IME),
-                    false, this);
-
-            cr.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.QS_DYNAMIC_WIFI),
-                    false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_TILES), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_DYNAMIC_ALARM), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_DYNAMIC_BUGREPORT), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_DYNAMIC_IME), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_DYNAMIC_WIFI), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_TILES_PER_ROW), false, this);
         }
     }
-
 }
