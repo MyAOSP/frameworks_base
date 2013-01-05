@@ -93,7 +93,7 @@ public class KeyButtonView extends ImageView {
                 defStyle, 0);
 
         mCode = a.getInteger(R.styleable.KeyButtonView_keyCode, 0);
-        
+
         mSupportsLongpress = a.getBoolean(R.styleable.KeyButtonView_keyRepeat, true);
 
         mGlowBG = a.getDrawable(R.styleable.KeyButtonView_glowBackground);
@@ -102,7 +102,7 @@ public class KeyButtonView extends ImageView {
             mGlowWidth = mGlowBG.getIntrinsicWidth();
             mGlowHeight = mGlowBG.getIntrinsicHeight();
         }
-        
+
         a.recycle();
 
         setClickable(true);
@@ -226,7 +226,7 @@ public class KeyButtonView extends ImageView {
     public void setTint(boolean tint) {
         if (tint) {
             int defaultButtonColor = mContext.getResources().getColor(
-                    com.android.internal.R.color.white);
+                    com.android.internal.R.color.transparent);
             int color = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.NAVIGATION_BAR_TINT, defaultButtonColor);
             if (color == Integer.MIN_VALUE) {
@@ -249,7 +249,7 @@ public class KeyButtonView extends ImageView {
                 }
                 final AnimatorSet as = mPressedAnim = new AnimatorSet();
                 if (pressed) {
-                    if (mGlowScale < GLOW_MAX_SCALE_FACTOR) 
+                    if (mGlowScale < GLOW_MAX_SCALE_FACTOR)
                         mGlowScale = GLOW_MAX_SCALE_FACTOR;
                     if (mGlowAlpha < BUTTON_QUIESCENT_ALPHA)
                         mGlowAlpha = BUTTON_QUIESCENT_ALPHA;
