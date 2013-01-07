@@ -715,7 +715,7 @@ public class NavigationBarView extends LinearLayout {
 
     @Override
     public void onFinishInflate() {
-         rot0 = (FrameLayout) findViewById(R.id.rot0);
+    	 rot0 = (FrameLayout) findViewById(R.id.rot0);
          rot90 = (FrameLayout) findViewById(R.id.rot90);
 
          mRotatedViews[Surface.ROTATION_0] =
@@ -757,12 +757,10 @@ public class NavigationBarView extends LinearLayout {
         setLowProfile(mLowProfile, false, true /* force */);
         setDisabledFlags(mDisabledFlags, true /* force */);
         setMenuVisibility(mShowMenu, true /* force */);
-
+        setNavigationIconHints(mNavigationIconHints, true);
         if (DEBUG) {
             Slog.d(TAG, "reorient(): rot=" + mDisplay.getRotation());
         }
-
-        setNavigationIconHints(mNavigationIconHints, true);
     }
 
     @Override
