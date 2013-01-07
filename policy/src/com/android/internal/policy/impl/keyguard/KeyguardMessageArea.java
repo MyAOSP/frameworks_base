@@ -141,6 +141,8 @@ class KeyguardMessageArea extends TextView {
             mBatteryLevel = status.level;
             mBatteryCharged = status.isCharged();
             mBatteryIsLow = status.isBatteryLow();
+            mAlwaysShowBattery = KeyguardUpdateMonitor.shouldAlwaysShowBatteryInfo(getContext());
+            mShowingBatteryInfo = status.isPluggedIn() || status.isBatteryLow() || mAlwaysShowBattery;
             update();
         }
     };
@@ -163,8 +165,6 @@ class KeyguardMessageArea extends TextView {
         mHandler = new Handler(Looper.myLooper());
 
         mSeparator = getResources().getString(R.string.kg_text_message_separator);
-        mAlwaysShowBattery = KeyguardUpdateMonitor.shouldAlwaysShowBatteryInfo(getContext());
-        mShowingBatteryInfo = status.isPluggedIn() || status.isBatteryLow() || mAlwaysShowBattery;
         setTextColor(Settings.System.getInt(getContext().getContentResolver(),
                 Settings.System.LOCKSCREEN_CUSTOM_TEXT_COLOR, 0xFFFFFFFF));
         update();
