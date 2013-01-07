@@ -3244,6 +3244,24 @@ public final class Settings {
         public static final String LOCKSCREEN_QUICK_UNLOCK_CONTROL = "lockscreen_quick_unlock_control";
 
         /**
+         * Whether to enable lockscreen rotation
+         * @hide
+         */
+        public static final String LOCKSCREEN_AUTO_ROTATE = "lockscreen_auto_rotate";
+
+        /**
+         * Setting to allow % on lockscreen always showing.
+         * @hide
+         */
+        public static final String LOCKSCREEN_ALWAYS_SHOW_BATTERY = "lockscreen_always_show_battery";
+
+        /**
+         * custom lockscreen text color
+         * @hide
+         */
+        public static final String LOCKSCREEN_CUSTOM_TEXT_COLOR = "lockscreen_custom_text_color";
+
+        /**
          * Option to hide power off in power menu.
          * @hide
          */
@@ -3490,7 +3508,8 @@ public final class Settings {
             POWER_DIALOG_SHOW_SCREENSHOT,
             POWER_DIALOG_SHOW_AIRPLANE_TOGGLE,
             POWER_DIALOG_SHOW_PROFILE_CHOOSER,
-            POWER_DIALOG_SHOW_SOUND_CHOOSER
+            POWER_DIALOG_SHOW_SOUND_CHOOSER,
+            LOCKSCREEN_ALWAYS_SHOW_BATTERY,
         };
 
         // Settings moved to Settings.Secure

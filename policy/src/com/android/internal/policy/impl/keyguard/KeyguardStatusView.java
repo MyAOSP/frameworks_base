@@ -16,9 +16,11 @@
 
 package com.android.internal.policy.impl.keyguard;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
@@ -39,6 +41,7 @@ public class KeyguardStatusView extends GridLayout {
     public static final int LOCK_ICON = 0; // R.drawable.ic_lock_idle_lock;
     public static final int ALARM_ICON = com.android.internal.R.drawable.ic_lock_idle_alarm;
     public static final int CHARGING_ICON = 0; //R.drawable.ic_lock_idle_charging;
+    public static final int DISCHARGING_ICON = 0; // no icon used in ics+ currently
     public static final int BATTERY_LOW_ICON = 0; //R.drawable.ic_lock_idle_low_battery;
 
     private CharSequence mDateFormatString;
@@ -106,6 +109,7 @@ public class KeyguardStatusView extends GridLayout {
         mClockView.updateTime();
         refreshDate();
         refreshAlarmStatus(); // might as well
+        updateColors();
     }
 
     void refreshAlarmStatus() {
@@ -146,6 +150,20 @@ public class KeyguardStatusView extends GridLayout {
             textView.setText(text != null ? text.toString().toUpperCase() : null);
         } else {
             textView.setText(text);
+        }
+    }
+
+    private void updateColors() {
+        ContentResolver resolver = getContext().getContentResolver();
+        int color = Settings.System.getInt(resolver,
+                Settings.System.LOCKSCREEN_CUSTOM_TEXT_COLOR, 0xFFFFFFFF);
+
+        if (mDateView != null) {
+            mDateView.setTextColor(color);
+        }
+
+        if (mAlarmStatusView != null) {
+            mAlarmStatusView.setTextColor(color);
         }
     }
 }
