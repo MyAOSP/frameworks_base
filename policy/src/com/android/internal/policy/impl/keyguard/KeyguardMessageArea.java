@@ -137,7 +137,6 @@ class KeyguardMessageArea extends TextView {
     private KeyguardUpdateMonitorCallback mInfoCallback = new KeyguardUpdateMonitorCallback() {
         @Override
         public void onRefreshBatteryInfo(KeyguardUpdateMonitor.BatteryStatus status) {
-            mShowingBatteryInfo = status.isPluggedIn() || status.isBatteryLow();
             mPluggedIn = status.isPluggedIn();
             mBatteryLevel = status.level;
             mBatteryCharged = status.isCharged();
