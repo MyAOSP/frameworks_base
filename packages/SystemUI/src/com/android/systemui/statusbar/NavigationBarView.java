@@ -313,8 +313,7 @@ public class NavigationBarView extends LinearLayout {
                     // if portrait, add to end if landscape
                     addButton(navButtonLayout, leftMenuKey, !landscape || (landscape && mLeftyMode));
                     addLightsOutButton(lightsOut, leftMenuKey, !landscape || (landscape && mLeftyMode), true);
-                }
-                if (mMenuLocation != SHOW_DONT) {
+
                     View rightMenuKey = generateKey(landscape, KEY_MENU_RIGHT);
                     addButton(navButtonLayout, rightMenuKey, landscape && !mLeftyMode);
                     addLightsOutButton(lightsOut, rightMenuKey, landscape && !mLeftyMode, true);
@@ -368,8 +367,7 @@ public class NavigationBarView extends LinearLayout {
                 v.setContentDescription(r.getString(R.string.accessibility_menu));
                 v.setGlowBackground(landscape ? R.drawable.ic_sysbar_highlight_land
                         : R.drawable.ic_sysbar_highlight);
-                return v;
-
+                break;
             case KEY_MENU_LEFT:
                 v = new KeyButtonView(mContext, null);
                 v.setLayoutParams(getLayoutParams(landscape, (mCurrentUIMode == 1) ? 80 : 40));
@@ -387,11 +385,11 @@ public class NavigationBarView extends LinearLayout {
                 v.setContentDescription(r.getString(R.string.accessibility_menu));
                 v.setGlowBackground(landscape ? R.drawable.ic_sysbar_highlight_land
                         : R.drawable.ic_sysbar_highlight);
-                return v;
+                break;
 
         }
 
-        return null;
+        return v;
     }
 
     private ExtensibleKeyButtonView generateKey(boolean landscape, String clickAction,
@@ -406,25 +404,6 @@ public class NavigationBarView extends LinearLayout {
                 : R.drawable.ic_sysbar_highlight);
         return v;
     }
-
-    private int[] getAppIconPadding() {
-        int[] padding = new int[4];
-        // left
-        padding[0] = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources()
-                .getDisplayMetrics());
-        // top
-        padding[1] = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
-                .getDisplayMetrics());
-        // right
-        padding[2] = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources()
-                .getDisplayMetrics());
-        // bottom
-        padding[3] = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5,
-                getResources()
-                        .getDisplayMetrics());
-        return padding;
-    }
-
 
     private LayoutParams getLayoutParams(boolean landscape, float dp) {
         float px = dp * getResources().getDisplayMetrics().density;
@@ -479,20 +458,17 @@ public class NavigationBarView extends LinearLayout {
         mNavigationIconHints = hints;
         // We can't gaurantee users will set these buttons as targets
         if (getBackButton() != null) {
-                getBackButton().setAlpha(
-                                (0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_NOP)) ? 0.5f : 1.0f);
+            getBackButton().setAlpha((0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_NOP)) ? 0.5f : 1.0f);
             ((ImageView)getBackButton()).setImageDrawable(
                     (0 != (hints & StatusBarManager.NAVIGATION_HINT_BACK_ALT))
                     ? (mVertical ? mBackAltLandIcon : mBackAltIcon)
                     : (mVertical ? mBackLandIcon : mBackIcon));
         }
         if (getHomeButton()!=null) {
-                getHomeButton().setAlpha(
-                                (0 != (hints & StatusBarManager.NAVIGATION_HINT_HOME_NOP)) ? 0.5f : 1.0f);
+            getHomeButton().setAlpha((0 != (hints & StatusBarManager.NAVIGATION_HINT_HOME_NOP)) ? 0.5f : 1.0f);
         }
         if (getRecentsButton()!=null) {
-                getRecentsButton().setAlpha(
-                                (0 != (hints & StatusBarManager.NAVIGATION_HINT_RECENT_NOP)) ? 0.5f : 1.0f);
+            getRecentsButton().setAlpha((0 != (hints & StatusBarManager.NAVIGATION_HINT_RECENT_NOP)) ? 0.5f : 1.0f);
         }
         setDisabledFlags(mDisabledFlags, true);
     }
