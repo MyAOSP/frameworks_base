@@ -484,14 +484,14 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                 null,
                 0);
 
+        mSafeMediaVolumeState = new Integer(SAFE_MEDIA_VOLUME_NOT_CONFIGURED);
+
         readPersistedSettings();
         mSettingsObserver = new SettingsObserver();
         updateStreamVolumeAlias(false /*updateVolumes*/);
         createStreamStates();
 
         mMediaServerOk = true;
-
-        mSafeMediaVolumeState = new Integer(SAFE_MEDIA_VOLUME_NOT_CONFIGURED);
 
         // Call setRingerModeInt() to apply correct mute
         // state on streams affected by ringer mode.
@@ -739,6 +739,7 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                     UserHandle.USER_CURRENT);
 
             readDockAudioSettings(cr);
+            updateManualSafeMediaVolume();
         }
 
         //******************************************************************
@@ -3466,6 +3467,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                 Settings.System.MODE_RINGER_STREAMS_AFFECTED), false, this);
             mContentResolver.registerContentObserver(Settings.Global.getUriFor(
                 Settings.Global.DOCK_AUDIO_MEDIA_ENABLED), false, this);
+            mContentResolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.MANUAL_SAFE_MEDIA_VOLUME), false, this);
         }
 
         @Override
@@ -3510,6 +3513,7 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
                 } else {
                     mStreamVolumeAlias[AudioSystem.STREAM_NOTIFICATION] = AudioSystem.STREAM_NOTIFICATION;
                 }
+                updateManualSafeMediaVolume();
             }
         }
     }
@@ -6038,6 +6042,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
     // mSafeMediaVolumeDevices lists the devices for which safe media volume is enforced,
     private final int mSafeMediaVolumeDevices = AudioSystem.DEVICE_OUT_WIRED_HEADSET |
                                                 AudioSystem.DEVICE_OUT_WIRED_HEADPHONE;
+    // mManualSafeMediaVolume overrides the built-in safe media volume
+    boolean mManualSafeMediaVolume;
     // mMusicActiveMs is the cumulative time of music activity since safe volume was disabled.
     // When this time reaches UNSAFE_VOLUME_MUSIC_ACTIVE_MS_MAX, the safe media volume is re-enabled
     // automatically. mMusicActiveMs is rounded to a multiple of MUSIC_ACTIVE_POLL_PERIOD_MS.
@@ -6069,6 +6075,9 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
     }
 
     private void enforceSafeMediaVolume() {
+        // return if safe volume has been manually turned off
+        if (!mManualSafeMediaVolume) return;
+
         VolumeStreamState streamState = mStreamStates[AudioSystem.STREAM_MUSIC];
         boolean lastAudible = (streamState.muteCount() != 0);
         int devices = mSafeMediaVolumeDevices;
@@ -6110,7 +6119,7 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
             if ((mSafeMediaVolumeState == SAFE_MEDIA_VOLUME_ACTIVE) &&
                     (mStreamVolumeAlias[streamType] == AudioSystem.STREAM_MUSIC) &&
                     ((device & mSafeMediaVolumeDevices) != 0) &&
-                    (index > mSafeMediaVolumeIndex)) {
+                    (index > mSafeMediaVolumeIndex) && mManualSafeMediaVolume) {
                 displaySafeVolumeWarning();
                 return false;
             }
@@ -6169,5 +6178,11 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
         pw.println("\nAudio routes:");
         pw.print("  mMainType=0x"); pw.println(Integer.toHexString(mCurAudioRoutes.mMainType));
         pw.print("  mBluetoothName="); pw.println(mCurAudioRoutes.mBluetoothName);
+    }
+
+    protected void updateManualSafeMediaVolume() {
+        mManualSafeMediaVolume = Settings.System.getBoolean(mContext.getContentResolver(),
+                Settings.System.MANUAL_SAFE_MEDIA_VOLUME, true);
+        setSafeMediaVolumeEnabled(mManualSafeMediaVolume);
     }
 }

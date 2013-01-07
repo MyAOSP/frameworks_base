@@ -2981,7 +2981,11 @@ public final class Settings {
          */
         public static final String VOLUME_MUSIC_CONTROLS = "volume_music_controls";
 
-       /**
+        /**
+         * Whether to enable the built-in safe media volume for headsets
+         * @hide
+         */
+        public static final String MANUAL_SAFE_MEDIA_VOLUME = "manual_safe_media_volume";
 
         /**
          * whether to hide the kill-all-button on recent switcher
@@ -2990,22 +2994,22 @@ public final class Settings {
          */
         public static final String RECENT_KILL_ALL_BUTTON = "recent_kill_all_button";
 
-       /**
-        * Lefty mode
-        * @hide
-        */
+        /**
+         * Lefty mode
+         * @hide
+         */
         public static final String NAVIGATION_BAR_LEFTY_MODE = "navigation_bar_lefty_mode";
 
-       /**
-        *
-        * @hide
-        */
+        /**
+         *
+         * @hide
+         */
         public static final String SYSTEMUI_NAVRING_AMOUNT = "systemui_navring_amount";
 
-       /**
-        *
-        * @hide
-        */
+        /**
+         *
+         * @hide
+         */
         public static final String SYSTEMUI_NAVRING_LONG_ENABLE = "systemui_navring_long_enable";
 
         /**
