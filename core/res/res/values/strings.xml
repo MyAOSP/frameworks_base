@@ -2119,6 +2119,7 @@
     <string name="lockscreen_discharging">Discharging, <xliff:g id="number">%d</xliff:g><xliff:g id="percent">%%</xliff:g></string>
     <!-- When the lock screen is showing, the phone is plugged in and the battery is fully
          charged, say that it is charged. -->
+    <string name="lockscreen_charged">Charged</string>
     <string name="lockscreen_low_battery">Connect your charger, <xliff:g id="number">%d</xliff:g><xliff:g id="percent">%%</xliff:g></string>
     <!-- A short representation of charging information, e.g "34%" -->
     <string name="lockscreen_battery_short"><xliff:g id="number">%d</xliff:g><xliff:g id="percent">%%</xliff:g></string>
