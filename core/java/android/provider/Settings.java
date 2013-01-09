@@ -3416,6 +3416,13 @@ public final class Settings {
           */
          public static final String KEY_APP_SWITCH_LONG_PRESS_ACTION = "key_app_switch_long_press_action";
 
+         /**
+          * Duration for the hardware key lights to remain on in seconds (default is 5)
+          *
+          * @hide
+          */
+        public static final String KEY_HARDWARE_LIGHT_DURATION = "key_hardware_light_duration";
+
         /**
          * Control the display of the action overflow button within app UI.
          * 0 = use system default
