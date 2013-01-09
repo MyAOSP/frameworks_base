@@ -175,7 +175,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     static final boolean DEBUG = false;
     static final boolean localLOGV = false;
     static final boolean DEBUG_LAYOUT = false;
-    static final boolean DEBUG_INPUT = true;
+    static final boolean DEBUG_INPUT = false;
     static final boolean DEBUG_STARTING_WINDOW = false;
     static final boolean SHOW_STARTING_ANIMATIONS = true;
     static final boolean SHOW_PROCESSES_ON_ALT_MENU = false;
@@ -934,7 +934,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void performKeyAction(int behavior) {
-        Log.d(TAG, "performKeyAction called " + behavior);
         switch (behavior) {
             case KEY_ACTION_NOTHING:
                 break;
@@ -1385,8 +1384,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         mLongPressOnMenuBehavior = Settings.System.getInt(resolver,
                                 Settings.System.KEY_MENU_LONG_PRESS_ACTION, KEY_ACTION_SEARCH);
                     }
-
-                     Log.d(TAG, "mLongPressOnMenuBehavior = " + mLongPressOnMenuBehavior);
                 }
                 if (mHasAssistKey) {
                     mPressOnAssistBehavior = Settings.System.getInt(resolver,
@@ -2277,14 +2274,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 }
                 if (repeatCount == 0) {
                     mHomePressed = true;
-
-                    Log.d(TAG, "mHomePressed set to true");
-
-                    if (!mRecentAppsPreloaded && mLongPressOnHomeBehavior == KEY_ACTION_APP_SWITCH) {
-                        preloadRecentApps();
-                    }
                 } else if (longPress) {
-                    Log.d(TAG, "Home key got long keypress");
                     if (!keyguardOn && mLongPressOnHomeBehavior != KEY_ACTION_NOTHING) {
                         performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false);
                         performKeyAction(mLongPressOnHomeBehavior);
@@ -2328,13 +2318,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     return -1;
                 }
             } else if (longPress) {
-                Log.d(TAG, "menu key long press");
                 if (mRecentAppsPreloaded &&
                         mLongPressOnMenuBehavior != KEY_ACTION_APP_SWITCH) {
                     cancelPreloadRecentApps();
                 }
                 if (!keyguardOn && mLongPressOnMenuBehavior != KEY_ACTION_NOTHING) {
-                    Log.d(TAG, "doing menu key long press action");
                     performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false);
                     performKeyAction(mLongPressOnMenuBehavior);
                     // Do not perform action when key is released
