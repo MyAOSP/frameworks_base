@@ -50,6 +50,7 @@ import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -75,7 +76,8 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
     private GridView mGrid;
     private Button mAlwaysButton;
     private Button mOnceButton;
-    private CheckBox mAlwaysCheckBox;
+    private RadioButton mRadioAlwaysButton;
+    private RadioButton mRadioOnceButton;
     private int mIconDpi;
     private int mIconSize;
     private int mMaxColumns;
@@ -175,7 +177,8 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
             if (buttonLayout != null) {
                 buttonLayout.setVisibility(View.VISIBLE);
                 if (mUseAltGrid) {
-                    mAlwaysCheckBox = (CheckBox) buttonLayout.findViewById(R.id.checkbox_always);
+                    mRadioAlwaysButton = (RadioButton) buttonLayout.findViewById(R.id.button_always);
+                    mRadioOnceButton = (RadioButton) buttonLayout.findViewById(R.id.button_once);
                 } else {
                     mAlwaysButton = (Button) buttonLayout.findViewById(R.id.button_always);
                     mOnceButton = (Button) buttonLayout.findViewById(R.id.button_once);
@@ -283,7 +286,7 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
             }
             if (hasValidSelection) {
                 if (mUseAltGrid) {
-                    startSelected(position, mAlwaysCheckBox.isChecked());
+                    startSelected(position, mRadioAlwaysButton.isChecked());
                 } else {
                     mGrid.smoothScrollToPosition(checkedPos);
                 }

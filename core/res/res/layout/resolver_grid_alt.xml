@@ -37,20 +37,38 @@
             android:clipToPadding="false"
             android:scrollbarStyle="outsideOverlay" />
     </FrameLayout>
-    <LinearLayout
+    <RadioGroup
         android:id="@+id/button_bar"
         android:visibility="gone"
         style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layoutDirection="locale">
-        <CheckBox android:id="@+id/checkbox_always"
-                android:layout_width="wrap_content"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:layout_height="wrap_content"
-                android:enabled="true"
-                android:text="@string/activity_resolver_use_always" />
-    </LinearLayout>
+        android:layoutDirection="locale"
+        android:measureWithLargestChild="true">
+        <RadioButton android:id="@+id/button_always"
+            android:layout_width="wrap_content"
+            android:layout_gravity="end"
+            android:layout_weight="1"
+            android:maxLines="2"
+            android:minHeight="@dimen/alert_dialog_button_bar_height"
+            style="?android:attr/buttonBarButtonStyle"
+            android:textSize="14sp"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:checked="false"
+            android:text="@string/activity_resolver_use_always" />
+        <RadioButton android:id="@+id/button_once"
+            android:layout_width="wrap_content"
+            android:layout_gravity="start"
+            android:layout_weight="1"
+            android:maxLines="2"
+            style="?android:attr/buttonBarButtonStyle"
+            android:textSize="14sp"
+            android:minHeight="@dimen/alert_dialog_button_bar_height"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:checked="true"
+            android:text="@string/activity_resolver_use_once" />
+    </RadioGroup>
 </LinearLayout>
