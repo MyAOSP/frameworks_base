@@ -158,11 +158,6 @@ public final class PowerManagerService extends IPowerManager.Stub
     // Otherwise the user won't get much screen on time before dimming occurs.
     private static final float MAXIMUM_SCREEN_DIM_RATIO = 0.2f;
 
-    // Upper bound on the battery charge percentage in order to consider turning
-    // the screen on when the device starts charging wirelessly.
-    // See point of use for more details.
-    private static final int WIRELESS_CHARGER_TURN_ON_BATTERY_LEVEL_LIMIT = 95;
-
     // The name of the boot animation service in init.rc.
     private static final String BOOT_ANIMATION_SERVICE = "bootanim";
 
@@ -1231,12 +1226,8 @@ public final class PowerManagerService extends IPowerManager.Stub
                         now, PowerManager.USER_ACTIVITY_EVENT_OTHER, 0, Process.SYSTEM_UID);
 
                 // Tell the notifier whether wireless charging has started so that
-                // it can provide feedback to the user.  Refer to
-                // shouldWakeUpWhenPluggedOrUnpluggedLocked for justification of the
-                // heuristics used here.
-                if (!wasPowered && mIsPowered
-                        && mPlugType == BatteryManager.BATTERY_PLUGGED_WIRELESS
-                        && mBatteryLevel < WIRELESS_CHARGER_TURN_ON_BATTERY_LEVEL_LIMIT) {
+                // it can provide feedback to the user.
+                if (dockedOnWirelessCharger) {
                     mNotifier.onWirelessChargingStarted();
                 }
             }
