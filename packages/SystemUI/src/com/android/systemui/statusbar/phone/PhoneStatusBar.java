@@ -2832,6 +2832,8 @@ public class PhoneStatusBar extends BaseStatusBar {
             cr.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.QS_DYNAMIC_IME), false, this);
             cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_DYNAMIC_USBTETHER), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.QS_DYNAMIC_WIFI), false, this);
             cr.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.QUICK_TILES_PER_ROW), false, this);
