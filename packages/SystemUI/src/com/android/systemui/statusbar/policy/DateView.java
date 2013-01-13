@@ -120,7 +120,7 @@ public final class DateView extends TextView implements OnClickListener, OnTouch
 
     protected void updateClock() {
         ContentResolver resolver = getContext().getContentResolver();
-        final String dateFormat = getContext().getString(R.string.abbrev_wday_month_day_no_year);
+        final String dateFormat = getContext().getString(R.string.full_wday_month_day_no_year_split);
         setText(DateFormat.format(dateFormat, new Date()));
 
         int defaultColor = getResources().getColor(
