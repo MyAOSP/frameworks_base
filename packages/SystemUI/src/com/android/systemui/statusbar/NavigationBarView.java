@@ -36,10 +36,12 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.provider.Settings;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Slog;
 import android.util.TypedValue;
 import android.view.animation.AccelerateInterpolator;
 import android.view.Display;
+import android.view.DisplayInfo;
 import android.view.IWindowManager;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -100,11 +102,13 @@ public class NavigationBarView extends LinearLayout {
     // Will determine if NavBar goes to the left side in Landscape Mode
     private boolean mLeftyMode;
 
-    /* 0 = Phone UI
-     * 1 = Tablet UI
-     * 2 = Phablet UI
-     */
-    int mCurrentUIMode = 0;
+    // Device types
+    private static final int DEVICE_PHONE = 0;
+    private static final int DEVICE_PHABLET = 1;
+    private static final int DEVICE_TABLET = 2;
+
+    // Device type reference
+    private static int mDeviceType = -1;
 
     public String[] mClickActions = new String[7];
     public String[] mLongpressActions = new String[7];
@@ -352,11 +356,11 @@ public class NavigationBarView extends LinearLayout {
 
             case KEY_MENU_RIGHT:
                 v = new KeyButtonView(mContext, null);
-                v.setLayoutParams(getLayoutParams(landscape, (mCurrentUIMode == 1) ? 80 : 40));
+                v.setLayoutParams(getLayoutParams(landscape, (isTablet(mContext)) ? 80 : 40));
 
                 v.setId(R.id.menu);
                 v.setCode(KeyEvent.KEYCODE_MENU);
-                if (mCurrentUIMode == 1) {
+                if (isTablet(mContext)) {
                     v.setImageResource(R.drawable.ic_sysbar_menu_big);
                     v.setVisibility(View.GONE);
                 } else {
@@ -370,11 +374,11 @@ public class NavigationBarView extends LinearLayout {
                 break;
             case KEY_MENU_LEFT:
                 v = new KeyButtonView(mContext, null);
-                v.setLayoutParams(getLayoutParams(landscape, (mCurrentUIMode == 1) ? 80 : 40));
+                v.setLayoutParams(getLayoutParams(landscape, (isTablet(mContext)) ? 80 : 40));
 
                 v.setId(R.id.menu_left);
                 v.setCode(KeyEvent.KEYCODE_MENU);
-                if (mCurrentUIMode == 1) {
+                if (isTablet(mContext)) {
                     v.setImageResource(R.drawable.ic_sysbar_menu_big);
                     v.setVisibility(View.GONE);
                 } else {
@@ -488,7 +492,8 @@ public class NavigationBarView extends LinearLayout {
               && ((mNavigationIconHints & StatusBarManager.NAVIGATION_HINT_BACK_ALT) == 0);
         final boolean disableSearch = ((disabledFlags & View.STATUS_BAR_DISABLE_SEARCH) != 0);
 
-        if (mCurrentUIMode != 1 && SLIPPERY_WHEN_DISABLED) { // Tabletmode doesn't deal with slippery
+        if (!isTablet(mContext) && SLIPPERY_WHEN_DISABLED) {
+            // Tabletmode doesn't deal with slippery
             setSlippery(disableHome && disableRecent && disableBack && disableSearch);
         }
         if (!mScreenOn && mCurrentView != null) {
@@ -560,7 +565,7 @@ public class NavigationBarView extends LinearLayout {
             case VISIBILITY_ALWAYS:
                 localShow = true;
             case VISIBILITY_SYSTEM:
-                if (mCurrentUIMode == 1) {
+                if (isTablet(mContext)) {
                     rightButton.setImageResource(R.drawable.ic_sysbar_menu_big);
                     leftButton.setImageResource(R.drawable.ic_sysbar_menu_big);
                 } else {
@@ -579,7 +584,7 @@ public class NavigationBarView extends LinearLayout {
                 break;
             case VISIBILITY_SYSTEM_AND_INVIZ:
                 if (localShow) {
-                    if (mCurrentUIMode == 1) {
+                    if (isTablet(mContext)) {
                         rightButton.setImageResource(R.drawable.ic_sysbar_menu_big);
                         leftButton.setImageResource(R.drawable.ic_sysbar_menu_big);
                     } else {
@@ -602,7 +607,7 @@ public class NavigationBarView extends LinearLayout {
         // Tablet menu buttons should not take up space when hidden.
         switch (mMenuLocation) {
             case SHOW_BOTH_MENU:
-                if (mCurrentUIMode==1) {
+                if (isTablet(mContext)) {
                     leftButton.setVisibility(localShow ? View.VISIBLE : View.GONE);
                     rightButton.setVisibility(localShow ? View.VISIBLE : View.GONE);
                 } else {
@@ -611,17 +616,17 @@ public class NavigationBarView extends LinearLayout {
                 }
                 break;
             case SHOW_LEFT_MENU:
-                if (mCurrentUIMode==1) {
+                if (isTablet(mContext)) {
                     leftButton.setVisibility(localShow ? View.VISIBLE : View.GONE);
                 } else {
                     leftButton.setVisibility(localShow ? View.VISIBLE : View.INVISIBLE);
                 }
-                rightButton.setVisibility((mCurrentUIMode == 1) ? View.GONE : View.INVISIBLE);
+                rightButton.setVisibility((isTablet(mContext)) ? View.GONE : View.INVISIBLE);
                 break;
             default:
             case SHOW_RIGHT_MENU:
-                leftButton.setVisibility((mCurrentUIMode == 1) ? View.GONE : View.INVISIBLE);
-                if (mCurrentUIMode==1) {
+                leftButton.setVisibility((isTablet(mContext)) ? View.GONE : View.INVISIBLE);
+                if (isTablet(mContext)) {
                     rightButton.setVisibility(localShow ? View.VISIBLE : View.GONE);
                 } else {
                     rightButton.setVisibility(localShow ? View.VISIBLE : View.INVISIBLE);
@@ -691,30 +696,30 @@ public class NavigationBarView extends LinearLayout {
 
     @Override
     public void onFinishInflate() {
-    	 rot0 = (FrameLayout) findViewById(R.id.rot0);
-         rot90 = (FrameLayout) findViewById(R.id.rot90);
+        rot0 = (FrameLayout) findViewById(R.id.rot0);
+        rot90 = (FrameLayout) findViewById(R.id.rot90);
 
-         mRotatedViews[Surface.ROTATION_0] =
-                 mRotatedViews[Surface.ROTATION_180] = findViewById(R.id.rot0);
+        mRotatedViews[Surface.ROTATION_0] =
+            mRotatedViews[Surface.ROTATION_180] = findViewById(R.id.rot0);
 
-         mRotatedViews[Surface.ROTATION_90] = findViewById(R.id.rot90);
+        mRotatedViews[Surface.ROTATION_90] = findViewById(R.id.rot90);
 
-         mRotatedViews[Surface.ROTATION_270] = NAVBAR_ALWAYS_AT_RIGHT
-                 ? findViewById(R.id.rot90)
-                 : findViewById(R.id.rot270);
+        mRotatedViews[Surface.ROTATION_270] = NAVBAR_ALWAYS_AT_RIGHT
+                ? findViewById(R.id.rot90)
+                : findViewById(R.id.rot270);
 
-         for (View v : mRotatedViews) {
-             // this helps avoid drawing artifacts with glowing navigation keys
-             ViewGroup group = (ViewGroup) v.findViewById(R.id.nav_buttons);
-             group.setMotionEventSplittingEnabled(false);
-         }
-         mCurrentView = mRotatedViews[Surface.ROTATION_0];
+        for (View v : mRotatedViews) {
+            // this helps avoid drawing artifacts with glowing navigation keys
+            ViewGroup group = (ViewGroup) v.findViewById(R.id.nav_buttons);
+            group.setMotionEventSplittingEnabled(false);
+        }
+        mCurrentView = mRotatedViews[Surface.ROTATION_0];
 
-         updateNavigationBarBackground();
+        updateNavigationBarBackground();
 
-         // this takes care of making the buttons
-         SettingsObserver settingsObserver = new SettingsObserver(new Handler());
-         settingsObserver.observe();
+        // this takes care of making the buttons
+        SettingsObserver settingsObserver = new SettingsObserver(new Handler());
+        settingsObserver.observe();
     }
 
     public void reorient() {
@@ -722,10 +727,10 @@ public class NavigationBarView extends LinearLayout {
         for (int i=0; i<4; i++) {
             mRotatedViews[i].setVisibility(View.GONE);
         }
-        if (mCurrentUIMode !=0) { // this is either a tablet of Phablet.  Need to stay at Rot_0
-            mCurrentView = mRotatedViews[Surface.ROTATION_0];
-        } else {
+        if (isPhone(mContext)) {
             mCurrentView = mRotatedViews[rot];
+        } else { // Tablet or Phablet.  Need to stay at Rot_0
+            mCurrentView = mRotatedViews[Surface.ROTATION_0];
         }
         mCurrentView.setVisibility(View.VISIBLE);
 
@@ -737,6 +742,39 @@ public class NavigationBarView extends LinearLayout {
         if (DEBUG) {
             Slog.d(TAG, "reorient(): rot=" + mDisplay.getRotation());
         }
+    }
+
+    private static int getScreenType(Context con) {
+        if (mDeviceType == -1) {
+            WindowManager wm = (WindowManager)con.getSystemService(Context.WINDOW_SERVICE);
+            DisplayInfo outDisplayInfo = new DisplayInfo();
+            wm.getDefaultDisplay().getDisplayInfo(outDisplayInfo);
+            int shortSize = Math.min(outDisplayInfo.logicalHeight, outDisplayInfo.logicalWidth);
+            int shortSizeDp = shortSize * DisplayMetrics.DENSITY_DEFAULT / outDisplayInfo.logicalDensityDpi;
+            if (shortSizeDp < 600) {
+                // 0-599dp: "phone" UI with a separate status & navigation bar
+                mDeviceType =  DEVICE_PHONE;
+            } else if (shortSizeDp < 720) {
+                // 600-719dp: "phone" UI with modifications for larger screens
+                mDeviceType = DEVICE_PHABLET;
+            } else {
+                // 720dp: "tablet" UI with a single combined status & navigation bar
+                mDeviceType = DEVICE_TABLET;
+            }
+        }
+        return mDeviceType;
+    }
+
+    public static boolean isPhone(Context con) {
+        return getScreenType(con) == DEVICE_PHONE;
+    }
+
+    public static boolean isPhablet(Context con) {
+        return getScreenType(con) == DEVICE_PHABLET;
+    }
+
+    public static boolean isTablet(Context con) {
+        return getScreenType(con) == DEVICE_TABLET;
     }
 
     @Override
@@ -854,11 +892,8 @@ public class NavigationBarView extends LinearLayout {
 
         mMenuLocation = Settings.System.getInt(resolver,
                 Settings.System.MENU_LOCATION, SHOW_RIGHT_MENU);
-
         mMenuVisbility = Settings.System.getInt(resolver,
                 Settings.System.MENU_VISIBILITY, VISIBILITY_SYSTEM);
-        mCurrentUIMode = Settings.System.getInt(resolver,
-                Settings.System.CURRENT_UI_MODE,0);
         mLeftyMode = Settings.System.getBoolean(resolver,
                 Settings.System.NAVIGATION_BAR_LEFTY_MODE, false);
         mNumberOfButtons = Settings.System.getInt(resolver,
