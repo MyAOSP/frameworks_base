@@ -2441,8 +2441,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     Settings.System.KILL_APP_LONGPRESS_BACK, 0) == 1) {
                 if (down && repeatCount == 0) {
                     mHandler.postDelayed(mBackLongPress, mBackKillTimeout);
-                } else if (!down) {
-                    mHandler.removeCallbacks(mBackLongPress);
                 }
             }
         }
