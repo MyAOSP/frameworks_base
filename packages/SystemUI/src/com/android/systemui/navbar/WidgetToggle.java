@@ -27,22 +27,21 @@ import android.os.Bundle;
  */
 
 public class WidgetToggle extends Activity  {
-  public WidgetToggle() {
-    super();
-  }
+    public WidgetToggle() {
+        super();
+    }
 
-  /** Called when the activity is first created. */
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-  }
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
-  @Override
-  public void onResume() {
-    super.onResume();
-    Intent toggleWidgets = new Intent(
-            WidgetView.WidgetReceiver.ACTION_TOGGLE_WIDGETS);
-    sendBroadcast(toggleWidgets);
-    this.finish();
-  }
+    @Override
+    public void onResume() {
+        super.onResume();
+        Intent toggleWidgets = new Intent(WidgetView.WidgetReceiver.ACTION_TOGGLE_WIDGETS);
+        sendBroadcast(toggleWidgets);
+        this.finish();
+    }
 }
