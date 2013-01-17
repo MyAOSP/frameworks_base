@@ -59,7 +59,7 @@ public class CreateShortcut extends LauncherActivity {
     } else if (c.equals ("NavbarToggle")) {
         return R.mipmap.ic_navbar;
     } else if (c.equals ("WidgetToggle")) {
-        return R.mipmap.ic_toggle_widget;
+        return R.mipmap.ic_toggle_widgets;
     } else if (c.equals ("RingVibToggle")) {
         return R.drawable.ic_lockscreen_vib;
     } else if (c.equals ("RingSilentToggle")) {
