@@ -210,14 +210,14 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="com.android.internal.category.PLATLOGO" />
-<!--            <category android:name="android.intent.category.LAUNCHER" />-->
+                <!-- <category android:name="android.intent.category.LAUNCHER" />-->
             </intent-filter>
         </activity>
         <activity
             android:name="com.android.systemui.navbar.NavbarToggle"
             android:label="@string/toggle_navbar"
-            android:icon="@drawable/toggle_navbar"
-            android:theme="@android:style/Theme.Holo.Panel"
+            android:icon="@mipmap/ic_navbar"
+            android:theme="@android:style/Widget.Holo"
             android:excludeFromRecents="true"
             android:launchMode="singleTop" >
             <intent-filter>
@@ -229,8 +229,8 @@
         <activity
             android:name="com.android.systemui.navbar.WidgetToggle"
             android:label="@string/toggle_widgets"
-            android:icon="@drawable/ic_sysbar_widget"
-            android:theme="@android:style/Theme.Holo.Panel"
+            android:icon="@mipmap/ic_toggle_widgets"
+            android:theme="@android:style/Widget.Holo"
             android:excludeFromRecents="true"
             android:launchMode="singleTop" >
             <intent-filter>
@@ -243,7 +243,7 @@
             android:name="com.android.systemui.navbar.RingVibToggle"
             android:label="@string/toggle_ring_vib"
             android:icon="@drawable/ic_lockscreen_vib"
-            android:theme="@android:style/Theme.Holo.Panel"
+            android:theme="@android:style/Widget.Holo"
             android:excludeFromRecents="true"
             android:launchMode="singleTop" >
             <intent-filter>
@@ -256,7 +256,7 @@
             android:name="com.android.systemui.navbar.RingSilentToggle"
             android:label="@string/toggle_ring_silent"
             android:icon="@drawable/ic_lockscreen_silent"
-            android:theme="@android:style/Theme.Holo.Panel"
+            android:theme="@android:style/Widget.Holo"
             android:excludeFromRecents="true"
             android:launchMode="singleTop" >
             <intent-filter>
@@ -269,11 +269,24 @@
             android:name="com.android.systemui.navbar.RingVibSilentToggle"
             android:label="@string/toggle_ring_vib_silent"
             android:icon="@drawable/ic_lockscreen_soundon"
-            android:theme="@android:style/Theme.Holo.Panel"
+            android:theme="@android:style/Widget.Holo"
             android:excludeFromRecents="true"
             android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="com.android.systemui.INTENT_RING_VIB_SILENT_TOGGLE" />
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.android.systemui.SHORTCUT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.android.systemui.statusbar.powerwidgets.FlashlightButton"
+            android:label="@string/toggle_torch"
+            android:icon="@mipmap/ic_torch"
+            android:theme="@android:style/Widget.Holo"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTop" >
+            <intent-filter>
+                <action android:name="com.android.systemui.INTENT_TORCH_TOGGLE" />
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.android.systemui.SHORTCUT" />
             </intent-filter>
