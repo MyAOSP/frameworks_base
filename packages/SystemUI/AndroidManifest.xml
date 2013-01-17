@@ -217,7 +217,7 @@
             android:name="com.android.systemui.navbar.NavbarToggle"
             android:label="@string/toggle_navbar"
             android:icon="@mipmap/ic_navbar"
-            android:theme="@android:style/Widget.Holo"
+            android:theme="@android:style/Widget.Holo.PopupWindow"
             android:excludeFromRecents="true"
             android:launchMode="singleTop" >
             <intent-filter>
@@ -230,7 +230,7 @@
             android:name="com.android.systemui.navbar.WidgetToggle"
             android:label="@string/toggle_widgets"
             android:icon="@mipmap/ic_toggle_widgets"
-            android:theme="@android:style/Widget.Holo"
+            android:theme="@android:style/Widget.Holo.PopupWindow"
             android:excludeFromRecents="true"
             android:launchMode="singleTop" >
             <intent-filter>
@@ -243,7 +243,7 @@
             android:name="com.android.systemui.navbar.RingVibToggle"
             android:label="@string/toggle_ring_vib"
             android:icon="@drawable/ic_lockscreen_vib"
-            android:theme="@android:style/Widget.Holo"
+            android:theme="@android:style/Widget.Holo.PopupWindow"
             android:excludeFromRecents="true"
             android:launchMode="singleTop" >
             <intent-filter>
@@ -256,7 +256,7 @@
             android:name="com.android.systemui.navbar.RingSilentToggle"
             android:label="@string/toggle_ring_silent"
             android:icon="@drawable/ic_lockscreen_silent"
-            android:theme="@android:style/Widget.Holo"
+            android:theme="@android:style/Widget.Holo.PopupWindow"
             android:excludeFromRecents="true"
             android:launchMode="singleTop" >
             <intent-filter>
@@ -269,7 +269,7 @@
             android:name="com.android.systemui.navbar.RingVibSilentToggle"
             android:label="@string/toggle_ring_vib_silent"
             android:icon="@drawable/ic_lockscreen_soundon"
-            android:theme="@android:style/Widget.Holo"
+            android:theme="@android:style/Widget.Holo.PopupWindow"
             android:excludeFromRecents="true"
             android:launchMode="singleTop" >
             <intent-filter>
@@ -279,10 +279,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.systemui.statusbar.powerwidgets.FlashlightButton"
+            android:name="com.android.systemui.navbar.TorchToggle"
             android:label="@string/toggle_torch"
             android:icon="@mipmap/ic_torch"
-            android:theme="@android:style/Widget.Holo"
+            android:theme="@android:style/Widget.Holo.PopupWindow"
             android:excludeFromRecents="true"
             android:launchMode="singleTop" >
             <intent-filter>

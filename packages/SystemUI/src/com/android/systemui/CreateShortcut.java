@@ -54,7 +54,7 @@ public class CreateShortcut extends LauncherActivity {
   private int getProperShortcutIcon(String className) {
     String c = className.substring(className.lastIndexOf(".") + 1);
 
-    if (c.equals("Torch")) {
+    if (c.equals("TorchToggle")) {
         return R.mipmap.ic_torch;
     } else if (c.equals ("NavbarToggle")) {
         return R.mipmap.ic_navbar;
