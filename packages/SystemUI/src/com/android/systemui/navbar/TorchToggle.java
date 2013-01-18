@@ -21,13 +21,14 @@ import com.android.systemui.statusbar.WidgetView;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 
 /*
- * Toggle the NavBar
+ * Toggle the Torch/Flashlight
  */
 
-public class WidgetToggle extends Activity  {
-    public WidgetToggle() {
+public class TorchToggle extends Activity  {
+    public TorchToggle() {
         super();
     }
 
@@ -40,8 +41,11 @@ public class WidgetToggle extends Activity  {
     @Override
     public void onResume() {
         super.onResume();
-        Intent toggleWidgets = new Intent(WidgetView.WidgetReceiver.ACTION_TOGGLE_WIDGETS);
-        sendBroadcast(toggleWidgets);
+        boolean bright = Settings.System.getInt(this.getContentResolver(),
+                Settings.System.EXPANDED_FLASH_MODE, 0) == 1;
+        Intent toggleTorch = new Intent("net.cactii.flash2.TOGGLE_FLASHLIGHT");
+        toggleTorch.putExtra("bright", bright);
+        sendBroadcast(toggleTorch);
         this.finish();
     }
 }

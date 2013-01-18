@@ -55,12 +55,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.android.internal.statusbar.IStatusBarService;
-import com.android.systemui.navbar.NavbarTarget;
+import com.android.systemui.navbar.NavbarAction;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar;
 import com.android.systemui.statusbar.DelegateViewHelper;
 import com.android.systemui.statusbar.policy.KeyButtonView;
 import com.android.systemui.statusbar.policy.ExtensibleKeyButtonView;
+import com.android.systemui.statusbar.policy.RecentsKeyButtonView;
 
 public class NavigationBarView extends LinearLayout {
     final static boolean DEBUG = false;
@@ -91,8 +92,6 @@ public class NavigationBarView extends LinearLayout {
 
     public DelegateViewHelper mDelegateHelper;
 
-    private NavbarTarget mNavbarTarget;
-
     // workaround for LayoutTransitions leaving the nav buttons in a weird state (bug 5549288)
     final static boolean WORKAROUND_INVALID_LAYOUT = true;
     final static int MSG_CHECK_INVALID_LAYOUT = 8686;
@@ -116,21 +115,21 @@ public class NavigationBarView extends LinearLayout {
 
     public final static int StockButtonsQty = 3;
     public final static String[] StockClickActions = {
-        NavbarTarget.ACTION_BACK,
-        NavbarTarget.ACTION_HOME,
-        NavbarTarget.ACTION_RECENTS,
-        NavbarTarget.ACTION_NULL,
-        NavbarTarget.ACTION_NULL,
-        NavbarTarget.ACTION_NULL,
-        NavbarTarget.ACTION_NULL };
+        NavbarAction.ACTION_BACK,
+        NavbarAction.ACTION_HOME,
+        NavbarAction.ACTION_RECENTS,
+        NavbarAction.ACTION_NULL,
+        NavbarAction.ACTION_NULL,
+        NavbarAction.ACTION_NULL,
+        NavbarAction.ACTION_NULL };
     public final static String[] StockLongpress = {
-        NavbarTarget.ACTION_NULL,
-        NavbarTarget.ACTION_NULL,
-        NavbarTarget.ACTION_NULL,
-        NavbarTarget.ACTION_NULL,
-        NavbarTarget.ACTION_NULL,
-        NavbarTarget.ACTION_NULL,
-        NavbarTarget.ACTION_NULL };
+        NavbarAction.ACTION_NULL,
+        NavbarAction.ACTION_NULL,
+        NavbarAction.ACTION_NULL,
+        NavbarAction.ACTION_NULL,
+        NavbarAction.ACTION_NULL,
+        NavbarAction.ACTION_NULL,
+        NavbarAction.ACTION_NULL };
 
     FrameLayout rot0;
     FrameLayout rot90;
@@ -247,7 +246,6 @@ public class NavigationBarView extends LinearLayout {
         mBackLandIcon = res.getDrawable(R.drawable.ic_sysbar_back_land);
         mBackAltIcon = res.getDrawable(R.drawable.ic_sysbar_back_ime);
         mBackAltLandIcon = res.getDrawable(R.drawable.ic_sysbar_back_ime);
-        mNavbarTarget = new NavbarTarget(context);
     }
 
     private void makeBar() {
@@ -276,7 +274,7 @@ public class NavigationBarView extends LinearLayout {
                         mLongpressActions[j],
                         mPortraitIcons[j]);
                 v.setTag((landscape ? "key_land_" : "key_") + j);
-                v.setNavbarTarget(mNavbarTarget);
+                // v.setNavbarTarget(mNavbarTarget);
                 iconUri = mPortraitIcons[j];
                 if (iconUri != null && iconUri.length() > 0) {
                     // custom icon from the URI here
@@ -286,7 +284,7 @@ public class NavigationBarView extends LinearLayout {
                     }
                     v.setTint(false);
                 } else {
-                        v.setImageDrawable(mNavbarTarget.getIconImage(mClickActions[j]));
+                    v.setImageDrawable(NavbarAction.getInstance(mContext).getIconImage(mClickActions[j]));
                     v.setTint(mClickActions[j].startsWith("**"));
                 }
                 addButton(navButtonLayout, v, landscape && !mLeftyMode);
@@ -401,8 +399,12 @@ public class NavigationBarView extends LinearLayout {
             String iconUri) {
 
         final int iconSize = 80;
-        ExtensibleKeyButtonView v = new ExtensibleKeyButtonView(mContext, null, clickAction,
-                longpress);
+        ExtensibleKeyButtonView v = null;
+        if (NavbarAction.ACTION_RECENTS.equals(clickAction)) {
+            v = new RecentsKeyButtonView(mContext, null, clickAction, longpress);
+        } else {
+            v = new ExtensibleKeyButtonView(mContext, null, clickAction, longpress);
+        }
         v.setLayoutParams(getLayoutParams(landscape, iconSize));
         v.setGlowBackground(landscape ? R.drawable.ic_sysbar_highlight_land
                 : R.drawable.ic_sysbar_highlight);

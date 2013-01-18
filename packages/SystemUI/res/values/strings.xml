@@ -539,6 +539,7 @@
     <string name="action_none">Empty</string>
 
     <string name="widgets">Widgets</string>
+    <string name="toggle_torch">Torch - Toggle</string>
     <string name="toggle_navbar">NavBar - Toggle</string>
     <string name="toggle_widgets">Widgets - Toggle</string>
     <string name="toggle_ring_vib">Ring/Vib - Toggle</string>
