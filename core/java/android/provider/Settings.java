@@ -3356,6 +3356,12 @@ public final class Settings {
         public static final String NOTIF_BACKGROUND = "notif_background";
 
         /**
+         * Disable the hardware keys completely
+         * @hide
+         */
+        public static final String HARDWARE_KEY_DISABLE = "hardware_key_disable";
+
+        /**
          * Whether to enable custom rebindings of the actions performed on
          * certain key press events.
          * @hide

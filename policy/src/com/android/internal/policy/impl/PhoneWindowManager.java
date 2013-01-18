@@ -220,6 +220,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private static final int KEY_MASK_ASSIST = 0x08;
     private static final int KEY_MASK_APP_SWITCH = 0x10;
 
+    private static final int SCANCODE_HOME_BTN = 172;
+
     /**
      * These are the system UI flags that, when changing, can cause the layout
      * of the screen to change.
@@ -480,6 +482,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // Used when key is pressed and performing non-default action
     boolean mMenuDoCustomAction;
 
+    // disable hardware keys
+    private boolean mDisableHardwareKeys = false;
+    private int mHomeKeyScanCode = -1;
+    private int mMenuKeyScanCode = -1;
+    private int mBackKeyScanCode = -1;
+
     // Tracks user-customisable behavior for certain key events
     private int mLongPressOnHomeBehavior = -1;
     private int mPressOnMenuBehavior = -1;
@@ -654,6 +662,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     Settings.System.KEY_APP_SWITCH_LONG_PRESS_ACTION), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.HARDWARE_KEY_REBINDING), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.HARDWARE_KEY_DISABLE), false, this);
 
             updateSettings();
         }
@@ -1111,6 +1121,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mHasAssistKey = ((mDeviceHardwareKeys & KEY_MASK_ASSIST) != 0);
         mHasAppSwitchKey = ((mDeviceHardwareKeys & KEY_MASK_APP_SWITCH) != 0);
 
+        mHomeKeyScanCode =  mContext.getResources().getInteger(
+                        com.android.internal.R.integer.config_deviceHardwareHomeScanCode);
+        mMenuKeyScanCode =  mContext.getResources().getInteger(
+                        com.android.internal.R.integer.config_deviceHardwareMenuScanCode);
+        mBackKeyScanCode =  mContext.getResources().getInteger(
+                        com.android.internal.R.integer.config_deviceHardwareBackScanCode);
+
         // register for dock events
         IntentFilter filter = new IntentFilter();
         filter.addAction(UiModeManager.ACTION_ENTER_CAR_MODE);
@@ -1350,6 +1367,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
             boolean keyRebindingEnabled = Settings.System.getInt(resolver,
                     Settings.System.HARDWARE_KEY_REBINDING, 0) == 1;
+
+            mDisableHardwareKeys = (Settings.System.getIntForUser(resolver,
+                    Settings.System.HARDWARE_KEY_DISABLE, 0, UserHandle.USER_CURRENT) == 1);
 
             if (!keyRebindingEnabled) {
                 if (mHasHomeKey) {
@@ -2187,7 +2207,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final int flags = event.getFlags();
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         final boolean canceled = event.isCanceled();
-        final boolean longPress = (flags & KeyEvent.FLAG_LONG_PRESS) == KeyEvent.FLAG_LONG_PRESS;
+        final boolean longPress = ((flags & KeyEvent.FLAG_LONG_PRESS) == KeyEvent.FLAG_LONG_PRESS);
+        final int scanCode = event.getScanCode();
 
         if (DEBUG_INPUT) {
             Log.d(TAG, "interceptKeyTi keyCode=" + keyCode + " down=" + down + " repeatCount="
@@ -2220,6 +2241,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // it handle it, because that gives us the correct 5 second
         // timeout.
         if (keyCode == KeyEvent.KEYCODE_HOME) {
+
+            // if this was a hardware press and hardware keys are disabled ignore it
+            // on the sgs3 this doesn't come back as a hardware press so we have to use the scan code
+            if (mDisableHardwareKeys && mHomeKeyScanCode >= 0 && scanCode == mHomeKeyScanCode) {
+                return -1;
+            }
 
             // If we have released the home key, and didn't do anything else
             // while it was pressed, then it is time to go home!
@@ -2300,6 +2327,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         } else if (keyCode == KeyEvent.KEYCODE_MENU) {
             // Hijack modified menu keys for debugging features
             final int chordBug = KeyEvent.META_SHIFT_ON;
+
+            // if this was a hardware press and hardware keys are disabled ignore it
+            if (mDisableHardwareKeys && mMenuKeyScanCode >= 0 && scanCode == mMenuKeyScanCode) {
+                return -1;
+            }
 
             if (down) {
                 if (!mRecentAppsPreloaded && (mPressOnMenuBehavior == KEY_ACTION_APP_SWITCH ||
@@ -2437,6 +2469,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
             return -1;
         } else if (keyCode == KeyEvent.KEYCODE_BACK) {
+             // if this was a hardware press and hardware keys are disabled ignore it
+            if (mDisableHardwareKeys && mBackKeyScanCode >=0 && scanCode == mBackKeyScanCode) {
+                return -1;
+            }
+
             if (Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.KILL_APP_LONGPRESS_BACK, 0) == 1) {
                 if (down && repeatCount == 0) {

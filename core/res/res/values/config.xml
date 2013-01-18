@@ -1075,4 +1075,10 @@
          config to 7. -->
     <integer name="config_deviceHardwareKeys">0</integer>
 
+    <!-- this sets the scan codes for the menu, home and back buttons for use in disabling
+            buttons.  Since not all hardware buttons results in a hardKey being returned we 
+            have to use the scan code instead -->
+    <integer name="config_deviceHardwareMenuScanCode">-1</integer>
+    <integer name="config_deviceHardwareHomeScanCode">-1</integer>
+    <integer name="config_deviceHardwareBackScanCode">-1</integer>
 </resources>
