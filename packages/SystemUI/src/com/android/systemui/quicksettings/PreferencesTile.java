@@ -1,8 +1,6 @@
 package com.android.systemui.quicksettings;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -16,9 +14,6 @@ public class PreferencesTile extends QuickSettingsTile{
             QuickSettingsContainerView container, QuickSettingsController qsc) {
         super(context, inflater, container, qsc);
 
-        mDrawable = R.drawable.ic_qs_settings;
-        mLabel = mContext.getString(R.string.quick_settings_settings_label);
-
         mOnClick = new View.OnClickListener() {
 
             @Override
@@ -26,17 +21,22 @@ public class PreferencesTile extends QuickSettingsTile{
                 startSettingsActivity(android.provider.Settings.ACTION_SETTINGS);
             }
         };
+    }
 
-        mOnLongClick = new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Intent intent = new Intent("android.intent.action.MAIN");
-                intent.setComponent(ComponentName.unflattenFromString(
-                        "com.baked.romcontrol/.ROMControlActivity"));
-                intent.addCategory("android.intent.category.LAUNCHER");
-                startSettingsActivity(intent);
-                return true;
-            }
-        };
+    @Override
+    void onPostCreate() {
+        updateTile();
+        super.onPostCreate();
+    }
+
+    @Override
+    public void updateResources() {
+        updateTile();
+        super.updateResources();
+    }
+
+    private synchronized void updateTile() {
+        mDrawable = R.drawable.ic_qs_settings;
+        mLabel = mContext.getString(R.string.quick_settings_settings_label);
     }
 }

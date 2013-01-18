@@ -1,11 +1,9 @@
 package com.android.systemui.quicksettings;
 
 import android.app.ActivityManagerNative;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -72,7 +70,13 @@ public class QuickSettingsTile implements OnClickListener {
 
     public void onChangeUri(ContentResolver resolver, Uri uri) {}
 
-    void updateQuickSettings() {
+    public void updateResources() {
+        if(mTile != null) {
+            updateQuickSettings();
+        }
+    }
+
+    void updateQuickSettings(){
         TextView tv = (TextView) mTile.findViewById(R.id.tile_textview);
         tv.setCompoundDrawablesWithIntrinsicBounds(0, mDrawable, 0, 0);
         tv.setText(mLabel);
