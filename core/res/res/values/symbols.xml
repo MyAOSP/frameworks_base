@@ -1848,6 +1848,7 @@
   <java-symbol type="bool" name="config_transformerDockKeys" />
   <java-symbol type="bool" name="config_hasDockBattery" />
   <java-symbol type="bool" name="config_hasRemovableLid" />
+  <java-symbol type="bool" name="config_noDelayInATwoDP" />
 
   <!-- Longpress back btn kill app -->
   <java-symbol type="integer" name="config_backKillTimeout" />
