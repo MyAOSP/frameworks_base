@@ -36,7 +36,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.android.systemui.R;
 import com.android.systemui.quicksettings.AirplaneModeTile;
 import com.android.systemui.quicksettings.AlarmTile;
 import com.android.systemui.quicksettings.AutoRotateTile;
@@ -49,6 +48,7 @@ import com.android.systemui.quicksettings.ScreenTimeoutTile;
 import com.android.systemui.quicksettings.TorchTile;
 import com.android.systemui.quicksettings.GPSTile;
 import com.android.systemui.quicksettings.InputMethodTile;
+import com.android.systemui.quicksettings.LteTile;
 import com.android.systemui.quicksettings.MobileNetworkTile;
 import com.android.systemui.quicksettings.MobileNetworkTypeTile;
 import com.android.systemui.quicksettings.PreferencesTile;
@@ -78,7 +78,7 @@ public class QuickSettingsController {
      * START OF DATA MATCHING BLOCK
      *
      * THE FOLLOWING DATA MUST BE KEPT UP-TO-DATE WITH THE DATA IN
-     * com.android.settings.cyanogenmod.QuickSettingsUtil IN THE
+     * com.baked.romcontrol.fragments.QuickSettingsUtil IN THE
      * Settings PACKAGE.
      */
     public static final String TILE_USER = "toggleUser";
@@ -157,10 +157,9 @@ public class QuickSettingsController {
     public static final int NFC_TILE = 21;
     public static final int SCREENTIMEOUT_TILE = 22;
     public static final int USBTETHER_TILE = 23;
+    public static final int LTE_TILE = 24;
     public static final int USER_TILE = 99;
     private InputMethodTile IMETile;
-
-    public int mTileTextSize = 12;
 
     public QuickSettingsController(Context context, QuickSettingsContainerView container, PhoneStatusBar statusBarService) {
         mContext = context;
@@ -221,19 +220,19 @@ public class QuickSettingsController {
             } else if (tile.equals(TILE_SYNC)) {
                 mQuickSettings.add(SYNC_TILE);
             } else if (tile.equals(TILE_WIFIAP)) {
-                if(telephonySupported) {
+                if (telephonySupported) {
                     mQuickSettings.add(WIFIAP_TILE);
                 }
             } else if (tile.equals(TILE_SCREENTIMEOUT)) {
                 mQuickSettings.add(SCREENTIMEOUT_TILE);
             } else if (tile.equals(TILE_MOBILEDATA)) {
-                if(telephonySupported) {
+                if (telephonySupported) {
                     mQuickSettings.add(MOBILE_NETWORK_TILE);
                 }
             } else if (tile.equals(TILE_LOCKSCREEN)) {
                 mQuickSettings.add(TOGGLE_LOCKSCREEN_TILE);
             } else if (tile.equals(TILE_NETWORKMODE)) {
-                if(telephonySupported) {
+                if (telephonySupported) {
                     mQuickSettings.add(MOBILE_NETWORK_TYPE_TILE);
                 }
             } else if (tile.equals(TILE_AUTOROTATE)) {
@@ -255,7 +254,9 @@ public class QuickSettingsController {
             } else if (tile.equals(TILE_WIMAX)) {
                 // Not available yet
             } else if (tile.equals(TILE_LTE)) {
-                // Not available yet
+                if (telephonySupported) {
+                    mQuickSettings.add(LTE_TILE);
+                }
             }
         }
 
@@ -294,7 +295,6 @@ public class QuickSettingsController {
         }
         mObserver = new QuickSettingsObserver(mHandler);
         mObserverMap.clear();
-        updateTilesPerRow();
         addQuickSettings(inflater);
         setupBroadcastReceiver();
         setupContentObserver();
@@ -467,6 +467,9 @@ public class QuickSettingsController {
             case USBTETHER_TILE:
                 qs = new UsbTetherTile(mContext, inflater, mContainerView, this);
                 break;
+            case LTE_TILE:
+                qs = new LteTile(mContext, inflater, mContainerView, this);
+                break;
             }
             if (qs != null) {
                 qs.setupQuickSettingsTile();
@@ -489,29 +492,5 @@ public class QuickSettingsController {
         mContainerView.removeAllViews();
         setupQuickSettings();
         mContainerView.requestLayout();
-    }
-
-    void updateTileTextSize(int column) {
-        // adjust Tile Text Size based on column count
-        switch (column) {
-            case 5:
-                mTileTextSize = 8;
-                break;
-            case 4:
-                mTileTextSize = 10;
-                break;
-            case 3:
-            default:
-                mTileTextSize = 12;
-                break;
-        }
-    }
-
-    private void updateTilesPerRow() {
-        ContentResolver resolver = mContext.getContentResolver();
-        int columnCount = Settings.System.getInt(resolver, Settings.System.QUICK_TILES_PER_ROW,
-                mContext.getResources().getInteger(R.integer.quick_settings_num_columns));
-        ((QuickSettingsContainerView) mContainerView).setColumnCount(columnCount);
-        updateTileTextSize(columnCount);
     }
 }
