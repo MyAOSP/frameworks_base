@@ -128,7 +128,7 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
                 mLabel));
     }
 
- // Remove the period from the network name
+    // Remove the period from the network name
     public static String removeTrailingPeriod(String string) {
         if (string == null) return null;
         final int length = string.length();

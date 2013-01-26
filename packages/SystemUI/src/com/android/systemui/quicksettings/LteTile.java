@@ -41,7 +41,10 @@ public class LteTile extends QuickSettingsTile {
         mOnLongClick = new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                startSettingsActivity(android.provider.Settings.ACTION_WIRELESS_SETTINGS);
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.setClassName("com.android.phone", "com.android.phone.MobileNetworkSettings");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startSettingsActivity(intent);
                 return true;
             }
         };

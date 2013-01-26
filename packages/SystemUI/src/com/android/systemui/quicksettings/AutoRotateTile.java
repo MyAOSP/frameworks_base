@@ -20,7 +20,8 @@ public class AutoRotateTile extends QuickSettingsTile {
     private static final String TAG = "AutoRotateButton";
 
     public AutoRotateTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, QuickSettingsController qsc, Handler handler) {
+            QuickSettingsContainerView container,
+            QuickSettingsController qsc, Handler handler) {
         super(context, inflater, container, qsc);
 
         mOnClick = new OnClickListener() {
@@ -37,12 +38,12 @@ public class AutoRotateTile extends QuickSettingsTile {
                 return true;
             }
         };
-        qsc.registerObservedContent(Settings.System.getUriFor(Settings.System.ACCELEROMETER_ROTATION)
-                , this);
+        qsc.registerObservedContent(Settings.System.getUriFor(
+                Settings.System.ACCELEROMETER_ROTATION), this);
     }
 
     void applyAutoRotationChanges() {
-        if(!getAutoRotation()){
+        if (!getAutoRotation()) {
             mDrawable = R.drawable.ic_qs_auto_rotate_locked;
             mLabel = mContext.getString(R.string.quick_settings_rotation_locked_label);
         }else{

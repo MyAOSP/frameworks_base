@@ -131,7 +131,7 @@ public class UsbTetherTile extends QuickSettingsTile {
     }
 
     private void setUsbTethering(boolean enabled) {
-    ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (cm.setUsbTethering(enabled) != ConnectivityManager.TETHER_ERROR_NO_ERROR) {
             return;
         }

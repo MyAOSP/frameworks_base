@@ -477,9 +477,7 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
             mBluetoothState.label = r.getString(R.string.quick_settings_bluetooth_off_label);
             mBluetoothState.stateContentDescription = r.getString(R.string.accessibility_desc_off);
         }
-        if(mBluetoothTile != null) {
-            mBluetoothCallback.refreshView(mBluetoothTile, mBluetoothState);
-        }
+        mBluetoothCallback.refreshView(mBluetoothTile, mBluetoothState);
     }
     void refreshBluetoothTile() {
         if (mBluetoothTile != null) {
