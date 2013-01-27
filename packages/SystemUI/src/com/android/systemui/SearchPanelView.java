@@ -212,6 +212,7 @@ public class SearchPanelView extends FrameLayout implements
                     mLongPress = true;
                     Log.d(TAG,"LongPress!");
                     mBar.hideSearchPanel();
+                    maybeSkipKeyguard();
                     NavbarAction.getInstance(mContext).launchAction(longList.get(mTarget));
                     mSearchPanelLock = true;
                  }
@@ -253,12 +254,7 @@ public class SearchPanelView extends FrameLayout implements
                 if (NavbarAction.ACTION_ASSIST.equals(intentList.get(target))) {
                     startAssistActivity();
                 } else {
-                    try {
-                        if (mWm.isKeyguardLocked() && !mWm.isKeyguardSecure()) {
-                            ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();
-                        }
-                    } catch (RemoteException ignored) {
-                    }
+                    maybeSkipKeyguard();
                     NavbarAction.getInstance(mContext).launchAction(intentList.get(target));
                 }
                 mHandler.removeCallbacks(SetLongPress);
@@ -292,6 +288,15 @@ public class SearchPanelView extends FrameLayout implements
 
         updateSettings();
         setDrawables();
+    }
+
+    private void maybeSkipKeyguard() {
+        try {
+            if (mWm.isKeyguardLocked() && !mWm.isKeyguardSecure()) {
+                ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();
+            }
+        } catch (RemoteException ignored) {
+        }
     }
 
     private void setDrawables() {
@@ -605,9 +610,9 @@ public class SearchPanelView extends FrameLayout implements
                     Settings.System.SYSTEMUI_NAVRING_AMOUNT), false, this);
 
             for (int i = 0; i < 5; i++) {
-                    resolver.registerContentObserver(
+	            resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.SYSTEMUI_NAVRING[i]), false, this);
-                    resolver.registerContentObserver(
+	            resolver.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.SYSTEMUI_NAVRING_LONG[i]), false, this);
             }
 
