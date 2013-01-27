@@ -1098,9 +1098,6 @@
     <!-- Name of that key handler class -->
     <string name="config_deviceKeyHandlerClass" translatable="false"></string>
 
-    <!-- Enable/Disable Transformer KeyEvents -->
-    <bool name="config_transformerDockKeys">false</bool>
-
     <!-- If true, adds support for no delay A2DP in Samsung devices -->
     <bool name="config_noDelayInATwoDP">false</bool>
 
