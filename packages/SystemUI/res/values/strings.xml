@@ -549,6 +549,8 @@
     <string name="recents_kill_all_button_text">Kill all</string>
     <string name="powerwidget_screen_timeout_toast">Screen timeout set to: %1$d %2$s</string>
 
+    <string name="quick_settings_fcharge_on">F-Charge on</string>
+    <string name="quick_settings_fcharge_off">F-Charge off</string>
     <string name="quick_settings_gps">GPS on</string>
     <string name="quick_settings_gps_off">GPS off</string>
     <string name="quick_settings_screen_sleep">Go to sleep</string>

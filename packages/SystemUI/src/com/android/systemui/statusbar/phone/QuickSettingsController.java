@@ -16,6 +16,7 @@
 
 package com.android.systemui.statusbar.phone;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -29,12 +30,16 @@ import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
+import com.android.internal.telephony.PhoneConstants;
 
 import com.android.systemui.quicksettings.AirplaneModeTile;
 import com.android.systemui.quicksettings.AlarmTile;
@@ -46,6 +51,7 @@ import com.android.systemui.quicksettings.BugReportTile;
 import com.android.systemui.quicksettings.NfcTile;
 import com.android.systemui.quicksettings.ScreenTimeoutTile;
 import com.android.systemui.quicksettings.TorchTile;
+import com.android.systemui.quicksettings.FastChargeTile;
 import com.android.systemui.quicksettings.GPSTile;
 import com.android.systemui.quicksettings.InputMethodTile;
 import com.android.systemui.quicksettings.LteTile;
@@ -104,6 +110,7 @@ public class QuickSettingsController {
     public static final String TILE_PROFILE = "toggleProfile";
     public static final String TILE_NFC = "toggleNfc";
     public static final String TILE_USBTETHER = "toggleUsbTether";
+    public static final String TILE_FCHARGE = "toggleFastCharge";
 
     private static final String TILE_DELIMITER = "|";
     private static ArrayList<String> TILES_DEFAULT = new ArrayList<String>();
@@ -131,6 +138,7 @@ public class QuickSettingsController {
     private ContentObserver mObserver;
     private final ArrayList<Integer> mQuickSettings;
     public PhoneStatusBar mStatusBarService;
+    private String mFastChargePath;
 
     // Constants for use in switch statement
     public static final int WIFI_TILE = 0;
@@ -158,6 +166,7 @@ public class QuickSettingsController {
     public static final int SCREENTIMEOUT_TILE = 22;
     public static final int USBTETHER_TILE = 23;
     public static final int LTE_TILE = 24;
+    public static final int FCHARGE_TILE = 25;
     public static final int USER_TILE = 99;
     private InputMethodTile IMETile;
 
@@ -167,6 +176,7 @@ public class QuickSettingsController {
         mHandler = new Handler();
         mStatusBarService = statusBarService;
         mQuickSettings = new ArrayList<Integer>();
+        mFastChargePath = mContext.getResources().getString(com.android.internal.R.string.config_fastChargePath);
     }
 
     void loadTiles() {
@@ -231,6 +241,10 @@ public class QuickSettingsController {
                 }
             } else if (tile.equals(TILE_LOCKSCREEN)) {
                 mQuickSettings.add(TOGGLE_LOCKSCREEN_TILE);
+            } else if (tile.equals(TILE_FCHARGE)) {
+                if (deviceSupportsFastCharge()) {
+                    mQuickSettings.add(FCHARGE_TILE);
+                }
             } else if (tile.equals(TILE_NETWORKMODE)) {
                 if (telephonySupported) {
                     mQuickSettings.add(MOBILE_NETWORK_TYPE_TILE);
@@ -254,7 +268,8 @@ public class QuickSettingsController {
             } else if (tile.equals(TILE_WIMAX)) {
                 // Not available yet
             } else if (tile.equals(TILE_LTE)) {
-                if (telephonySupported) {
+                if (PhoneConstants.LTE_ON_CDMA_TRUE == TelephonyManager.getDefault().getLteOnCdmaMode() ||
+                        TelephonyManager.getDefault().getLteOnGsmMode() != 0) {
                     mQuickSettings.add(LTE_TILE);
                 }
             }
@@ -379,6 +394,11 @@ public class QuickSettingsController {
         return (Settings.System.getInt(resolver, Settings.System.SYSTEM_PROFILES_ENABLED, 1) == 1);
     }
 
+    boolean deviceSupportsFastCharge() {
+        return ((mFastChargePath != null || !mFastChargePath.isEmpty())
+                    || new File(mFastChargePath).exists());
+    }
+
     void setBar(PanelBar bar) {
         mBar = bar;
     }
@@ -469,6 +489,9 @@ public class QuickSettingsController {
                 break;
             case LTE_TILE:
                 qs = new LteTile(mContext, inflater, mContainerView, this);
+                break;
+            case FCHARGE_TILE:
+                qs = new FastChargeTile(mContext, inflater, mContainerView, this);
                 break;
             }
             if (qs != null) {
