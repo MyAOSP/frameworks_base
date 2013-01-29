@@ -395,8 +395,8 @@ public class QuickSettingsController {
     }
 
     boolean deviceSupportsFastCharge() {
-        return ((mFastChargePath != null || !mFastChargePath.isEmpty())
-                    || new File(mFastChargePath).exists());
+        return mFastChargePath != null || !mFastChargePath.isEmpty()
+                    || new File(mFastChargePath).exists();
     }
 
     void setBar(PanelBar bar) {
