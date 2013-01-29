@@ -274,7 +274,6 @@ public class NavigationBarView extends LinearLayout {
                         mLongpressActions[j],
                         mPortraitIcons[j]);
                 v.setTag((landscape ? "key_land_" : "key_") + j);
-                // v.setNavbarTarget(mNavbarTarget);
                 iconUri = mPortraitIcons[j];
                 if (iconUri != null && iconUri.length() > 0) {
                     // custom icon from the URI here
@@ -294,7 +293,7 @@ public class NavigationBarView extends LinearLayout {
                 if (v.getId() == R.id.back){
                         mBackIcon = mBackLandIcon = v.getDrawable();
                 }
-                if (v.getId() == R.id.menu){
+                if (v.getId() == R.id.navbar_menu_big){
                     mHasBigMenuButton = true;
                 }
                 if (mNumberOfButtons == 3 && j != (mNumberOfButtons - 1)) {
@@ -305,21 +304,18 @@ public class NavigationBarView extends LinearLayout {
                     addLightsOutButton(lightsOut, separator, landscape, true);
                 }
             }
-            // check to see if we already have a menu button
-            if (!mHasBigMenuButton) {  // don't add menu buttons if we already have one
+            if (mMenuLocation != SHOW_DONT) {
                 // add left menu
-                if (mMenuLocation != SHOW_DONT) {
-                    View leftMenuKey = generateKey(landscape, KEY_MENU_LEFT);
-                    // since we didn't add these at the beginning, we need to insert it now
-                    // the behavior is backwards from landscape (ie, insert at beginning
-                    // if portrait, add to end if landscape
-                    addButton(navButtonLayout, leftMenuKey, !landscape || (landscape && mLeftyMode));
-                    addLightsOutButton(lightsOut, leftMenuKey, !landscape || (landscape && mLeftyMode), true);
-
-                    View rightMenuKey = generateKey(landscape, KEY_MENU_RIGHT);
-                    addButton(navButtonLayout, rightMenuKey, landscape && !mLeftyMode);
-                    addLightsOutButton(lightsOut, rightMenuKey, landscape && !mLeftyMode, true);
-                }
+                View leftMenuKey = generateKey(landscape, KEY_MENU_LEFT);
+                // since we didn't add these at the beginning, we need to insert it now
+                // the behavior is backwards from landscape (ie, insert at beginning
+                // if portrait, add to end if landscape
+                addButton(navButtonLayout, leftMenuKey, !landscape || (landscape && mLeftyMode));
+                addLightsOutButton(lightsOut, leftMenuKey, !landscape || (landscape && mLeftyMode), true);
+                // add right menu
+                View rightMenuKey = generateKey(landscape, KEY_MENU_RIGHT);
+                addButton(navButtonLayout, rightMenuKey, landscape && !mLeftyMode);
+                addLightsOutButton(lightsOut, rightMenuKey, landscape && !mLeftyMode, true);
             }
         }
     }
@@ -553,7 +549,7 @@ public class NavigationBarView extends LinearLayout {
         if (!force && mShowMenu == show)
             return;
 
-        if ((mMenuLocation == SHOW_DONT) || mHasBigMenuButton) {
+        if (mMenuLocation == SHOW_DONT) {
             return;
         }
 
