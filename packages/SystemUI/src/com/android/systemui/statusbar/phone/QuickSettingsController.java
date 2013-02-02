@@ -37,7 +37,6 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
 
 import com.android.internal.telephony.PhoneConstants;
 
@@ -49,6 +48,7 @@ import com.android.systemui.quicksettings.BluetoothTile;
 import com.android.systemui.quicksettings.BrightnessTile;
 import com.android.systemui.quicksettings.BugReportTile;
 import com.android.systemui.quicksettings.NfcTile;
+import com.android.systemui.quicksettings.QuietHoursTile;
 import com.android.systemui.quicksettings.ScreenTimeoutTile;
 import com.android.systemui.quicksettings.TorchTile;
 import com.android.systemui.quicksettings.FastChargeTile;
@@ -110,6 +110,7 @@ public class QuickSettingsController {
     public static final String TILE_PROFILE = "toggleProfile";
     public static final String TILE_NFC = "toggleNfc";
     public static final String TILE_USBTETHER = "toggleUsbTether";
+    public static final String TILE_QUIETHOURS = "toggleQuietHours";
     public static final String TILE_FCHARGE = "toggleFastCharge";
 
     private static final String TILE_DELIMITER = "|";
@@ -167,6 +168,7 @@ public class QuickSettingsController {
     public static final int USBTETHER_TILE = 23;
     public static final int LTE_TILE = 24;
     public static final int FCHARGE_TILE = 25;
+    public static final int QUIET_HOURS_TILE = 26;
     public static final int USER_TILE = 99;
     private InputMethodTile IMETile;
 
@@ -272,6 +274,8 @@ public class QuickSettingsController {
                         TelephonyManager.getDefault().getLteOnGsmMode() != 0) {
                     mQuickSettings.add(LTE_TILE);
                 }
+            } else if (tile.equals(TILE_QUIETHOURS)) {
+                mQuickSettings.add(QUIET_HOURS_TILE);
             }
         }
 
@@ -493,6 +497,8 @@ public class QuickSettingsController {
             case FCHARGE_TILE:
                 qs = new FastChargeTile(mContext, inflater, mContainerView, this);
                 break;
+            case QUIET_HOURS_TILE:
+                qs = new QuietHoursTile(mContext, inflater, mContainerView, this);
             }
             if (qs != null) {
                 qs.setupQuickSettingsTile();
