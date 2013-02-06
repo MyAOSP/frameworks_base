@@ -3292,6 +3292,18 @@ public final class Settings {
         public static final String LOCKSCREEN_CUSTOM_TEXT_COLOR = "lockscreen_custom_text_color";
 
         /**
+         * Custom background for lockscreen
+         * @hide
+         */
+        public static final String LOCKSCREEN_BACKGROUND = "lockscreen_background";
+
+        /**
+         * Sets alpha transparency of custom lockscreen background
+         * @hide
+         */
+        public static final String LOCKSCREEN_BACKGROUND_ALPHA = "lockscreen_background_alpha";
+
+        /**
          * Option to hide power off in power menu.
          * @hide
          */
