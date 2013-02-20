@@ -1920,4 +1920,8 @@
   <!-- Wifi -->
   <java-symbol type="bool" name="config_wifiApStartInterface" />
   <java-symbol type="bool" name="config_wifiApFirmwareReload" />
+
+  <!-- Reboot confirmation string -->
+  <java-symbol type="string" name="reboot_confirm" />
+
 </resources>
