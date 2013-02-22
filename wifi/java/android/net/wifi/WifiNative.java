@@ -61,7 +61,7 @@ public class WifiNative {
 
     /* Sends a kill signal to supplicant. To be used when we have lost connection
        or when the supplicant is hung */
-    public native static boolean killSupplicant();
+    public native static boolean killSupplicant(boolean p2pSupported);
 
     private native boolean connectToSupplicant(String iface);
 
@@ -360,10 +360,6 @@ public class WifiNative {
     }
 
     public boolean setCountryCode(String countryCode) {
-        if (countryCode == null) {
-            // Ping the driver
-            return doBooleanCommand("DRIVER COUNTRY");
-        }
         return doBooleanCommand("DRIVER COUNTRY " + countryCode);
     }
 

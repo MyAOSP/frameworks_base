@@ -23,6 +23,7 @@ import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -79,7 +80,6 @@ public class GlowPadView extends View {
     public final static String ICON_FILE = "icon_file";
 
     /**
-     *
      * Number of customizable lockscreen targets for tablets
      * @hide
      */
@@ -309,7 +309,9 @@ public class GlowPadView extends View {
 
         a.recycle();
 
-        setVibrateEnabled(mVibrationDuration > 0);
+        final ContentResolver resolver = context.getContentResolver();
+        boolean vibrateEnabled = Settings.System.getInt(resolver,Settings.System.LOCKSCREEN_VIBRATE_ENABLED, 1) == 1;
+        setVibrateEnabled(vibrateEnabled ? mVibrationDuration > 0 : false);
 
         assignDefaultsIfNeeded();
 
@@ -985,7 +987,6 @@ public class GlowPadView extends View {
                 TargetDrawable target = targets.get(activeTarget);
                 if (target.hasState(TargetDrawable.STATE_FOCUSED)) {
                     target.setState(TargetDrawable.STATE_FOCUSED);
-                    vibrate();
                 }
                 if (mMagneticTargets) {
                     updateTargetPosition(activeTarget, mWaveCenterX, mWaveCenterY, activeAngle);

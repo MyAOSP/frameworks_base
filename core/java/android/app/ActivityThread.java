@@ -25,11 +25,10 @@ import android.content.ContentProvider;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.IContentProvider;
-import android.content.Intent;
 import android.content.IIntentReceiver;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.IPackageManager;
 import android.content.pm.InstrumentationInfo;
 import android.content.pm.PackageInfo;
@@ -73,7 +72,6 @@ import android.os.ServiceManager;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.os.SystemProperties;
-import android.text.TextUtils;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.text.TextUtils;
@@ -1782,8 +1780,8 @@ public final class ActivityThread {
      *
      * @param assets
      * @param theme
-     * @return true if the AssetManager is now theme-aware; false otherwise
-     *         this can fail, for example, if the theme package has been
+     * @return true if the AssetManager is now theme-aware; false otherwise.
+     *         This can fail, for example, if the theme package has been been
      *         removed and the theme manager has yet to revert formally back to
      *         the framework default.
      */

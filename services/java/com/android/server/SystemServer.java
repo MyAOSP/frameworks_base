@@ -28,6 +28,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.IPackageManager;
 import android.content.res.Configuration;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.media.AudioService;
 import android.net.wifi.p2p.WifiP2pService;
 import android.os.Handler;
@@ -40,6 +42,7 @@ import android.os.StrictMode;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.server.search.SearchManagerService;
 import android.service.dreams.DreamService;
 import android.util.DisplayMetrics;
@@ -128,6 +131,7 @@ class ServerThread extends Thread {
         LightsService lights = null;
         PowerManagerService power = null;
         DisplayManagerService display = null;
+        DeviceHandlerService device = null;
         BatteryService battery = null;
         VibratorService vibrator = null;
         AlarmManagerService alarm = null;
@@ -1052,7 +1056,7 @@ class ServerThread extends Thread {
         Intent intent = new Intent();
         intent.setComponent(new ComponentName("com.android.systemui",
                     "com.android.systemui.SystemUIService"));
-        Slog.d(TAG, "Starting service: " + intent);
+        //Slog.d(TAG, "Starting service: " + intent);
         context.startServiceAsUser(intent, UserHandle.OWNER);
     }
 }

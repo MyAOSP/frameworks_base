@@ -174,7 +174,7 @@ class ReceiverRestrictedContext extends ContextWrapper {
  * context object for Activity and other application components.
  */
 class ContextImpl extends Context {
-    private final static String TAG = "ApplicationContext";
+    private final static String TAG = "ContextImpl";
     private final static boolean DEBUG = false;
 
     private static final HashMap<String, SharedPreferencesImpl> sSharedPrefs =
@@ -541,7 +541,7 @@ class ContextImpl extends Context {
                 IUserManager service = IUserManager.Stub.asInterface(b);
                 return new UserManager(ctx, service);
             }});
-            
+
         registerService(PROFILE_SERVICE, new ServiceFetcher() {
                 public Object createService(ContextImpl ctx) {
                     final Context outerContext = ctx.getOuterContext();

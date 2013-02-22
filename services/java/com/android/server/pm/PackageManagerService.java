@@ -157,7 +157,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 import libcore.io.ErrnoException;
 import libcore.io.IoUtils;
@@ -1041,7 +1040,8 @@ public class PackageManagerService extends IPackageManager.Stub {
 
             readPermissions();
 
-            mRestoredSettings = mSettings.readLPw(sUserManager.getUsers(false));
+            mRestoredSettings = mSettings.readLPw(sUserManager.getUsers(false),
+                    mSdkVersion, mOnlyCore);
             long startTime = SystemClock.uptimeMillis();
 
             EventLog.writeEvent(EventLogTags.BOOT_PROGRESS_PMS_SYSTEM_SCAN_START,
@@ -1339,6 +1339,10 @@ public class PackageManagerService extends IPackageManager.Stub {
 
     public boolean isFirstBoot() {
         return !mRestoredSettings;
+    }
+
+    public boolean isOnlyCoreApps() {
+        return mOnlyCore;
     }
 
     private String getRequiredVerifierLPr() {
@@ -2960,14 +2964,14 @@ public class PackageManagerService extends IPackageManager.Stub {
     }
 
     public List<PackageInfo> getInstalledThemePackages() {
-        // Returns a list of theme APKs.	
+        // Returns a list of theme APKs.
         ArrayList<PackageInfo> finalList = new ArrayList<PackageInfo>();
-        List<PackageInfo> installedPackagesList = mContext.getPackageManager().getInstalledPackages(0);	
+        List<PackageInfo> installedPackagesList = mContext.getPackageManager().getInstalledPackages(0);
         Iterator<PackageInfo> i = installedPackagesList.iterator();
-        while (i.hasNext()) {	
-            final PackageInfo pi = i.next();	
-            if (pi != null && pi.isThemeApk) {	
-                finalList.add(pi);	
+        while (i.hasNext()) {
+            final PackageInfo pi = i.next();
+            if (pi != null && pi.isThemeApk) {
+                finalList.add(pi);
             }
         }
         return finalList;
@@ -4170,7 +4174,7 @@ public class PackageManagerService extends IPackageManager.Stub {
                         }
                     }
 
-                    Slog.i(TAG, "Linking native library dir for " + path);
+                    if (DEBUG_INSTALL) Slog.i(TAG, "Linking native library dir for " + path);
                     final int[] userIds = sUserManager.getUserIds();
                     synchronized (mInstallLock) {
                         for (int userId : userIds) {
@@ -6456,6 +6460,18 @@ public class PackageManagerService extends IPackageManager.Stub {
                                 pkgLite = mContainerService.getMinimalPackageInfo(packageFilePath,
                                         flags, lowThreshold);
                             }
+                            /*
+                             * The cache free must have deleted the file we
+                             * downloaded to install.
+                             *
+                             * TODO: fix the "freeCache" call to not delete
+                             *       the file we care about.
+                             */
+                            if (pkgLite.recommendedInstallLocation
+                                    == PackageHelper.RECOMMEND_FAILED_INVALID_URI) {
+                                pkgLite.recommendedInstallLocation
+                                    = PackageHelper.RECOMMEND_FAILED_INSUFFICIENT_STORAGE;
+                            }
                         }
                     }
                 } finally {
@@ -7914,9 +7930,10 @@ public class PackageManagerService extends IPackageManager.Stub {
             }
             if (isThemePackageDrmProtected) {
                 splitThemePackage(newPackage.mPath);
-            } */
+            }
+            */
         }
-            
+
         synchronized (mPackages) {
             updatePermissionsLPw(newPackage.packageName, newPackage,
                     UPDATE_PERMISSIONS_REPLACE_PKG | (newPackage.permissions.size() > 0
@@ -7932,7 +7949,6 @@ public class PackageManagerService extends IPackageManager.Stub {
         }
     }
 
-
     private void deleteLockedZipFileIfExists(String originalPackagePath) {
         String lockedZipFilePath = PackageParser.getLockedZipFilePath(originalPackagePath);
         File zipFile = new File(lockedZipFilePath);
@@ -7942,7 +7958,6 @@ public class PackageManagerService extends IPackageManager.Stub {
             }
         }
     }
-
     private void splitThemePackage(File originalFile) {
         final String originalPackagePath = originalFile.getPath();
         final String lockedZipFilePath = PackageParser.getLockedZipFilePath(originalPackagePath);
@@ -8251,18 +8266,20 @@ public class PackageManagerService extends IPackageManager.Stub {
         } catch (RemoteException e) {
         }
 
-        synchronized (mPackages) {
-            PackageParser.Package p = mPackages.get(packageName);
-            if (p != null) {	
-                info.isThemeApk = p.mIsThemeApk;
-                if (info.isThemeApk && !info.isRemovedPackageSystemUpdate) {
-                    deleteLockedZipFileIfExists(p.mPath);
-                }	
-            }	
-        }
-
         boolean removedForAllUsers = false;
         boolean systemUpdate = false;
+        
+        synchronized (mPackages) {
+            PackageParser.Package p = mPackages.get(packageName);
+            if (p != null) {
+                info.isThemeApk = p.mIsThemeApk;
+                if (info.isThemeApk &&
+                    !info.isRemovedPackageSystemUpdate) {
+                    deleteLockedZipFileIfExists(p.mPath);
+                }
+            }
+        }
+ 
         synchronized (mInstallLock) {
             res = deletePackageLI(packageName,
                     (flags & PackageManager.DELETE_ALL_USERS) != 0

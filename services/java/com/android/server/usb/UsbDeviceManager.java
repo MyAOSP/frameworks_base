@@ -47,6 +47,8 @@ import android.provider.Settings;
 import android.util.Pair;
 import android.util.Slog;
 
+import com.android.internal.annotations.GuardedBy;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
@@ -105,7 +107,7 @@ public class UsbDeviceManager {
 
     private final Context mContext;
     private final ContentResolver mContentResolver;
-    // @GuardedBy("mLock")
+    @GuardedBy("mLock")
     private UsbSettingsManager mCurrentSettings;
     private NotificationManager mNotificationManager;
     private final boolean mHasUsbAccessory;
@@ -383,6 +385,10 @@ public class UsbDeviceManager {
                             }
                         }
                 );
+
+                mContentResolver.registerContentObserver(
+                        Settings.Secure.getUriFor(Settings.Secure.ADB_PORT),
+                                false, new AdbSettingsObserver());
 
                 // Watch for USB configuration changes
                 mUEventObserver.startObserving(USB_STATE_MATCH);

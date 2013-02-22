@@ -21,6 +21,7 @@ import static android.view.WindowManager.LayoutParams.FLAG_COMPATIBLE_WINDOW;
 import static android.view.WindowManager.LayoutParams.LAST_SUB_WINDOW;
 import static android.view.WindowManager.LayoutParams.TYPE_INPUT_METHOD;
 import static android.view.WindowManager.LayoutParams.TYPE_INPUT_METHOD_DIALOG;
+import static android.view.WindowManager.LayoutParams.TYPE_KEYGUARD;
 import static android.view.WindowManager.LayoutParams.TYPE_WALLPAPER;
 
 import com.android.server.input.InputWindowHandle;
@@ -57,7 +58,7 @@ class WindowList extends ArrayList<WindowState> {
  */
 final class WindowState implements WindowManagerPolicy.WindowState {
     static final String TAG = "WindowState";
-
+    
     static final boolean DEBUG_VISIBILITY = WindowManagerService.DEBUG_VISIBILITY;
     static final boolean SHOW_TRANSACTIONS = WindowManagerService.SHOW_TRANSACTIONS;
     static final boolean SHOW_LIGHT_TRANSACTIONS = WindowManagerService.SHOW_LIGHT_TRANSACTIONS;
@@ -78,7 +79,7 @@ final class WindowState implements WindowManagerPolicy.WindowState {
     final WindowManager.LayoutParams mAttrs = new WindowManager.LayoutParams();
     final DeathRecipient mDeathRecipient;
     final WindowState mAttachedWindow;
-    final ArrayList<WindowState> mChildWindows = new ArrayList<WindowState>();
+    final WindowList mChildWindows = new WindowList();
     final int mBaseLayer;
     final int mSubLayer;
     final boolean mLayoutAttached;
@@ -112,6 +113,9 @@ final class WindowState implements WindowManagerPolicy.WindowState {
     int mLayoutSeq = -1;
 
     Configuration mConfiguration = null;
+    // Sticky answer to isConfigChanged(), remains true until new Configuration is assigned.
+    // Used only on {@link #TYPE_KEYGUARD}.
+    private boolean mConfigHasChanged;
 
     /**
      * Actual frame shown on-screen (may be modified by animation).  These
@@ -246,7 +250,7 @@ final class WindowState implements WindowManagerPolicy.WindowState {
     // Input channel and input window handle used by the input dispatcher.
     final InputWindowHandle mInputWindowHandle;
     InputChannel mInputChannel;
-
+    
     // Used to improve performance of toString()
     String mStringNameCache;
     CharSequence mLastTitle;
@@ -497,7 +501,8 @@ final class WindowState implements WindowManagerPolicy.WindowState {
         if (mIsWallpaper) {
             final int rotation = mService.getRotation();
             mService.updateWallpaperOffsetLocked(this, mPolicy.getWallpaperWidth(rotation),
-                    mPolicy.getWallpaperHeight(rotation), false);
+                    mPolicy.getWallpaperHeight(rotation),
+                    false);
         }
 
         if (WindowManagerService.localLOGV) {
@@ -627,6 +632,7 @@ final class WindowState implements WindowManagerPolicy.WindowState {
                 : WindowManagerService.DEFAULT_INPUT_DISPATCHING_TIMEOUT_NANOS;
     }
 
+    @Override
     public boolean hasAppShownWindows() {
         return mAppToken != null && (mAppToken.firstWindowDrawn || mAppToken.startingDisplayed);
     }
@@ -857,9 +863,17 @@ final class WindowState implements WindowManagerPolicy.WindowState {
     }
 
     boolean isConfigChanged() {
-        return mConfiguration != mService.mCurConfiguration
+        boolean configChanged = mConfiguration != mService.mCurConfiguration
                 && (mConfiguration == null
                         || (mConfiguration.diff(mService.mCurConfiguration) != 0));
+
+        if (mAttrs.type == TYPE_KEYGUARD) {
+            // Retain configuration changed status until resetConfiguration called.
+            mConfigHasChanged |= configChanged;
+            configChanged = mConfigHasChanged;
+        }
+
+        return configChanged;
     }
 
     boolean isConfigDiff(int mask) {
@@ -870,7 +884,7 @@ final class WindowState implements WindowManagerPolicy.WindowState {
 
     void removeLocked() {
         disposeInputChannel();
-
+        
         if (mAttachedWindow != null) {
             if (WindowManagerService.DEBUG_ADD_REMOVE) Slog.v(TAG, "Removing " + this + " from " + mAttachedWindow);
             mAttachedWindow.mChildWindows.remove(this);
@@ -886,6 +900,11 @@ final class WindowState implements WindowManagerPolicy.WindowState {
         }
     }
 
+    void setConfiguration(final Configuration newConfig) {
+        mConfiguration = newConfig;
+        mConfigHasChanged = false;
+    }
+
     void setInputChannel(InputChannel inputChannel) {
         if (mInputChannel != null) {
             throw new IllegalStateException("Window already has an input channel.");
@@ -898,7 +917,7 @@ final class WindowState implements WindowManagerPolicy.WindowState {
     void disposeInputChannel() {
         if (mInputChannel != null) {
             mService.mInputManager.unregisterInputChannel(mInputChannel);
-
+            
             mInputChannel.dispose();
             mInputChannel = null;
         }
@@ -907,6 +926,7 @@ final class WindowState implements WindowManagerPolicy.WindowState {
     }
 
     private class DeathRecipient implements IBinder.DeathRecipient {
+        @Override
         public void binderDied() {
             try {
                 synchronized(mService.mWindowMap) {
@@ -1233,7 +1253,7 @@ final class WindowState implements WindowManagerPolicy.WindowState {
                     pw.print(" mWallpaperYStep="); pw.println(mWallpaperYStep);
         }
     }
-
+    
     String makeInputChannelName() {
         return Integer.toHexString(System.identityHashCode(this))
             + " " + mAttrs.getTitle();

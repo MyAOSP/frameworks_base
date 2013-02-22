@@ -33,6 +33,7 @@ import android.util.Slog;
 
 public class StorageNotification extends StorageEventListener {
     private static final String TAG = "StorageNotification";
+    private static final boolean DEBUG = false;
 
     private static final boolean POP_UMS_ACTIVITY_ON_CONNECT = true;
 
@@ -70,8 +71,8 @@ public class StorageNotification extends StorageEventListener {
 
         mStorageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
         final boolean connected = mStorageManager.isUsbMassStorageConnected();
-        Slog.d(TAG, String.format( "Startup with UMS connection %s (media state %s)", mUmsAvailable,
-                Environment.getExternalStorageState()));
+        if (DEBUG) Slog.d(TAG, String.format( "Startup with UMS connection %s (media state %s)",
+                mUmsAvailable, Environment.getExternalStorageState()));
         
         HandlerThread thr = new HandlerThread("SystemUI StorageNotification");
         thr.start();
@@ -101,7 +102,8 @@ public class StorageNotification extends StorageEventListener {
          */
         String st = Environment.getExternalStorageState();
 
-        Slog.i(TAG, String.format("UMS connection changed to %s (media state %s)", connected, st));
+        if (DEBUG) Slog.i(TAG, String.format("UMS connection changed to %s (media state %s)",
+                connected, st));
 
         if (connected && (st.equals(
                 Environment.MEDIA_REMOVED) || st.equals(Environment.MEDIA_CHECKING))) {
@@ -127,7 +129,8 @@ public class StorageNotification extends StorageEventListener {
     }
 
     private void onStorageStateChangedAsync(String path, String oldState, String newState) {
-        Slog.i(TAG, String.format(
+        boolean isPrimary = mStorageManager.getPrimaryVolume().getPath().equals(path);
+        if (DEBUG) Slog.i(TAG, String.format(
                 "Media {%s} state changed from {%s} -> {%s}", path, oldState, newState));
         if (newState.equals(Environment.MEDIA_SHARED)) {
             /*
@@ -204,6 +207,8 @@ public class StorageNotification extends StorageEventListener {
              */
             Intent intent = new Intent();
             intent.setClass(mContext, com.android.internal.app.ExternalMediaFormatActivity.class);
+            // send the volume's path through to the formatting activity
+            intent.putExtra(com.android.internal.app.ExternalMediaFormatActivity.FORMAT_PATH, path);
             PendingIntent pi = PendingIntent.getActivity(mContext, 0, intent, 0);
 
             setMediaStorageNotification(
@@ -218,6 +223,8 @@ public class StorageNotification extends StorageEventListener {
              */
             Intent intent = new Intent();
             intent.setClass(mContext, com.android.internal.app.ExternalMediaFormatActivity.class);
+            // send the volume's path through to the formatting activity
+            intent.putExtra(com.android.internal.app.ExternalMediaFormatActivity.FORMAT_PATH, path);
             PendingIntent pi = PendingIntent.getActivity(mContext, 0, intent, 0);
 
             setMediaStorageNotification(
@@ -228,25 +235,25 @@ public class StorageNotification extends StorageEventListener {
         } else if (newState.equals(Environment.MEDIA_REMOVED)) {
             /*
              * Storage has been removed. Show nomedia media notification,
-             * and disable UMS notification regardless of connection state.
+             * and disable UMS notification if the removed storage is the primary storage.
              */
             setMediaStorageNotification(
                     com.android.internal.R.string.ext_media_nomedia_notification_title,
                     com.android.internal.R.string.ext_media_nomedia_notification_message,
                     com.android.internal.R.drawable.stat_notify_sdcard_usb,
-                    true, false, null);
-            updateUsbMassStorageNotification(false);
+                    true, !isPrimary, null);
+            updateUsbMassStorageNotification(isPrimary ? false : mUmsAvailable);
         } else if (newState.equals(Environment.MEDIA_BAD_REMOVAL)) {
             /*
              * Storage has been removed unsafely. Show bad removal media notification,
-             * and disable UMS notification regardless of connection state.
+             * and disable UMS notification if the removed storage is the primary storage.
              */
             setMediaStorageNotification(
                     com.android.internal.R.string.ext_media_badremoval_notification_title,
                     com.android.internal.R.string.ext_media_badremoval_notification_message,
                     com.android.internal.R.drawable.stat_sys_warning,
                     true, true, null);
-            updateUsbMassStorageNotification(false);
+            updateUsbMassStorageNotification(isPrimary ? false : mUmsAvailable);
         } else {
             Slog.w(TAG, String.format("Ignoring unknown state {%s}", newState));
         }

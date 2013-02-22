@@ -993,6 +993,18 @@
     <string name="weeks" msgid="6509623834583944518">"uger"</string>
     <string name="year" msgid="4001118221013892076">"år"</string>
     <string name="years" msgid="6881577717993213522">"år"</string>
+  <plurals name="duration_seconds">
+    <item quantity="one" msgid="6962015528372969481">"Ét sekund"</item>
+    <item quantity="other" msgid="1886107766577166786">"<xliff:g id="COUNT">%d</xliff:g> sekunder"</item>
+  </plurals>
+  <plurals name="duration_minutes">
+    <item quantity="one" msgid="4915414002546085617">"Ét minut"</item>
+    <item quantity="other" msgid="3165187169224908775">"<xliff:g id="COUNT">%d</xliff:g> minutter"</item>
+  </plurals>
+  <plurals name="duration_hours">
+    <item quantity="one" msgid="8917467491248809972">"Én time"</item>
+    <item quantity="other" msgid="3863962854246773930">"<xliff:g id="COUNT">%d</xliff:g> timer"</item>
+  </plurals>
     <string name="VideoView_error_title" msgid="3534509135438353077">"Videoproblem"</string>
     <string name="VideoView_error_text_invalid_progressive_playback" msgid="3186670335938670444">"Denne video kan ikke streames på denne enhed."</string>
     <string name="VideoView_error_text_unknown" msgid="3450439155187810085">"Videoen kan ikke afspilles."</string>
@@ -1055,7 +1067,7 @@
     <string name="smv_process" msgid="5120397012047462446">"Processen <xliff:g id="PROCESS">%1$s</xliff:g> har overtrådt sin egen StrictMode-politik."</string>
     <string name="android_upgrading_title" msgid="1584192285441405746">"Android opgraderes..."</string>
     <string name="android_upgrading_apk" msgid="7904042682111526169">"Optimerer app <xliff:g id="NUMBER_0">%1$d</xliff:g> ud af <xliff:g id="NUMBER_1">%2$d</xliff:g>."</string>
-    <string name="android_upgrading_starting_apps" msgid="451464516346926713">"Sådan åbner du dine apps."</string>
+    <string name="android_upgrading_starting_apps" msgid="451464516346926713">"Åbner apps."</string>
     <string name="android_upgrading_complete" msgid="1405954754112999229">"Gennemfører start."</string>
     <string name="heavy_weight_notification" msgid="9087063985776626166">"<xliff:g id="APP">%1$s</xliff:g> er i gang"</string>
     <string name="heavy_weight_notification_detail" msgid="1721681741617898865">"Tryk for at skifte til appen"</string>
@@ -1082,7 +1094,7 @@
     <string name="volume_icon_description_notification" msgid="7044986546477282274">"Lydstyrke for meddelelser"</string>
     <string name="ringtone_default" msgid="3789758980357696936">"Standardringetone"</string>
     <string name="ringtone_default_with_actual" msgid="8129563480895990372">"Standardringetone (<xliff:g id="ACTUAL_RINGTONE">%1$s</xliff:g>)"</string>
-    <string name="ringtone_silent" msgid="4440324407807468713">"Lydløs"</string>
+    <string name="ringtone_silent" msgid="7937634392408977062">"Ingen"</string>
     <string name="ringtone_picker_title" msgid="3515143939175119094">"Ringetoner"</string>
     <string name="ringtone_unknown" msgid="5477919988701784788">"Ukendt ringetone"</string>
   <plurals name="wifi_available">
@@ -1444,4 +1456,78 @@
     <string name="enable_accessibility_canceled" msgid="3833923257966635673">"Tilgængelighed er annulleret."</string>
     <string name="user_switched" msgid="3768006783166984410">"Nuværende bruger <xliff:g id="NAME">%1$s</xliff:g>."</string>
     <string name="owner_name" msgid="2716755460376028154">"Ejer"</string>
+
+    <!-- **** CYANOGENMOD ADDITIONS START **** -->
+
+    <!-- Names of default profiles. -->
+    <string name="profileNameDefault">Standard</string>
+    <string name="profileNameWork">Arbejde</string>
+    <string name="profileNameHome">Hjem</string>
+    <string name="profileNameSilent">Lydløs</string>
+    <string name="profileNameNight">Nat</string>
+
+    <!-- Names of application groups. -->
+    <string name="profileGroupPhone">Telefon</string>
+    <string name="profileGroupCalendar">Kalender</string>
+    <string name="profileGroupGmail">Gmail</string>
+    <string name="profileGroupEmail">Email</string>
+    <string name="profileGroupSMS">SMS</string>
+
+    <!-- Name of wildcard profile. -->
+    <string name="wildcardProfile">Andre</string>
+
+    <!-- Button to reboot the phone, within the Phone Options dialog -->
+    <string name="reboot_system" product="tablet">Genstart tablet</string>
+    <string name="reboot_system" product="default">Genstart telefon</string>
+    <!-- Reboot Progress Dialog. This is shown if the user chooses to reboot the phone. -->
+
+    <!-- label for item that screenshots in phone options dialog -->
+    <string name="global_action_screenshot">Skærmbillede</string>
+
+    <!-- Expanded desktop mode -->
+    <string name="global_actions_toggle_expanded_desktop_mode">Udvidet skrivebord</string>
+    <string name="global_actions_expanded_desktop_mode_on_status">Aktiveret</string>
+    <string name="global_actions_expanded_desktop_mode_off_status">Deaktiveret</string>
+
+    <!-- Button to reboot the phone, within the Reboot Options dialog -->
+    <string name="reboot_reboot">Genstart</string>
+    <!-- Button to reboot the phone into recovery, within the Reboot Options dialog -->
+    <string name="reboot_recovery">Recovery</string>
+    <!-- Button to reboot the phone into bootloader, within the Reboot Options dialog -->
+    <string name="reboot_bootloader">Bootloader</string>
+    <!-- Button to reboot the phone into bootmenu, within the Reboot Options dialog -->
+    <string name="reboot_bootmenu">Bootmenu</string>
+    <!-- Button to reboot the phone into fastboot, within the Reboot Options dialog -->
+    <string name="reboot_fastboot">Fastboot</string>
+    <!-- Button to reboot the phone into download, within the Reboot Options dialog -->
+    <string name="reboot_download">Download</string>
+
+    <!-- Reboot Progress Dialog. This is shown if the user chooses to reboot the phone. -->
+    <string name="reboot_progress">Genstarter\u2026</string>
+    <!-- Reboot Confirmation Dialog. When the user chooses to reboot the phone, there will be a confirmation dialog. This is the message. -->
+    <string name="reboot_confirm">Telefonen vil genstarte.</string>
+
+    <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permlab_preventpower">Undgå tænd/sluk-knappen</string>
+    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permdesc_preventpower">Tillader et program at tilsidesætte tænd/sluk-knappen</string>
+
+    <!-- Lock screen discharging -->
+    <string name="lockscreen_discharging">Aflader, <xliff:g id="number">%d</xliff:g><xliff:g id="percent">%%</xliff:g></string>
+
+    <!-- Long-press back kill application -->
+    <string name="app_killed_message">Applikation lukket</string>
+
+    <!-- label for item that reboots the phone in phone options dialog -->
+    <string name="global_action_reboot">Genstart</string>
+
+    <!-- label for item that opens the profile choosing dialog -->
+    <string name="global_action_choose_profile">Profil</string>
+
+    <!-- Hardware Rotation lock string -->
+    <string name="toast_rotation_unlocked">Skærmrotation ulåst</string>
+    <string name="toast_rotation_locked">Skærmrotation låst</string>
+
+    <!-- **** CYANOGENMOD ADDITIONS END **** -->
+
 </resources>
