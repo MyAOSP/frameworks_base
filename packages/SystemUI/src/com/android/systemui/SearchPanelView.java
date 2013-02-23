@@ -318,7 +318,7 @@ public class SearchPanelView extends FrameLayout implements
             case 0 : // Phone Mode
                 if (screenLayout() == Configuration.SCREENLAYOUT_SIZE_LARGE || 
                         screenLayout() == Configuration.SCREENLAYOUT_SIZE_XLARGE || 
-                        sScreenPortrait()) { // NavRing on Bottom
+                        isScreenPortrait()) { // NavRing on Bottom
                     startPosOffset =  1;
                     endPosOffset =  (mNavRingAmount) + 1;
                 } else if (mLefty) { // either lefty or... (Ring is actually on right side of screen)

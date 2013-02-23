@@ -69,6 +69,7 @@ import com.android.systemui.quicksettings.UserTile;
 import com.android.systemui.quicksettings.WiFiDisplayTile;
 import com.android.systemui.quicksettings.WiFiTile;
 import com.android.systemui.quicksettings.WifiAPTile;
+import com.android.systemui.statusbar.BaseStatusBar;
 
 public class QuickSettingsController {
     private static String TAG = "QuickSettingsController";
@@ -138,7 +139,7 @@ public class QuickSettingsController {
     private BroadcastReceiver mReceiver;
     private ContentObserver mObserver;
     private final ArrayList<Integer> mQuickSettings;
-    public PhoneStatusBar mStatusBarService;
+    public BaseStatusBar mStatusBarService;
     private String mFastChargePath;
 
     // Constants for use in switch statement
@@ -172,7 +173,7 @@ public class QuickSettingsController {
     public static final int USER_TILE = 99;
     private InputMethodTile IMETile;
 
-    public QuickSettingsController(Context context, QuickSettingsContainerView container, PhoneStatusBar statusBarService) {
+    public QuickSettingsController(Context context, QuickSettingsContainerView container, BaseStatusBar statusBarService) {
         mContext = context;
         mContainerView = container;
         mHandler = new Handler();
@@ -403,7 +404,7 @@ public class QuickSettingsController {
                     || new File(mFastChargePath).exists();
     }
 
-    void setBar(PanelBar bar) {
+    public void setBar(PanelBar bar) {
         mBar = bar;
     }
 
@@ -506,7 +507,7 @@ public class QuickSettingsController {
         }
     }
 
-    public void setService(PhoneStatusBar phoneStatusBar) {
+    public void setService(BaseStatusBar phoneStatusBar) {
         mStatusBarService = phoneStatusBar;
     }
 
