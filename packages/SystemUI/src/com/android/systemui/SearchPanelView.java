@@ -112,6 +112,7 @@ public class SearchPanelView extends FrameLayout implements
 
     private PackageManager mPackageManager;
     private Resources mResources;
+    private SettingsObserver mSettingsObserver;
     private TargetObserver mTargetObserver;
     private ContentResolver mContentResolver;
     private String[] targetActivities = new String[5];
@@ -143,10 +144,21 @@ public class SearchPanelView extends FrameLayout implements
         mResources = mContext.getResources();
 
         mContentResolver = mContext.getContentResolver();
-
-        SettingsObserver observer = new SettingsObserver(new Handler());
-        observer.observe();
+        mSettingsObserver = new SettingsObserver(new Handler());
         updateSettings();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mSettingsObserver.observe();
+        updateSettings();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        mContentResolver.unregisterContentObserver(mSettingsObserver);
+        super.onDetachedFromWindow();
     }
 
     private void startAssistActivity() {
@@ -316,9 +328,7 @@ public class SearchPanelView extends FrameLayout implements
 
         switch (mCurrentUIMode) {
             case 0 : // Phone Mode
-                if (screenLayout() == Configuration.SCREENLAYOUT_SIZE_LARGE || 
-                        screenLayout() == Configuration.SCREENLAYOUT_SIZE_XLARGE || 
-                        isScreenPortrait()) { // NavRing on Bottom
+                if (isScreenPortrait()) { // NavRing on Bottom
                     startPosOffset =  1;
                     endPosOffset =  (mNavRingAmount) + 1;
                 } else if (mLefty) { // either lefty or... (Ring is actually on right side of screen)

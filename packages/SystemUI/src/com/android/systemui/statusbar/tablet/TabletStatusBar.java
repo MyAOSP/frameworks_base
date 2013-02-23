@@ -70,7 +70,6 @@ import android.widget.TextView;
 import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.statusbar.StatusBarNotification;
 import com.android.systemui.R;
-//import com.android.systemui.aokp.AwesomeAction;
 import com.android.systemui.statusbar.BaseStatusBar;
 import com.android.systemui.statusbar.CommandQueue;
 import com.android.systemui.statusbar.DoNotDisturb;
@@ -134,7 +133,7 @@ public class TabletStatusBar extends BaseStatusBar implements
     // using 100% as total bar length.  5% is used for space bar in the initial layout.
     // that leaves 95% avail for NavBar & Notification area.
 
-        // The height of the bar, as definied by the build.  It may be taller if we're plugged
+    // The height of the bar, as definied by the build.  It may be taller if we're plugged
     // into hdmi.
     int mNaturalBarHeight = -1;
     int mUserBarHeight , mUserBarHeightLand = -1;
@@ -214,7 +213,6 @@ public class TabletStatusBar extends BaseStatusBar implements
     private int doubleClickCounter = 0;
     public String[] mClockActions = new String[3];
     private boolean mClockDoubleClicked;
-    //private AwesomeAction mAwesomeAction;
     private View mDateTimeView;
 
     public Context getContext() { return mContext; }
@@ -253,7 +251,7 @@ public class TabletStatusBar extends BaseStatusBar implements
     CustomTheme mCurrentTheme;
     private boolean mRecreating = false;
 
-    
+
     protected void addPanelWindows() {
         final Context context = mContext;
         final Resources res = mContext.getResources();
@@ -544,7 +542,6 @@ public class TabletStatusBar extends BaseStatusBar implements
         mNavBarView.setDisabledFlags(mDisabled);
         mNavBarView.setBar(this);
         mNavBarView.getSearchLight().setOnTouchListener(mHomeSearchActionListener);
-        //mAwesomeAction = new AwesomeAction(mContext);
 
         LayoutTransition lt = new LayoutTransition();
         lt.setDuration(250);
@@ -754,7 +751,6 @@ public class TabletStatusBar extends BaseStatusBar implements
         public void run() {
                 doubleClickCounter = 0;
                 animateCollapsePanels();
-                //mAwesomeAction.launchAction(mClockActions[shortClick]);
         }
     };
 
@@ -771,7 +767,6 @@ public class TabletStatusBar extends BaseStatusBar implements
                     mHandler.removeCallbacks(DelayShortPress);
                     v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                     animateCollapsePanels();
-                    //mAwesomeAction.launchAction(mClockActions[doubleClick]);
                     mHandler.postDelayed(ResetDoubleClickCounter, 50);
                 } else {
                     doubleClickCounter = doubleClickCounter + 1;
@@ -781,7 +776,6 @@ public class TabletStatusBar extends BaseStatusBar implements
             } else {
                 v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                 animateCollapsePanels();
-                //mAwesomeAction.launchAction(mClockActions[shortClick]);
             }
         }
     };
@@ -791,7 +785,6 @@ public class TabletStatusBar extends BaseStatusBar implements
         public boolean onLongClick(View v) {
             animateCollapsePanels();
             v.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-            //mAwesomeAction.launchAction(mClockActions[longClick]);
             return true;
         }
     };
@@ -1263,7 +1256,7 @@ public class TabletStatusBar extends BaseStatusBar implements
 
         boolean altBack = (backDisposition == InputMethodService.BACK_DISPOSITION_WILL_DISMISS)
             || ((vis & InputMethodService.IME_VISIBLE) != 0);
-        mAltBackButtonEnabledForIme = altBack; 
+        mAltBackButtonEnabledForIme = altBack;
 
         mCommandQueue.setNavigationIconHints(
                 altBack ? (mNavigationIconHints | StatusBarManager.NAVIGATION_HINT_BACK_ALT)
@@ -1490,7 +1483,7 @@ public class TabletStatusBar extends BaseStatusBar implements
         // need to see all those new emails, did you?
         int maxNotificationIconsCount = mMaxNotificationIcons;
         if (mInputMethodSwitchButton.getVisibility() != View.GONE) maxNotificationIconsCount --;
-        if (mCompatModeButton.getVisibility()        != View.GONE) maxNotificationIconsCount --; 
+        if (mCompatModeButton.getVisibility()        != View.GONE) maxNotificationIconsCount --;
 
         final boolean provisioned = isDeviceProvisioned();
         // If the device hasn't been through Setup, we only show system notifications
