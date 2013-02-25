@@ -113,17 +113,17 @@
             android:orientation="horizontal"
             android:gravity="center"
             >
-            <include layout="@layout/signal_cluster_view"
-                android:id="@+id/signal_cluster"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
             <ImageView
                 android:id="@+id/bluetooth"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:paddingLeft="4dip"
+                android:paddingRight="6dip"
                 android:visibility="gone"
+                />
+            <include layout="@layout/signal_cluster_view"
+                android:id="@+id/signal_cluster"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 />
             <com.android.systemui.statusbar.policy.CircleBattery
                 android:id="@+id/dock_circle_battery"
@@ -139,6 +139,11 @@
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
             />
+            <include layout="@layout/battery_cluster_view"
+                android:id="@+id/battery_cluster"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
         </LinearLayout>
     </LinearLayout>
 </com.android.systemui.statusbar.tablet.NotificationArea>

@@ -24,16 +24,20 @@ import android.animation.TimeInterpolator;
 import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.StatusBarManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Slog;
 import android.view.Gravity;
@@ -95,6 +99,8 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
 
     // amount to slide mContentParent down by when mContentFrame is missing
     float mContentFrameMissingTranslation;
+    private TilesChangedObserver mTilesChangedObserver;
+    private Handler mHandler;
 
     Choreographer mChoreo = new Choreographer();
 
@@ -142,6 +148,8 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
         // the "X" that appears in place of the clock when the panel is showing notifications
         mClearButton = findViewById(R.id.clear_all_button);
         mClearButton.setOnClickListener(mClearButtonListener);
+
+        mHandler = new Handler();
 
         mShowing = false;
 
@@ -222,6 +230,10 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
             } else {
                 mQS = null; // fly away, be free
             }
+
+            // Start observing for changes
+            mTilesChangedObserver = new TilesChangedObserver(mHandler);
+            mTilesChangedObserver.startObserving();
         }
     }
 
@@ -358,7 +370,7 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
     }
 
     @Override
-    public void onClick(View v) {  
+    public void onClick(View v) {
     }
 
     public void setNotificationCount(int n) {
@@ -370,7 +382,7 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
 
     public void updateClearButton() {
         if (mBar != null) {
-            final boolean showX 
+            final boolean showX
                 = (isShowing()
                         && mHasClearableNotifications
                         && mNotificationScroller.getVisibility() == View.VISIBLE);
@@ -451,7 +463,7 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
                 interpolator(mAccelerateInterpolator,
                         ObjectAnimator.ofFloat(mNotificationScroller, View.SCALE_X, 1f, 0f)
                         )
-                    .setDuration(FLIP_DURATION_OUT), 
+                    .setDuration(FLIP_DURATION_OUT),
                     mNotificationScroller, View.INVISIBLE));
         mSettingsButtonAnim = start(
             setVisibilityWhenDone(
@@ -550,7 +562,7 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
         a.setStartDelay(d);
         return a;
     }
-    
+
     public Animator start(Animator a) {
         a.start();
         return a;
@@ -573,7 +585,7 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
 
         void createAnimation(boolean appearing) {
             // mVisible: previous state; appearing: new state
-            
+
             float start, end;
 
             // 0: on-screen
@@ -708,5 +720,40 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
         public void setBounds(Rect bounds) {
         }
     }
-}
 
+    /**
+     *  ContentObserver to watch for Quick Settings tiles changes
+     * @author dvtonder
+     *
+     */
+    private class TilesChangedObserver extends ContentObserver {
+        public TilesChangedObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            if (mSettingsContainer != null) {
+                mQS.updateResources();
+            }
+        }
+
+        public void startObserving() {
+            final ContentResolver cr = mContext.getContentResolver();
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_TILES), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_DYNAMIC_ALARM), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_DYNAMIC_BUGREPORT), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_DYNAMIC_IME), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_DYNAMIC_USBTETHER), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_DYNAMIC_WIFI), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_TILES_PER_ROW), false, this);
+        }
+    }
+}
