@@ -23,6 +23,7 @@ import static com.android.internal.util.cm.QSConstants.TILE_BATTERY;
 import static com.android.internal.util.cm.QSConstants.TILE_BLUETOOTH;
 import static com.android.internal.util.cm.QSConstants.TILE_BRIGHTNESS;
 import static com.android.internal.util.cm.QSConstants.TILE_DELIMITER;
+import static com.android.internal.util.cm.QSConstants.TILE_FCHARGE;
 import static com.android.internal.util.cm.QSConstants.TILE_GPS;
 import static com.android.internal.util.cm.QSConstants.TILE_LOCKSCREEN;
 import static com.android.internal.util.cm.QSConstants.TILE_LTE;
@@ -42,6 +43,8 @@ import static com.android.internal.util.cm.QSConstants.TILE_WIFI;
 import static com.android.internal.util.cm.QSConstants.TILE_WIFIAP;
 import static com.android.internal.util.cm.QSConstants.TILE_WIMAX;
 import static com.android.internal.util.cm.QSUtils.deviceSupportsBluetooth;
+import static com.android.internal.util.cm.QSUtils.deviceSupportsFastCharge;
+import static com.android.internal.util.cm.QSUtils.deviceSupportsLte;
 import static com.android.internal.util.cm.QSUtils.deviceSupportsTelephony;
 import static com.android.internal.util.cm.QSUtils.deviceSupportsUsbTether;
 import static com.android.internal.util.cm.QSUtils.systemProfilesEnabled;
@@ -131,8 +134,8 @@ public class QuickSettingsController {
         // Filter items not compatible with device
         boolean bluetoothSupported = deviceSupportsBluetooth();
         boolean telephonySupported = deviceSupportsTelephony(mContext);
-        boolean fastChargeSupported = deviceSupportsFastCharge();
-        boolean lteSupported = deviceSupportsLTE();
+        boolean fastChargeSupported = deviceSupportsFastCharge(mContext);
+        boolean lteSupported = deviceSupportsLte(mContext);
 
         if (!bluetoothSupported) {
             TILES_DEFAULT.remove(TILE_BLUETOOTH);
@@ -142,6 +145,14 @@ public class QuickSettingsController {
             TILES_DEFAULT.remove(TILE_WIFIAP);
             TILES_DEFAULT.remove(TILE_MOBILEDATA);
             TILES_DEFAULT.remove(TILE_NETWORKMODE);
+        }
+
+        if (!fastChargeSupported) {
+            TILES_DEFAULT.remove(TILE_FCHARGE);
+        }
+
+        if (!lteSupported) {
+            TILES_DEFAULT.remove(TILE_LTE);
         }
 
         // Read the stored list of tiles
@@ -166,7 +177,7 @@ public class QuickSettingsController {
                 qs = new PreferencesTile(mContext, inflater, mContainerView, this);
             } else if (tile.equals(TILE_WIFI)) {
                 qs = new WiFiTile(mContext, inflater, mContainerView, this);
-            } else if (tile.equals(TILE_FCHARGE)) && fastChargeSupported) {
+            } else if (tile.equals(TILE_FCHARGE)) {
                 qs = new FastChargeTile(mContext, inflater, mContainerView, this);
             } else if (tile.equals(TILE_GPS)) {
                 qs = new GPSTile(mContext, inflater, mContainerView, this);
@@ -204,7 +215,7 @@ public class QuickSettingsController {
                 qs = new NfcTile(mContext, inflater, mContainerView, this);
             } else if (tile.equals(TILE_WIMAX)) {
                 // Not available yet
-            } else if (tile.equals(TILE_LTE)) && lteSupported) {
+            } else if (tile.equals(TILE_LTE)) {
                 qs = new LteTile(mContext, inflater, mContainerView, this);
             } else if (tile.equals(TILE_QUIETHOURS)) {
                 qs = new QuietHoursTile(mContext, inflater, mContainerView, this);
@@ -245,7 +256,7 @@ public class QuickSettingsController {
         }
     }
 
-    protected void setupQuickSettings() {
+    public void setupQuickSettings() {
         mQuickSettingsTiles.clear();
         mContainerView.removeAllViews();
         // Clear out old receiver
@@ -328,12 +339,12 @@ public class QuickSettingsController {
         }
     };
 
-    void setBar(PanelBar bar) {
+    public void setBar(PanelBar bar) {
         mBar = bar;
     }
 
-    public void setService(BaseStatusBar baseStatusBar) {
-        mStatusBarService = baseStatusBar;
+    public void setService(BaseStatusBar phoneStatusBar) {
+        mStatusBarService = phoneStatusBar;
     }
 
     public void setImeWindowStatus(boolean visible) {

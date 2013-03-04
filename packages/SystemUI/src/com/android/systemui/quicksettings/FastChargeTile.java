@@ -107,6 +107,8 @@ public class FastChargeTile extends QuickSettingsTile {
                 breader.close();
             } catch (IOException e) {
                 // ignore
+            } catch (NullPointerException e) {
+
             }
         }
 

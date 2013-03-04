@@ -1850,6 +1850,7 @@
   <java-symbol type="string" name="config_deviceKeyHandlerClass" />
   <java-symbol type="string" name="config_deviceDockBatteryHandlerClass" />
   <java-symbol type="string" name="config_fastChargePath" />
+  <java-symbol type="bool" name="config_fastChargeSupport" />
   <java-symbol type="bool" name="config_hasDockBattery" />
   <java-symbol type="bool" name="config_hasRemovableLid" />
   <java-symbol type="bool" name="config_noDelayInATwoDP" />

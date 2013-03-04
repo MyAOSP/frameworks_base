@@ -3,6 +3,7 @@ package com.android.systemui.quicksettings;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -16,11 +17,14 @@ import android.view.View.OnLongClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
+import android.widget.ImageView;
 
 import com.android.systemui.R;
 import com.android.systemui.statusbar.phone.QuickSettingsController;
 import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
+import com.android.systemui.statusbar.policy.BrightnessController;
 import com.android.systemui.statusbar.policy.BrightnessController.BrightnessStateChangeCallback;
+import com.android.systemui.statusbar.policy.ToggleSlider;
 
 public class BrightnessTile extends QuickSettingsTile implements BrightnessStateChangeCallback {
 
@@ -28,6 +32,7 @@ public class BrightnessTile extends QuickSettingsTile implements BrightnessState
 
     private final int mBrightnessDialogLongTimeout;
     private Dialog mBrightnessDialog;
+    private BrightnessController mBrightnessController;
     private final Handler mHandler;
     private boolean autoBrightness = true;
 
@@ -71,6 +76,15 @@ public class BrightnessTile extends QuickSettingsTile implements BrightnessState
             mBrightnessDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             mBrightnessDialog.setContentView(R.layout.quick_settings_brightness_dialog);
             mBrightnessDialog.setCanceledOnTouchOutside(true);
+            mBrightnessController = new BrightnessController(mContext,
+                    (ImageView) mBrightnessDialog.findViewById(R.id.brightness_icon),
+                    (ToggleSlider) mBrightnessDialog.findViewById(R.id.brightness_slider));
+            mBrightnessDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    mBrightnessController = null;
+                }
+            });
             mBrightnessDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
             mBrightnessDialog.getWindow().getAttributes().privateFlags |=
                     WindowManager.LayoutParams.PRIVATE_FLAG_SHOW_FOR_ALL_USERS;

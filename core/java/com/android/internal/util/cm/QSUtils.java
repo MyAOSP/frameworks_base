@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.WifiDisplayStatus;
 import android.net.ConnectivityManager;
@@ -16,11 +17,6 @@ import android.telephony.TelephonyManager;
 import com.android.internal.telephony.PhoneConstants;
 
 public class QSUtils {
-    private final Context mContext;
-
-    public QSUtils(Context ctx) {
-        mContext = ctx;
-    }
 
     public static boolean deviceSupportsUsbTether(Context ctx) {
         ConnectivityManager cm = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -49,15 +45,14 @@ public class QSUtils {
         return NfcAdapter.getDefaultAdapter(ctx) != null;
     }
 
-    public static boolean deviceSupportsFastCharge() {
-        String mFastChargePath = mContext.getResources().getString(com.android.internal.R.string.config_fastChargePath);
-
-        return mFastChargePath != null || !mFastChargePath.isEmpty()
-                    || new File(mFastChargePath).exists();
+    public static boolean deviceSupportsFastCharge(Context ctx) {
+        String mFastChargePath = ctx.getResources().getString(com.android.internal.R.string.config_fastChargePath);
+        return (new File(mFastChargePath).exists() && ctx.getResources().getBoolean(
+                com.android.internal.R.bool.config_fastChargeSupport) != false);
     }
 
-    public static boolean deviceSupportsLTE() {
-        return (PhoneConstants.LTE_ON_CDMA_TRUE == TelephonyManager.getDefault().getLteOnCdmaMode() ||
-                        TelephonyManager.getDefault().getLteOnGsmMode() != 0);
+    public static boolean deviceSupportsLte(Context ctx) {
+        final TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Context.TELEPHONY_SERVICE);
+        return (tm.getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) || tm.getLteOnGsmMode() != 0;
     }
 }

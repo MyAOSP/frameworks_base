@@ -3,6 +3,7 @@ package com.android.systemui.quicksettings;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.telephony.TelephonyManager;
@@ -19,25 +20,23 @@ import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
 
 public class LteTile extends QuickSettingsTile {
 
-    // retrieved from Phone.apk
-    private static final String ACTION_NETWORK_MODE_CHANGED = "com.android.internal.telephony.NETWORK_MODE_CHANGED";
-
-    private int mDataState = -1;
+    private Context mContext;
 
     public LteTile(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, QuickSettingsController qsc) {
         super(context, inflater, container, qsc);
         mTileLayout = R.layout.quick_settings_tile_lte;
 
-        setTileState();
+        mContext = context;
 
         mOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 toggleState();
-                applyLteChanges();
+                updateResources();
             }
         };
+
         mOnLongClick = new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -48,12 +47,25 @@ public class LteTile extends QuickSettingsTile {
                 return true;
             }
         };
-        qsc.registerAction(ACTION_NETWORK_MODE_CHANGED, this);
+
+        qsc.registerObservedContent(Settings.Global.getUriFor(Settings.Global.PREFERRED_NETWORK_MODE), this);
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        applyLteChanges();
+    void onPostCreate() {
+        updateTile();
+        super.onPostCreate();
+    }
+
+    @Override
+    public void onChangeUri(ContentResolver resolver, Uri uri) {
+        updateResources();
+    }
+
+    @Override
+    public void updateResources() {
+        updateTile();
+        super.updateResources();
     }
 
     @Override
@@ -62,11 +74,6 @@ public class LteTile extends QuickSettingsTile {
         tv.setCompoundDrawablesWithIntrinsicBounds(0, mDrawable, 0, 0);
         tv.setText(mLabel);
         tv.setTextSize(1, mTileTextSize);
-    }
-
-    private void applyLteChanges() {
-        setTileState();
-        updateQuickSettings();
     }
 
     protected void toggleState() {
@@ -88,7 +95,7 @@ public class LteTile extends QuickSettingsTile {
         }
     }
 
-    private void setTileState() {
+    private synchronized void updateTile() {
         int network = getCurrentPreferredNetworkMode(mContext);
         switch(network) {
             case Phone.NT_MODE_GLOBAL:

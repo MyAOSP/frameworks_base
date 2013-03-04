@@ -126,7 +126,7 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
         if (mQS != null && mBar != null) {
             mQS.setService(mBar);
             mQS.setBar(mBar.mStatusBarView);
-            mQS.updateResources();
+            mQS.setupQuickSettings();
             //mQS.setup(mBar.mNetworkController, mBar.mBluetoothController, mBar.mBatteryController,
             //    mBar.mLocationController);
         }

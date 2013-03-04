@@ -1103,6 +1103,9 @@
     <integer name="config_deviceHardwareHomeScanCode">-1</integer>
     <integer name="config_deviceHardwareBackScanCode">-1</integer>
 
+    <!-- If true, adds support for Fast charge tile -->
+    <bool name="config_fastChargeSupport">false</bool>
+
     <!-- Empty string to disable, or like: /sys/kernel/fast_charge/force_fast_charge
         Disabled by default so devices need to add an overlay to enable -->
     <string name="config_fastChargePath" translatable="false"></string>
