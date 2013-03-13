@@ -756,16 +756,16 @@ public class PackageManagerService extends IPackageManager.Stub {
                                     }
                                 }
                             }
-                            String category = null;
-                            if (res.pkg.mIsThemeApk) {
-                                category = Intent.CATEGORY_THEME_PACKAGE_INSTALLED_STATE_CHANGE;
-                            }
                             sendPackageBroadcast(Intent.ACTION_PACKAGE_ADDED,
-                                    res.pkg.applicationInfo.packageName, category,
+                                    res.pkg.applicationInfo.packageName, null,
                                     extras, null, null, firstUsers);
                             final boolean update = res.removedInfo.removedPackage != null;
                             if (update) {
                                 extras.putBoolean(Intent.EXTRA_REPLACING, true);
+                            }
+                            String category = null;
+                            if(res.pkg.mIsThemeApk) {
+                                category = Intent.CATEGORY_THEME_PACKAGE_INSTALLED_STATE_CHANGE;
                             }
                             sendPackageBroadcast(Intent.ACTION_PACKAGE_ADDED,
                                     res.pkg.applicationInfo.packageName, category,
@@ -5483,9 +5483,6 @@ public class PackageManagerService extends IPackageManager.Stub {
                     }
                     intent.putExtra(Intent.EXTRA_USER_HANDLE, id);
                     intent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY_BEFORE_BOOT);
-                    if (intentCategory != null) {
-                        intent.addCategory(intentCategory);
-                    }
                     if (DEBUG_BROADCASTS) {
                         RuntimeException here = new RuntimeException("here");
                         here.fillInStackTrace();
@@ -5624,9 +5621,6 @@ public class PackageManagerService extends IPackageManager.Stub {
                 }
                 if ((event&REMOVE_EVENTS) != 0) {
                     if (ps != null) {
-                        if (p.mIsThemeApk) {
-                            category = Intent.CATEGORY_THEME_PACKAGE_INSTALLED_STATE_CHANGE;
-                        }
                         removePackageLI(ps, true);
                         removedPackage = ps.name;
                         removedAppId = ps.appId;
@@ -5656,9 +5650,6 @@ public class PackageManagerService extends IPackageManager.Stub {
                             addedPackage = p.applicationInfo.packageName;
                             addedAppId = UserHandle.getAppId(p.applicationInfo.uid);
                         }
-                        if (p != null && p.mIsThemeApk) {
-                            category = Intent.CATEGORY_THEME_PACKAGE_INSTALLED_STATE_CHANGE;
-                        }                
                     }
                     if (p != null && p.mIsThemeApk) {
                         category = Intent.CATEGORY_THEME_PACKAGE_INSTALLED_STATE_CHANGE;
@@ -5776,11 +5767,7 @@ public class PackageManagerService extends IPackageManager.Stub {
                     sendAdded = true;
                 }
             }
-            PackageParser.Package p = mPackages.get(packageName);
-            String category = null;
-            if (p.mIsThemeApk) {
-                category = Intent.CATEGORY_THEME_PACKAGE_INSTALLED_STATE_CHANGE;
-            }
+
             if (sendAdded) {
                 sendPackageBroadcast(Intent.ACTION_PACKAGE_ADDED, null,
                         packageName, extras, null, null, new int[] {userId});
@@ -6414,20 +6401,21 @@ public class PackageManagerService extends IPackageManager.Stub {
 
                     final File packageFile;
                     if (encryptionParams != null || !"file".equals(mPackageURI.getScheme())) {
-                        ParcelFileDescriptor out = null;
-
                         mTempPackage = createTempPackageFile(mDrmAppPrivateInstallDir);
                         if (mTempPackage != null) {
+                            ParcelFileDescriptor out;
                             try {
                                 out = ParcelFileDescriptor.open(mTempPackage,
                                         ParcelFileDescriptor.MODE_READ_WRITE);
                             } catch (FileNotFoundException e) {
+                                out = null;
                                 Slog.e(TAG, "Failed to create temporary file for : " + mPackageURI);
                             }
 
                             // Make a temporary file for decryption.
                             ret = mContainerService
                                     .copyResource(mPackageURI, encryptionParams, out);
+                            IoUtils.closeQuietly(out);
 
                             packageFile = mTempPackage;
 
@@ -9305,10 +9293,8 @@ public class PackageManagerService extends IPackageManager.Stub {
                 if (removed.size() > 0) {
                     for (int j=0; j<removed.size(); j++) {
                         PreferredActivity pa = removed.get(i);
-                        RuntimeException here = new RuntimeException("here");
-                        here.fillInStackTrace();
                         Slog.w(TAG, "Removing dangling preferred activity: "
-                                + pa.mPref.mComponent, here);
+                                + pa.mPref.mComponent);
                         pir.removeFilter(pa);
                     }
                     mSettings.writePackageRestrictionsLPr(

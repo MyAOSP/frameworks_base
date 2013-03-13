@@ -144,18 +144,18 @@ final class UiModeManagerService extends IUiModeManager.Stub {
         }
     };
 
+    private final BroadcastReceiver mThemeChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mUiContext = null;
+        }
+    };
+
     private final TwilightService.TwilightListener mTwilightListener =
             new TwilightService.TwilightListener() {
         @Override
         public void onTwilightStateChanged() {
             updateTwilight();
-        }
-    };
-
-    private final BroadcastReceiver mThemeChangeReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mUiContext = null;
         }
     };
 
@@ -174,7 +174,6 @@ final class UiModeManagerService extends IUiModeManager.Stub {
 
         mPowerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
         mWakeLock = mPowerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, TAG);
-        ThemeUtils.registerThemeChangeReceiver(mContext, mThemeChangeReceiver);
 
         mConfiguration.setToDefaults();
 

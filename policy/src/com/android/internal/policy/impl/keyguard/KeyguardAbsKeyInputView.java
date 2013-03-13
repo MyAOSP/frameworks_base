@@ -99,9 +99,6 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
     protected void onFinishInflate() {
         mLockPatternUtils = new LockPatternUtils(mContext);
 
-        mQuickUnlock = (Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.LOCKSCREEN_QUICK_UNLOCK_CONTROL, 0) == 1);
-
         mPasswordEntry = (TextView) findViewById(getPasswordTextViewId());
         mPasswordEntry.setOnEditorActionListener(this);
         mPasswordEntry.addTextChangedListener(this);
@@ -115,6 +112,9 @@ public abstract class KeyguardAbsKeyInputView extends LinearLayout
                 mCallback.userActivity(0); // TODO: customize timeout for text?
             }
         });
+
+        mQuickUnlock = (Settings.System.getInt(mContext.getContentResolver(),
+            Settings.System.LOCKSCREEN_QUICK_UNLOCK_CONTROL, 0) == 1);
 
         mPasswordEntry.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {

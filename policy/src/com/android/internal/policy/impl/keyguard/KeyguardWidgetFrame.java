@@ -424,7 +424,9 @@ public class KeyguardWidgetFrame extends FrameLayout {
             mBgAlphaController = caller;
         }
 
-        if (mBgAlphaController != caller) return;
+        if (mBgAlphaController != caller && mBgAlphaController != null) {
+            return;
+        }
 
         if (mFrameFade != null) {
             mFrameFade.cancel();
@@ -510,6 +512,10 @@ public class KeyguardWidgetFrame extends FrameLayout {
     public boolean onUserInteraction(MotionEvent event) {
         // hook for subclasses
         return false;
+    }
+
+    public void onBouncerShowing(boolean showing) {
+        // hook for subclasses
     }
 
     public void setWorkerHandler(Handler workerHandler) {
