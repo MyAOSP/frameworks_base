@@ -1298,7 +1298,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         } else {
             mStockUIMode = 2; // Phablet Mode
         } // Tablet Mode will be mode ==1 but no devices default to Tablet mode since 4.2
-        
+
         mUserUIMode = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.USER_UI_MODE,mStockUIMode);
         switch (mUserUIMode) {
@@ -1525,32 +1525,38 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     Settings.System.EXPANDED_DESKTOP_STATE, 0) == 1;
             if (desktopExpanded) {
                 // Set the navigation bar's dimensions to 0 in expanded desktop mode
-                mNavigationBarWidthForRotation[mPortraitRotation]
-                        = mNavigationBarWidthForRotation[mUpsideDownRotation]
-                        = mNavigationBarWidthForRotation[mLandscapeRotation]
-                        = mNavigationBarWidthForRotation[mSeascapeRotation]
-                        = mNavigationBarHeightForRotation[mPortraitRotation]
-                        = mNavigationBarHeightForRotation[mUpsideDownRotation]
-                        = mNavigationBarHeightForRotation[mLandscapeRotation]
-                        = mNavigationBarHeightForRotation[mSeascapeRotation] = 0;
+                mNavigationBarWidthForRotation[mPortraitRotation] =
+                mNavigationBarWidthForRotation[mUpsideDownRotation] =
+                mNavigationBarWidthForRotation[mLandscapeRotation] =
+                mNavigationBarWidthForRotation[mSeascapeRotation] =
+                mNavigationBarHeightForRotation[mPortraitRotation] =
+                mNavigationBarHeightForRotation[mUpsideDownRotation] =
+                mNavigationBarHeightForRotation[mLandscapeRotation] =
+                mNavigationBarHeightForRotation[mSeascapeRotation] = 0;
             } else {
                 // Height of the navigation bar when presented horizontally at bottom
                 mNavigationBarHeightForRotation[mPortraitRotation] =
                 mNavigationBarHeightForRotation[mUpsideDownRotation] =
+                        Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.NAVIGATION_BAR_HEIGHT,
                         mContext.getResources().getDimensionPixelSize(
-                                com.android.internal.R.dimen.navigation_bar_height);
+                        com.android.internal.R.dimen.navigation_bar_height));
                 mNavigationBarHeightForRotation[mLandscapeRotation] =
                 mNavigationBarHeightForRotation[mSeascapeRotation] =
+                        Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE,
                         mContext.getResources().getDimensionPixelSize(
-                                com.android.internal.R.dimen.navigation_bar_height_landscape);
+                        com.android.internal.R.dimen.navigation_bar_height_landscape));
 
                 // Width of the navigation bar when presented vertically along one side
                 mNavigationBarWidthForRotation[mPortraitRotation] =
                 mNavigationBarWidthForRotation[mUpsideDownRotation] =
                 mNavigationBarWidthForRotation[mLandscapeRotation] =
                 mNavigationBarWidthForRotation[mSeascapeRotation] =
+                        Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.NAVIGATION_BAR_WIDTH,
                         mContext.getResources().getDimensionPixelSize(
-                                com.android.internal.R.dimen.navigation_bar_width);
+                        com.android.internal.R.dimen.navigation_bar_width));
             }
         }
 
@@ -2511,6 +2517,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 }
                 if (repeatCount == 0) {
                     mAppSwitchLongPressed = false;
+                    showOrHideRecentAppsDialog(RECENT_APPS_BEHAVIOR_SHOW_OR_DISMISS);
                 } else if (longPress) {
                     if (mRecentAppsPreloaded &&
                             mLongPressOnAppSwitchBehavior != KEY_ACTION_APP_SWITCH) {
@@ -2787,6 +2794,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void launchAssistLongPressAction() {
+        performHapticFeedbackLw(null, HapticFeedbackConstants.LONG_PRESS, false);
         sendCloseSystemWindows(SYSTEM_DIALOG_REASON_ASSIST);
 
         // launch the search activity
@@ -3985,7 +3993,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         final boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         final boolean canceled = event.isCanceled();
-        int keyCode = event.getKeyCode();
+        final int keyCode = event.getKeyCode();
 
         final boolean isInjected = (policyFlags & WindowManagerPolicy.FLAG_INJECTED) != 0;
 
@@ -4020,6 +4028,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     && mVolumeWakeScreen
                     && isWakeKey
                     && ((keyCode == KeyEvent.KEYCODE_VOLUME_UP) || (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN))) {
+            isWakeKey = false;
+        }
+        // don't wake the screen for media events
+        if ((keyCode == KeyEvent.KEYCODE_HEADSETHOOK
+                || ((keyCode >= KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
+                && (keyCode <= KeyEvent.KEYCODE_MEDIA_FAST_FORWARD))
+                || (keyCode == KeyEvent.KEYCODE_MEDIA_PLAY)
+                || (keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE))
+                && isWakeKey) {
             isWakeKey = false;
         }
 
@@ -4485,6 +4502,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     };
 
     @Override
+    /** {@inheritDoc} */
     public void screenTurnedOff(int why) {
         EventLog.writeEvent(70000, 0);
         synchronized (mLock) {

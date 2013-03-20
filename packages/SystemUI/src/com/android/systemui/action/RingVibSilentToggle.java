@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.systemui.navbar;
+package com.android.systemui.action;
 
 import android.app.Activity;
 import android.content.Context;

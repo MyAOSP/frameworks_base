@@ -6,8 +6,9 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 
+import static com.android.internal.util.action.ActionConstants.*;
 import com.android.systemui.R;
-import com.android.systemui.navbar.NavbarAction;
+import com.android.systemui.action.Action;
 import com.android.systemui.statusbar.policy.KeyButtonView;
 
 public class ExtensibleKeyButtonView extends KeyButtonView {
@@ -25,21 +26,29 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
 
     public void setActions(String clickAction, String longPress) {
         if (clickAction != null) {
-            if (clickAction.equals(NavbarAction.ACTION_HOME)) {
-                setCode(KeyEvent.KEYCODE_HOME);
-                setId(R.id.home);
-            } else if (clickAction.equals(NavbarAction.ACTION_BACK)) {
-                setCode(KeyEvent.KEYCODE_BACK);
-                setId(R.id.back);
-            } else if (clickAction.equals(NavbarAction.ACTION_MENU)) {
-                setCode(KeyEvent.KEYCODE_MENU);
-                setId(R.id.navbar_menu_big);
-            } else if (clickAction.equals(NavbarAction.ACTION_POWER)) {
-                setCode(KeyEvent.KEYCODE_POWER);
-            } else if (clickAction.equals(NavbarAction.ACTION_SEARCH)) {
-                setCode(KeyEvent.KEYCODE_SEARCH);
-            } else {
-                setOnClickListener(mClickListener);
+            ActionConstant clickEnum = fromString(clickAction);
+            switch (clickEnum) {
+                case ACTION_HOME:
+                    setCode(KeyEvent.KEYCODE_HOME);
+                    setId(R.id.home);
+                    break;
+                case ACTION_BACK:
+                    setCode(KeyEvent.KEYCODE_BACK);
+                    setId(R.id.back);
+                    break;
+                case ACTION_MENU:
+                    setCode(KeyEvent.KEYCODE_MENU);
+                    setId(R.id.navbar_menu_big);
+                    break;
+                case ACTION_POWER:
+                    setCode(KeyEvent.KEYCODE_POWER);
+                    break;
+                case ACTION_SEARCH:
+                    setCode(KeyEvent.KEYCODE_SEARCH);
+                    break;
+                default:
+                    setOnClickListener(mClickListener);
+                    break;
             }
         }
     }
@@ -47,7 +56,7 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
     protected void setLongPress() {
         setSupportsLongPress(false);
         if (mLongpress != null) {
-            if ((!mLongpress.equals(NavbarAction.ACTION_NULL)) || (getCode() != 0)) {
+            if ((!mLongpress.equals(ActionConstant.ACTION_NULL)) || (getCode() != 0)) {
                 // I want to allow long presses for defined actions, or if
                 // primary action is a 'key' and long press isn't defined
                 // otherwise
@@ -60,14 +69,14 @@ public class ExtensibleKeyButtonView extends KeyButtonView {
     protected OnClickListener mClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            NavbarAction.getInstance(mContext).launchAction(mClickAction);
+            Action.launchAction(mContext, mClickAction);
         }
     };
 
     protected OnLongClickListener mLongPressListener = new OnLongClickListener() {
         @Override
         public boolean onLongClick(View v) {
-            return NavbarAction.getInstance(mContext).launchAction(mLongpress);
+            return Action.launchAction(mContext, mLongpress);
         }
     };
 }

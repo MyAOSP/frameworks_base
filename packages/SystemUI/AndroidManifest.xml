@@ -108,6 +108,13 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".action.ActionReceiver">
+            <intent-filter>
+                <action android:name="com.android.systemui.action.LAUNCH_ACTION" />
+            </intent-filter>
+        </receiver>
+
         <activity android:name=".usb.UsbStorageActivity"
                   android:label="@*android:string/usb_storage_activity_title"
                   android:excludeFromRecents="true">
@@ -210,7 +217,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.systemui.navbar.NavbarToggle"
+            android:name="com.android.systemui.action.NavbarToggle"
             android:label="@string/toggle_navbar"
             android:icon="@mipmap/ic_navbar"
             android:theme="@android:style/Widget.Holo.PopupWindow"
@@ -223,7 +230,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.systemui.navbar.WidgetToggle"
+            android:name="com.android.systemui.action.WidgetToggle"
             android:label="@string/toggle_widgets"
             android:icon="@mipmap/ic_toggle_widgets"
             android:theme="@android:style/Widget.Holo.PopupWindow"
@@ -236,7 +243,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.systemui.navbar.RingVibToggle"
+            android:name="com.android.systemui.action.RingVibToggle"
             android:label="@string/toggle_ring_vib"
             android:icon="@drawable/ic_lockscreen_vib"
             android:theme="@android:style/Widget.Holo.PopupWindow"
@@ -249,7 +256,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.systemui.navbar.RingSilentToggle"
+            android:name="com.android.systemui.action.RingSilentToggle"
             android:label="@string/toggle_ring_silent"
             android:icon="@drawable/ic_lockscreen_silent"
             android:theme="@android:style/Widget.Holo.PopupWindow"
@@ -262,7 +269,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.systemui.navbar.RingVibSilentToggle"
+            android:name="com.android.systemui.action.RingVibSilentToggle"
             android:label="@string/toggle_ring_vib_silent"
             android:icon="@drawable/ic_lockscreen_soundon"
             android:theme="@android:style/Widget.Holo.PopupWindow"
@@ -275,7 +282,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.systemui.navbar.TorchToggle"
+            android:name="com.android.systemui.action.TorchToggle"
             android:label="@string/toggle_torch"
             android:icon="@mipmap/ic_torch"
             android:theme="@android:style/Widget.Holo.PopupWindow"

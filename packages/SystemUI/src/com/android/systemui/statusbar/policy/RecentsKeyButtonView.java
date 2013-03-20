@@ -9,7 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.android.systemui.R;
-import com.android.systemui.navbar.NavbarAction;
+import com.android.systemui.action.Action;
 import com.android.systemui.recent.RecentTasksLoader;
 import com.android.systemui.recent.RecentsActivity;
 
@@ -37,7 +37,7 @@ public class RecentsKeyButtonView extends ExtensibleKeyButtonView {
             if (mRecentsLocked)
                 return;
 
-            NavbarAction.getInstance(mContext).launchAction(mClickAction);
+            Action.launchAction(mContext, mClickAction);
             mRecentsLocked = true;
             postDelayed(mUnlockRecents, 100); // just to prevent spamming, it
                                               // looks ugly

@@ -55,8 +55,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import static com.android.internal.util.action.ActionConstants.*;
 import com.android.internal.statusbar.IStatusBarService;
-import com.android.systemui.navbar.NavbarAction;
+import com.android.systemui.action.Action;
+import com.android.systemui.action.NavBarHelpers;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar;
 import com.android.systemui.statusbar.DelegateViewHelper;
@@ -93,6 +95,7 @@ public class NavigationBarView extends LinearLayout {
 
     public DelegateViewHelper mDelegateHelper;
     private SettingsObserver mSettingsObserver;
+    private Context mContext;
 
     // workaround for LayoutTransitions leaving the nav buttons in a weird state (bug 5549288)
     final static boolean WORKAROUND_INVALID_LAYOUT = true;
@@ -115,21 +118,21 @@ public class NavigationBarView extends LinearLayout {
 
     public final static int StockButtonsQty = 3;
     public final static String[] StockClickActions = {
-        NavbarAction.ACTION_BACK,
-        NavbarAction.ACTION_HOME,
-        NavbarAction.ACTION_RECENTS,
-        NavbarAction.ACTION_NULL,
-        NavbarAction.ACTION_NULL,
-        NavbarAction.ACTION_NULL,
-        NavbarAction.ACTION_NULL };
+        ActionConstant.ACTION_BACK.value(),
+        ActionConstant.ACTION_HOME.value(),
+        ActionConstant.ACTION_RECENTS.value(),
+        ActionConstant.ACTION_NULL.value(),
+        ActionConstant.ACTION_NULL.value(),
+        ActionConstant.ACTION_NULL.value(),
+        ActionConstant.ACTION_NULL.value() };
     public final static String[] StockLongpress = {
-        NavbarAction.ACTION_NULL,
-        NavbarAction.ACTION_NULL,
-        NavbarAction.ACTION_NULL,
-        NavbarAction.ACTION_NULL,
-        NavbarAction.ACTION_NULL,
-        NavbarAction.ACTION_NULL,
-        NavbarAction.ACTION_NULL };
+        ActionConstant.ACTION_NULL.value(),
+        ActionConstant.ACTION_NULL.value(),
+        ActionConstant.ACTION_NULL.value(),
+        ActionConstant.ACTION_NULL.value(),
+        ActionConstant.ACTION_NULL.value(),
+        ActionConstant.ACTION_NULL.value(),
+        ActionConstant.ACTION_NULL.value() };
 
     FrameLayout rot0;
     FrameLayout rot90;
@@ -230,6 +233,7 @@ public class NavigationBarView extends LinearLayout {
 
         mWindowManagerService = WindowManagerGlobal.getWindowManagerService();
 
+        mContext = context;
         mHidden = false;
 
         mDisplay = ((WindowManager)context.getSystemService(
@@ -284,7 +288,7 @@ public class NavigationBarView extends LinearLayout {
                     }
                     v.setTint(false);
                 } else {
-                    v.setImageDrawable(NavbarAction.getInstance(mContext).getIconImage(mClickActions[j]));
+                    v.setImageDrawable(NavBarHelpers.getIconImage(mContext, mClickActions[j]));
                     v.setTint(mClickActions[j].startsWith("**"));
                 }
                 addButton(navButtonLayout, v, landscape && !mLeftyMode);
@@ -406,7 +410,7 @@ public class NavigationBarView extends LinearLayout {
 
         final int iconSize = 80;
         ExtensibleKeyButtonView v = null;
-        if (NavbarAction.ACTION_RECENTS.equals(clickAction)) {
+        if (clickAction.equals(ActionConstant.ACTION_RECENTS)) {
             v = new RecentsKeyButtonView(mContext, null, clickAction, longpress);
         } else {
             v = new ExtensibleKeyButtonView(mContext, null, clickAction, longpress);
