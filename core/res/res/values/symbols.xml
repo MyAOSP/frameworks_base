@@ -1862,6 +1862,7 @@
   <java-symbol type="drawable" name="ic_action_ime_switcher" />
   <java-symbol type="drawable" name="ic_action_killtask" />
   <java-symbol type="drawable" name="ic_action_power" />
+  <java-symbol type="drawable" name="ic_action_torch" />
   <java-symbol type="drawable" name="ic_action_screenshot" />
   <java-symbol type="drawable" name="ic_action_lastapp" />
   <java-symbol type="drawable" name="ic_action_ring_vib_silent" />

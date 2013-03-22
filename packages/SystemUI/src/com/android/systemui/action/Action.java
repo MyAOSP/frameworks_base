@@ -168,12 +168,8 @@ public class Action {
                 mContext.sendBroadcast(new Intent("android.settings.SHOW_INPUT_METHOD_PICKER"));
                 break;
             case ACTION_TORCH:
-                boolean bright = Settings.System.getInt(mContext.getContentResolver(),
-                        Settings.System.EXPANDED_FLASH_MODE, 0) == 1;
-                Intent intentTorch = new Intent("net.cactii.flash2.TOGGLE_FLASHLIGHT");
-                intentTorch.putExtra("bright", bright);
-                intentTorch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(intentTorch);
+                Intent i = new Intent("net.cactii.flash2.TOGGLE_FLASHLIGHT");
+                mContext.sendBroadcast(i);
                 break;
             case ACTION_TODAY:
                 long startMillis = System.currentTimeMillis();

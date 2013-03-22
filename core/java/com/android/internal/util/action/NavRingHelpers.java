@@ -95,6 +95,9 @@ public class NavRingHelpers {
             case ACTION_POWER:
                 resourceId = com.android.internal.R.drawable.ic_action_power;
                 break;
+            case ACTION_TORCH:
+                resourceId = com.android.internal.R.drawable.ic_action_torch;
+                break;
             case ACTION_APP:
                 // no pre-defined action, try to resolve URI
                 try {
