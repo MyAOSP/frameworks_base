@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.WifiDisplayStatus;
@@ -54,5 +55,19 @@ public class QSUtils {
     public static boolean deviceSupportsLte(Context ctx) {
         final TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Context.TELEPHONY_SERVICE);
         return (tm.getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) || tm.getLteOnGsmMode() != 0;
+    }
+
+    public static int getMaxColumns(Context ctx, int orientation) {
+        int maxColumns = ctx.getResources().getInteger(
+                com.android.internal.R.integer.quick_settings_num_columns);
+
+        if (orientation == Configuration.ORIENTATION_PORTRAIT){
+            maxColumns = Settings.System.getInt(ctx.getContentResolver(),
+                    Settings.System.QUICK_SETTINGS_NUM_COLUMNS_PORT, maxColumns);
+        } else {
+            maxColumns = Settings.System.getInt(ctx.getContentResolver(),
+                    Settings.System.QUICK_SETTINGS_NUM_COLUMNS_LAND, maxColumns);
+        }
+        return maxColumns;
     }
 }

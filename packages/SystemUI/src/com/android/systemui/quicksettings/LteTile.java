@@ -70,10 +70,16 @@ public class LteTile extends QuickSettingsTile {
 
     @Override
     void updateQuickSettings() {
+        updateTilesPerRow();
         TextView tv = (TextView) mTile.findViewById(R.id.lte_textview);
         tv.setCompoundDrawablesWithIntrinsicBounds(0, mDrawable, 0, 0);
         tv.setText(mLabel);
         tv.setTextSize(1, mTileTextSize);
+    }
+
+    @Override
+    public void updateTilesPerRow() {
+        super.updateTilesPerRow();
     }
 
     protected void toggleState() {

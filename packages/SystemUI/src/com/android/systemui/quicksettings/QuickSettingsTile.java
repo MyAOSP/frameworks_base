@@ -1,9 +1,13 @@
 package com.android.systemui.quicksettings;
 
+import static com.android.internal.util.cm.QSUtils.getMaxColumns;
+
 import android.app.ActivityManagerNative;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -47,7 +51,6 @@ public class QuickSettingsTile implements OnClickListener {
         mStatusbarService = qsc.mStatusBarService;
         mQsc = qsc;
         mTileLayout = R.layout.quick_settings_tile_generic;
-        updateTilesPerRow();
     }
 
     public void setupQuickSettingsTile() {
@@ -76,7 +79,8 @@ public class QuickSettingsTile implements OnClickListener {
         }
     }
 
-    void updateQuickSettings(){
+    void updateQuickSettings() {
+        updateTilesPerRow();
         TextView tv = (TextView) mTile.findViewById(R.id.tile_textview);
         tv.setCompoundDrawablesWithIntrinsicBounds(0, mDrawable, 0, 0);
         tv.setText(mLabel);
@@ -117,6 +121,12 @@ public class QuickSettingsTile implements OnClickListener {
     void updateTileTextSize(int column) {
         // adjust Tile Text Size based on column count
         switch (column) {
+            case 7:
+                mTileTextSize = 8;
+                break;
+            case 6:
+                mTileTextSize = 8;
+                break;
             case 5:
                 mTileTextSize = 8;
                 break;
@@ -130,10 +140,14 @@ public class QuickSettingsTile implements OnClickListener {
         }
     }
 
-    private void updateTilesPerRow() {
-        ContentResolver resolver = mContext.getContentResolver();
-        int columnCount = Settings.System.getInt(resolver, Settings.System.QUICK_TILES_PER_ROW,
-                mContext.getResources().getInteger(R.integer.quick_settings_num_columns));
+    public void updateTilesPerRow() {
+        Resources r = mContext.getResources();
+        int columnCount;
+        if (r.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            columnCount = getMaxColumns(mContext, Configuration.ORIENTATION_PORTRAIT);
+        } else {
+            columnCount = getMaxColumns(mContext, Configuration.ORIENTATION_LANDSCAPE);
+        }
         ((QuickSettingsContainerView) mContainerView).setColumnCount(columnCount);
         updateTileTextSize(columnCount);
     }

@@ -16,6 +16,7 @@
 
 package com.android.systemui.statusbar.phone;
 
+import static com.android.internal.util.cm.QSUtils.getMaxColumns;
 import com.android.internal.view.RotationPolicy;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.systemui.R;
@@ -49,6 +50,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.UserInfo;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -782,6 +784,7 @@ public class QuickSettings {
 
         // Update the model
         mModel.updateResources();
+        updateSettings();
 
         // Update the User, Time, and Settings tiles spans, and reset everything else
         int span = r.getInteger(R.integer.quick_settings_user_time_settings_tile_span);
@@ -962,6 +965,12 @@ public class QuickSettings {
     void updateTileTextSize(int column) {
         // adjust Tile Text Size based on column count
         switch (column) {
+            case 7:
+                mTileTextSize = 8;
+                break;
+            case 6:
+                mTileTextSize = 8;
+                break;
             case 5:
                 mTileTextSize = 8;
                 break;
@@ -976,9 +985,13 @@ public class QuickSettings {
     }
 
     private void updateSettings() {
-        ContentResolver resolver = mContext.getContentResolver();
-        int columnCount = Settings.System.getInt(resolver, Settings.System.QUICK_TILES_PER_ROW,
-                mContext.getResources().getInteger(R.integer.quick_settings_num_columns));
+        Resources r = mContext.getResources();
+        int columnCount;
+        if (r.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            columnCount = getMaxColumns(mContext, Configuration.ORIENTATION_PORTRAIT);
+        } else {
+            columnCount = getMaxColumns(mContext, Configuration.ORIENTATION_LANDSCAPE);
+        }
         ((QuickSettingsContainerView) mContainerView).setColumnCount(columnCount);
         updateTileTextSize(columnCount);
         setupQuickSettings();
@@ -993,7 +1006,9 @@ public class QuickSettings {
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.QUICK_TILES_PER_ROW), false, this);
+                    Settings.System.QUICK_SETTINGS_NUM_COLUMNS_PORT), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_NUM_COLUMNS_LAND), false, this);
             updateSettings();
         }
 

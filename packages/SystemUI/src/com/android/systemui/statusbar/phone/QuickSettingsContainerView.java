@@ -16,11 +16,17 @@
 
 package com.android.systemui.statusbar.phone;
 
+import java.util.Arrays;
+
+import static com.android.internal.util.cm.QSUtils.getMaxColumns;
+
 import android.animation.LayoutTransition;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.provider.Settings;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -39,6 +45,13 @@ public class QuickSettingsContainerView extends FrameLayout {
     private float mCellGap;
     private Context mContext;
 
+    private static final int EMPTY = 0;
+    private static final int USED = 1;
+
+    private final static String TAG = "QuickSettingsTiles";
+
+    private static final boolean DEBUG = false;
+
     public QuickSettingsContainerView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
@@ -56,8 +69,11 @@ public class QuickSettingsContainerView extends FrameLayout {
     void updateResources() {
         Resources r = getContext().getResources();
         mCellGap = r.getDimension(R.dimen.quick_settings_cell_gap);
-        mNumColumns = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.QUICK_TILES_PER_ROW, r.getInteger(R.integer.quick_settings_num_columns));
+        if (r.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mNumColumns = getMaxColumns(mContext, Configuration.ORIENTATION_PORTRAIT);
+        } else {
+            mNumColumns = getMaxColumns(mContext, Configuration.ORIENTATION_LANDSCAPE);
+        }
         requestLayout();
     }
 
@@ -69,22 +85,25 @@ public class QuickSettingsContainerView extends FrameLayout {
         int availableWidth = (int) (width - getPaddingLeft() - getPaddingRight() -
                 (mNumColumns - 1) * mCellGap);
         float cellWidth = (float) Math.ceil(((float) availableWidth) / mNumColumns);
+        // we want them to be square cells so set the height equal to the width
+        float cellHeight = cellWidth;
 
         // Update each of the children's widths accordingly to the cell width
         int N = getChildCount();
-        int cellHeight = 0;
+
         int cursor = 0;
         for (int i = 0; i < N; ++i) {
             // Update the child's width
             QuickSettingsTileView v = (QuickSettingsTileView) getChildAt(i);
+
             if (v.getVisibility() != View.GONE) {
                 ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
                 int colSpan = v.getColumnSpan();
-                lp.width = (int) ((colSpan * cellWidth) + (colSpan - 1) * mCellGap);
+                int rowSpan = v.getRowSpan();
 
-                if (mNumColumns > 3) {
-                    lp.height = (lp.width * mNumColumns-1) / mNumColumns;
-                }
+                lp.width = (int) ((colSpan * cellWidth) + (colSpan - 1) * mCellGap);
+                lp.height = (int) ((rowSpan * cellHeight) + (rowSpan - 1) * mCellGap);
+
                 // Measure the child
                 int newWidthSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
                 int newHeightSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
@@ -94,7 +113,7 @@ public class QuickSettingsContainerView extends FrameLayout {
                 if (cellHeight <= 0) {
                     cellHeight = v.getMeasuredHeight();
                 }
-                cursor += colSpan;
+                cursor += (colSpan * rowSpan);
             }
         }
 
@@ -111,36 +130,84 @@ public class QuickSettingsContainerView extends FrameLayout {
         int N = getChildCount();
         int x = getPaddingLeft();
         int y = getPaddingTop();
-        int cursor = 0;
+        // hard code this for now
+        int maxRows = 20;
+        // keeps track of used spaces in the grid
+        int[][] layoutMap = new int[maxRows][mNumColumns];
+
         for (int i = 0; i < N; ++i) {
             QuickSettingsTileView v = (QuickSettingsTileView) getChildAt(i);
-            ViewGroup.LayoutParams lp = v.getLayoutParams();
+            ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) v.getLayoutParams();
             if (v.getVisibility() != GONE) {
-                int col = cursor % mNumColumns;
                 int colSpan = v.getColumnSpan();
-                int row = cursor / mNumColumns;
+                int rowSpan = v.getRowSpan();
 
-                // Push the item to the next row if it can't fit on this one
-                if ((col + colSpan) > mNumColumns) {
-                    x = getPaddingLeft();
-                    y += lp.height + mCellGap;
-                    row++;
+                int[][] tile = new int[rowSpan][colSpan];
+
+                int anchorColumn = 0;
+                int anchorRow = 0;
+
+                main:
+                for (int row = 0; row < maxRows; row++) {
+                    for (int column = 0; column < mNumColumns; column++) {
+                        // we found a free spot, now see if this one can fit
+                        if(layoutMap[row][column]==EMPTY){
+                            // can it fit across? lets check if it is all free
+                            if (colSpan <= (mNumColumns - column)) {
+                                if (checkFree(layoutMap, tile, row, column)) {
+                                    anchorRow = row;
+                                    anchorColumn = column;
+
+                                    markUsed(layoutMap, tile, anchorRow, anchorColumn);
+                                    break main;
+                                }
+                            }
+                        }
+                    }
                 }
 
-                // Layout the container
-                v.layout(x, y, x + lp.width, y + lp.height);
+                if(DEBUG)dumpLayoutMap(layoutMap);
 
-                // Offset the position by the cell gap or reset the position and cursor when we
-                // reach the end of the row
-                cursor += v.getColumnSpan();
-                if (cursor < (((row + 1) * mNumColumns))) {
-                    x += lp.width + mCellGap;
-                } else {
-                    x = getPaddingLeft();
-                    y += lp.height + mCellGap;
+                // calculate x and y based on our anchor point
+                int calculatedX = getPaddingLeft() + (anchorColumn) * ((lp.width + (int)mCellGap) / colSpan);
+                int calcuatedY = getPaddingTop() + (anchorRow) * ((lp.height + (int)mCellGap) / rowSpan);
+                x = calculatedX;
+                y = calcuatedY;
+
+                v.layout(x, y, x + lp.width, y + lp.height);
+            }
+        }
+    }
+
+    private void dumpLayoutMap(int[][] layoutMap) {
+        Log.d(TAG, Arrays.deepToString(layoutMap));
+    }
+
+    /**
+     * mark the proper spots used so another tile
+     * does not try and occupy the same space
+     */
+    private void markUsed(int[][] layoutMap, int[][] tile, int anchorRow, int anchorColumn) {
+        for (int row = 0; row < tile.length; row++) {
+            for (int column = 0; column < tile[row].length; column++) {
+                layoutMap[anchorRow+row][anchorColumn+column] = USED;
+            }
+        }
+    }
+
+    /**
+     * check to see if the tile can occupy this space
+     * @return return true or false
+     */
+    private boolean checkFree(int[][] layoutMap, int[][] tile, int startRow, int startColumn) {
+        for (int row = 0; row < tile.length; row++) {
+            for (int column = 0; column < tile[row].length; column++) {
+                if(layoutMap[startRow+row][startColumn+column] == USED) {
+                    return false;
                 }
             }
         }
+        return true;
     }
 
     public void setColumnCount(int num) {

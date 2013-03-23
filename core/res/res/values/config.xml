@@ -1125,4 +1125,7 @@
          com.android.internal.os.DeviceDockBatteryHandler interface.
          Requires config_hasDockBattery set to true. -->
     <string name="config_deviceDockBatteryHandlerLib" translatable="false"></string>
+
+    <!-- The number of columns in the QuickSettings -->
+    <integer name="quick_settings_num_columns">3</integer>
 </resources>

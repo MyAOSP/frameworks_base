@@ -2753,7 +2753,14 @@ public final class Settings {
          *
          * @hide
          */
-        public static final String QUICK_TILES_PER_ROW = "quick_tiles_per_row";
+        public static final String QUICK_SETTINGS_NUM_COLUMNS_PORT = "quick_settings_num_columns_port";
+
+        /**
+         * number of tiles per row in quick settings
+         *
+         * @hide
+         */
+        public static final String QUICK_SETTINGS_NUM_COLUMNS_LAND = "quick_settings_num_columns_land";
 
         /**
          * Quick Settings Panel Dynamic Tiles

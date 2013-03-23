@@ -27,7 +27,7 @@ import android.widget.FrameLayout;
 public class QuickSettingsTileView extends FrameLayout {
 
     private int mColSpan;
-    private final int mRowSpan;
+    private int mRowSpan;
     private int mCellWidth;
 
     public QuickSettingsTileView(Context context, AttributeSet attrs) {
@@ -43,6 +43,14 @@ public class QuickSettingsTileView extends FrameLayout {
 
     int getColumnSpan() {
         return mColSpan;
+    }
+
+    void setRowSpan(int span) {
+        mRowSpan = span;
+    }
+
+    int getRowSpan() {
+        return mRowSpan;
     }
 
     public void setContent(int layoutId, LayoutInflater inflater) {

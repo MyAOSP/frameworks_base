@@ -1845,6 +1845,7 @@
   <java-symbol type="bool" name="config_forceDisableHardwareKeyboard" />
   <java-symbol type="bool" name="config_isTegra3" />
   <java-symbol type="integer" name="config_wallpaperMaxWidth" />
+  <java-symbol type="integer" name="quick_settings_num_columns" />
   <java-symbol type="string" name="config_legacyUmsLunFile" />
   <java-symbol type="string" name="config_deviceHandlersLib" />
   <java-symbol type="string" name="config_deviceKeyHandlerClass" />

@@ -83,11 +83,17 @@ public class UserTile extends QuickSettingsTile {
 
     @Override
     void updateQuickSettings() {
+        updateTilesPerRow();
         ImageView iv = (ImageView) mTile.findViewById(R.id.user_imageview);
         TextView tv = (TextView) mTile.findViewById(R.id.user_textview);
         tv.setText(mLabel);
         tv.setTextSize(1, mTileTextSize);
         iv.setImageDrawable(userAvatar);
+    }
+
+    @Override
+    public void updateTilesPerRow() {
+        super.updateTilesPerRow();
     }
 
     private void queryForUserInformation() {
@@ -172,5 +178,4 @@ public class UserTile extends QuickSettingsTile {
             mUserInfoTask = null;
         }
     }
-
 }

@@ -137,6 +137,7 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
 
     @Override
     void updateQuickSettings() {
+        updateTilesPerRow();
         TextView tv = (TextView) mTile.findViewById(R.id.rssi_textview);
         ImageView iv = (ImageView) mTile.findViewById(R.id.rssi_image);
 
@@ -148,6 +149,11 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
                 R.string.accessibility_quick_settings_mobile,
                 signalContentDescription, dataContentDescription,
                 mLabel));
+    }
+
+    @Override
+    public void updateTilesPerRow() {
+        super.updateTilesPerRow();
     }
 
     void updateOverlayImage(int dataTypeIconId) {

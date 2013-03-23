@@ -753,7 +753,9 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
             cr.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.QS_DYNAMIC_WIFI), false, this);
             cr.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.QUICK_TILES_PER_ROW), false, this);
+                    Settings.System.QUICK_SETTINGS_NUM_COLUMNS_PORT), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_NUM_COLUMNS_LAND), false, this);
         }
     }
 }
