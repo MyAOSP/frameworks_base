@@ -1,5 +1,7 @@
 package com.android.systemui.quicksettings;
 
+import static com.android.internal.util.cm.QSUtils.getTileTextColor;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -63,6 +65,7 @@ public class FastChargeTile extends QuickSettingsTile {
         tv.setCompoundDrawablesWithIntrinsicBounds(0, mDrawable, 0, 0);
         tv.setText(mLabel);
         tv.setTextSize(1, mTileTextSize);
+        tv.setTextColor(getTileTextColor(mContext));
     }
 
     @Override

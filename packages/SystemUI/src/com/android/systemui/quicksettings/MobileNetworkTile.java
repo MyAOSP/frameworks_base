@@ -1,5 +1,7 @@
 package com.android.systemui.quicksettings;
 
+import static com.android.internal.util.cm.QSUtils.getTileTextColor;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -145,6 +147,7 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
         updateOverlayImage(mDataTypeIconId);
         tv.setText(mLabel);
         tv.setTextSize(1, mTileTextSize);
+        tv.setTextColor(getTileTextColor(mContext));
         mTile.setContentDescription(mContext.getResources().getString(
                 R.string.accessibility_quick_settings_mobile,
                 signalContentDescription, dataContentDescription,

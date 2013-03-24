@@ -1,6 +1,7 @@
 package com.android.systemui.quicksettings;
 
 import static com.android.internal.util.cm.QSUtils.getMaxColumns;
+import static com.android.internal.util.cm.QSUtils.getTileTextColor;
 
 import android.app.ActivityManagerNative;
 import android.content.ContentResolver;
@@ -85,6 +86,7 @@ public class QuickSettingsTile implements OnClickListener {
         tv.setCompoundDrawablesWithIntrinsicBounds(0, mDrawable, 0, 0);
         tv.setText(mLabel);
         tv.setTextSize(1, mTileTextSize);
+        tv.setTextColor(getTileTextColor(mContext));
     }
 
     void startSettingsActivity(String action){
@@ -128,7 +130,7 @@ public class QuickSettingsTile implements OnClickListener {
                 mTileTextSize = 8;
                 break;
             case 5:
-                mTileTextSize = 8;
+                mTileTextSize = 9;
                 break;
             case 4:
                 mTileTextSize = 10;
@@ -136,6 +138,12 @@ public class QuickSettingsTile implements OnClickListener {
             case 3:
             default:
                 mTileTextSize = 12;
+                break;
+            case 2:
+                mTileTextSize = 14;
+                break;
+            case 1:
+                mTileTextSize = 16;
                 break;
         }
     }

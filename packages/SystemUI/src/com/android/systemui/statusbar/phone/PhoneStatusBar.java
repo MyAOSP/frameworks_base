@@ -2857,6 +2857,10 @@ public class PhoneStatusBar extends BaseStatusBar {
                     Settings.System.QUICK_SETTINGS_NUM_COLUMNS_PORT), false, this);
             cr.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.QUICK_SETTINGS_NUM_COLUMNS_LAND), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_BACKGROUND_STYLE), false, this);
+            cr.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_TEXT_COLOR), false, this);
         }
     }
 }

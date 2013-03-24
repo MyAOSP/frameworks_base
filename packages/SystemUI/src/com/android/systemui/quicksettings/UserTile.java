@@ -1,5 +1,7 @@
 package com.android.systemui.quicksettings;
 
+import static com.android.internal.util.cm.QSUtils.getTileTextColor;
+
 import android.app.ActivityManagerNative;
 import android.content.Context;
 import android.content.Intent;
@@ -88,6 +90,7 @@ public class UserTile extends QuickSettingsTile {
         TextView tv = (TextView) mTile.findViewById(R.id.user_textview);
         tv.setText(mLabel);
         tv.setTextSize(1, mTileTextSize);
+        tv.setTextColor(getTileTextColor(mContext));
         iv.setImageDrawable(userAvatar);
     }
 

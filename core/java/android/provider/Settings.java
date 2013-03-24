@@ -2763,6 +2763,21 @@ public final class Settings {
         public static final String QUICK_SETTINGS_NUM_COLUMNS_LAND = "quick_settings_num_columns_land";
 
         /**
+         * User configurable background for qs tiles
+         * 0 = random colors
+         * 1 = colorpicker preference
+         * 2 = default background
+         * @hide
+         */
+        public static final String QUICK_SETTINGS_BACKGROUND_STYLE = "quick_settings_background_style";
+
+        /**
+         * User configurable color for text for qs tiles
+         * @hide
+         */
+        public static final String QUICK_SETTINGS_TEXT_COLOR = "quick_settings_text_color";
+
+        /**
          * Quick Settings Panel Dynamic Tiles
          *
          * @hide

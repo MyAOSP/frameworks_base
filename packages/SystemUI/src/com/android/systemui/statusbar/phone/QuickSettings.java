@@ -972,7 +972,7 @@ public class QuickSettings {
                 mTileTextSize = 8;
                 break;
             case 5:
-                mTileTextSize = 8;
+                mTileTextSize = 9;
                 break;
             case 4:
                 mTileTextSize = 10;
@@ -980,6 +980,12 @@ public class QuickSettings {
             case 3:
             default:
                 mTileTextSize = 12;
+                break;
+            case 2:
+                mTileTextSize = 14;
+                break;
+            case 1:
+                mTileTextSize = 16;
                 break;
         }
     }

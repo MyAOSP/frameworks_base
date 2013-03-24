@@ -1,5 +1,7 @@
 package com.android.systemui.quicksettings;
 
+import static com.android.internal.util.cm.QSUtils.getTileTextColor;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -75,6 +77,7 @@ public class LteTile extends QuickSettingsTile {
         tv.setCompoundDrawablesWithIntrinsicBounds(0, mDrawable, 0, 0);
         tv.setText(mLabel);
         tv.setTextSize(1, mTileTextSize);
+        tv.setTextColor(getTileTextColor(mContext));
     }
 
     @Override
