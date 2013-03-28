@@ -49,6 +49,9 @@ public class RingerModeTile extends QuickSettingsTile {
             public void onClick(View v) {
                 toggleState();
                 updateResources();
+                if (isEnabled()) {
+                    flipTile(0);
+                }
             }
         };
 

@@ -40,6 +40,9 @@ public class FastChargeTile extends QuickSettingsTile {
             public void onClick(View v) {
                 setFastCharge(isFastChargeOn() ? false : true);
                 updateFastChargeTile();
+                if (isEnabled()) {
+                    flipTile(0);
+                }
             }
         };
 

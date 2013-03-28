@@ -36,6 +36,9 @@ public class WifiAPTile extends QuickSettingsTile {
                         setSoftapEnabled(true);
                         break;
                 }
+                if (isEnabled()) {
+                    flipTile(0);
+                }
             }
         };
         mOnLongClick = new View.OnLongClickListener() {
