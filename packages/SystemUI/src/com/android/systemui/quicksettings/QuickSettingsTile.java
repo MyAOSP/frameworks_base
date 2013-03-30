@@ -250,17 +250,17 @@ public class QuickSettingsTile implements OnClickListener {
         int tileBg = Settings.System.getInt(mContentResolver,
                 Settings.System.QUICK_SETTINGS_BACKGROUND_STYLE, 2);
         int blueDark = Settings.System.getInt(mContentResolver,
-                Settings.System.RANDOM_COLOR_ONE, android.R.color.holo_blue_dark);
+                Settings.System.RANDOM_COLOR_ONE, 0xFF0099CC);
         int greenDark = Settings.System.getInt(mContentResolver,
-                Settings.System.RANDOM_COLOR_TWO, android.R.color.holo_green_dark);
+                Settings.System.RANDOM_COLOR_TWO, 0xFF669900);
         int redDark = Settings.System.getInt(mContentResolver,
-                Settings.System.RANDOM_COLOR_THREE, android.R.color.holo_red_dark);
+                Settings.System.RANDOM_COLOR_THREE, 0xFFCC0000);
         int orangeDark = Settings.System.getInt(mContentResolver,
-                Settings.System.RANDOM_COLOR_FOUR, android.R.color.holo_orange_dark);
+                Settings.System.RANDOM_COLOR_FOUR, 0xFFFF8800);
         int purple = Settings.System.getInt(mContentResolver,
-                Settings.System.RANDOM_COLOR_FIVE, android.R.color.holo_purple);
+                Settings.System.RANDOM_COLOR_FIVE, 0xFFAA66CC);
         int blueBright = Settings.System.getInt(mContentResolver,
-                Settings.System.RANDOM_COLOR_SIX, android.R.color.holo_blue_bright);
+                Settings.System.RANDOM_COLOR_SIX, 0xFF00DDFF);
         if (tileBg == 1) {
             int tileBgColor = Settings.System.getInt(mContentResolver,
                     Settings.System.QUICK_SETTINGS_BACKGROUND_COLOR, 0xFF000000);
