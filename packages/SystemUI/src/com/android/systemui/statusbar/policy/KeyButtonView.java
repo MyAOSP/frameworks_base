@@ -68,6 +68,8 @@ public class KeyButtonView extends ImageView {
     RectF mRect = new RectF(0f,0f,0f,0f);
     AnimatorSet mPressedAnim;
 
+    int mNavbarIconStyle;
+
     Runnable mCheckLongPress = new Runnable() {
         public void run() {
             if (isPressed()) {
@@ -349,22 +351,16 @@ public class KeyButtonView extends ImageView {
 
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(
-                    Settings.System.NAVIGATION_BAR_BUTTON_ALPHA),
-                    false, this);
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(
-                    Settings.System.NAVIGATION_BAR_TINT),
-                    false, this);
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(
-                    Settings.System.NAVIGATION_BAR_GLOW_TINT),
-                    false, this);
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(
-                    Settings.System.NAVIGATION_BAR_GLOW_DURATION[1]),
-                    false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_BUTTON_ALPHA), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_TINT), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_GLOW_TINT), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_GLOW_DURATION[1]), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.NAVIGATION_BAR_ICON_STYLE), false, this);
             updateSettings();
         }
 
@@ -376,6 +372,8 @@ public class KeyButtonView extends ImageView {
 
     protected void updateSettings() {
         ContentResolver resolver = mContext.getContentResolver();
+        mNavbarIconStyle = Settings.System.getInt(resolver,
+                Settings.System.NAVIGATION_BAR_ICON_STYLE, 0);
         mDurationSpeedOff = Settings.System.getInt(resolver,
                 Settings.System.NAVIGATION_BAR_GLOW_DURATION[0], 10);
         mDurationSpeedOn = Settings.System.getInt(resolver,
@@ -396,6 +394,14 @@ public class KeyButtonView extends ImageView {
         setTint(mShouldTintIcons);
         invalidate();
     }
+
+    public Drawable getBackImeDrawable() {
+        Drawable backIme;
+        if (mNavbarIconStyle != 0) {
+            backIme = mContext.getResources().getDrawable(R.drawable.ic_sysbar_alt_back_ime);
+        } else {
+            backIme = mContext.getResources().getDrawable(R.drawable.ic_sysbar_back_ime);
+        }
+        return backIme;
+    }
 }
-
-

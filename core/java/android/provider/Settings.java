@@ -3232,6 +3232,11 @@ public final class Settings {
         /**
          * @hide
          */
+        public static final String NAVIGATION_BAR_ICON_STYLE = "navigation_bar_icon_style";
+
+        /**
+         * @hide
+         */
         public static final String NAVIGATION_BAR_HEIGHT = "navigation_bar_height";
 
         /**
