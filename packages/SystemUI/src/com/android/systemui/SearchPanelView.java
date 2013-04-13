@@ -159,7 +159,7 @@ public class SearchPanelView extends FrameLayout implements
 
     @Override
     protected void onDetachedFromWindow() {
-        mContentResolver.unregisterContentObserver(mSettingsObserver);
+        mSettingsObserver.unobserve();
         super.onDetachedFromWindow();
     }
 
@@ -614,6 +614,10 @@ public class SearchPanelView extends FrameLayout implements
                         Settings.System.SYSTEMUI_NAVRING_ICON[i]), false, this);
             }
 
+        }
+
+        void unobserve() {
+            mContext.getContentResolver().unregisterContentObserver(this);
         }
 
         @Override
