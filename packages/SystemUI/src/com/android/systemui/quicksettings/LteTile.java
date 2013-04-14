@@ -24,10 +24,8 @@ public class LteTile extends QuickSettingsTile {
 
     private Context mContext;
 
-    public LteTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, QuickSettingsController qsc) {
-        super(context, inflater, container, qsc);
-        mTileLayout = R.layout.quick_settings_tile_lte;
+    public LteTile(Context context, QuickSettingsController qsc) {
+        super(context, qsc, R.layout.quick_settings_tile_lte);
 
         mContext = context;
 

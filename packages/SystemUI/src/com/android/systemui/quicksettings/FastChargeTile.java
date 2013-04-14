@@ -28,12 +28,10 @@ public class FastChargeTile extends QuickSettingsTile {
 
     String mFastChargePath;
 
-    public FastChargeTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, QuickSettingsController qsc) {
-        super(context, inflater, container, qsc);
+    public FastChargeTile(Context context, QuickSettingsController qsc) {
+        super(context, qsc, R.layout.quick_settings_tile_fcharge);
         Resources res = mContext.getResources();
         mFastChargePath = res.getString(com.android.internal.R.string.config_fastChargePath);
-        mTileLayout = R.layout.quick_settings_tile_fcharge;
 
         mOnClick = new OnClickListener() {
             @Override

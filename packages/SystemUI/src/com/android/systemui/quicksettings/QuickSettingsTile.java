@@ -39,12 +39,11 @@ import com.android.systemui.statusbar.phone.QuickSettingsTileView;
 public class QuickSettingsTile implements OnClickListener {
 
     protected final Context mContext;
-    protected final ViewGroup mContainerView;
-    protected final LayoutInflater mInflater;
+    protected ViewGroup mContainerView;
     protected QuickSettingsTileView mTile;
     protected OnClickListener mOnClick;
     protected OnLongClickListener mOnLongClick;
-    protected int mTileLayout;
+    protected final int mTileLayout;
     protected int mDrawable;
     protected String mLabel;
     protected BaseStatusBar mStatusbarService;
@@ -54,30 +53,30 @@ public class QuickSettingsTile implements OnClickListener {
 
     public int mTileTextSize = 12;
 
-    public QuickSettingsTile(Context context, LayoutInflater inflater, QuickSettingsContainerView container, QuickSettingsController qsc) {
+    public QuickSettingsTile(Context context, QuickSettingsController qsc) {
+        this(context, qsc, R.layout.quick_settings_tile_generic);
+    }
+
+    public QuickSettingsTile(Context context, QuickSettingsController qsc, int layout) {
         mContext = context;
-        mContainerView = container;
-        mInflater = inflater;
         mDrawable = R.drawable.ic_notifications;
         mLabel = mContext.getString(R.string.quick_settings_label_enabled);
         mStatusbarService = qsc.mStatusBarService;
         mQsc = qsc;
-        mTileLayout = R.layout.quick_settings_tile_generic;
+        mTileLayout = layout;
     }
 
-    public void setupQuickSettingsTile() {
-        createQuickSettings();
+    public void setupQuickSettingsTile(LayoutInflater inflater, QuickSettingsContainerView container) {
+        mContainerView = container;
+        mTile = (QuickSettingsTileView) inflater.inflate(R.layout.quick_settings_tile,
+                mContainerView, false);
+        mTile.setContent(mTileLayout, inflater);
+        setTileBackground();
+        mContainerView.addView(mTile);
         onPostCreate();
         updateQuickSettings();
         mTile.setOnClickListener(this);
         mTile.setOnLongClickListener(mOnLongClick);
-    }
-
-    void createQuickSettings() {
-        mTile = (QuickSettingsTileView) mInflater.inflate(R.layout.quick_settings_tile, mContainerView, false);
-        mTile.setContent(mTileLayout, mInflater);
-        setTileBackground();
-        mContainerView.addView(mTile);
     }
 
     void onPostCreate(){}
