@@ -20,7 +20,7 @@ import static com.android.internal.util.cm.QSConstants.*;
 import static com.android.internal.util.cm.QSUtils.deviceSupportsBluetooth;
 import static com.android.internal.util.cm.QSUtils.deviceSupportsFastCharge;
 import static com.android.internal.util.cm.QSUtils.deviceSupportsLte;
-import static com.android.internal.util.cm.QSUtils.deviceSupportsTelephony;
+import static com.android.internal.util.cm.QSUtils.deviceSupportsMobileData;
 import static com.android.internal.util.cm.QSUtils.deviceSupportsUsbTether;
 import static com.android.internal.util.cm.QSUtils.expandedDesktopEnabled;
 import static com.android.internal.util.cm.QSUtils.systemProfilesEnabled;
@@ -131,7 +131,7 @@ public class QuickSettingsController {
 
         // Filter items not compatible with device
         boolean bluetoothSupported = deviceSupportsBluetooth();
-        boolean telephonySupported = deviceSupportsTelephony(mContext);
+        boolean mobileDataSupported = deviceSupportsMobileData(mContext);
         boolean fastChargeSupported = deviceSupportsFastCharge(mContext);
         boolean lteSupported = deviceSupportsLte(mContext);
 
@@ -139,7 +139,7 @@ public class QuickSettingsController {
             TILES_DEFAULT.remove(TILE_BLUETOOTH);
         }
 
-        if (!telephonySupported) {
+        if (!mobileDataSupported) {
             TILES_DEFAULT.remove(TILE_WIFIAP);
             TILES_DEFAULT.remove(TILE_MOBILEDATA);
             TILES_DEFAULT.remove(TILE_NETWORKMODE);
@@ -187,15 +187,15 @@ public class QuickSettingsController {
                 qs = new RingerModeTile(mContext, this);
             } else if (tile.equals(TILE_SYNC)) {
                 qs = new SyncTile(mContext, this);
-            } else if (tile.equals(TILE_WIFIAP) && telephonySupported) {
+            } else if (tile.equals(TILE_WIFIAP) && mobileDataSupported) {
                 qs = new WifiAPTile(mContext, this);
             } else if (tile.equals(TILE_SCREENTIMEOUT)) {
                 qs = new ScreenTimeoutTile(mContext, this);
-            } else if (tile.equals(TILE_MOBILEDATA) && telephonySupported) {
+            } else if (tile.equals(TILE_MOBILEDATA) && mobileDataSupported) {
                 qs = new MobileNetworkTile(mContext, this);
             } else if (tile.equals(TILE_LOCKSCREEN)) {
                 qs = new ToggleLockscreenTile(mContext, this);
-            } else if (tile.equals(TILE_NETWORKMODE) && telephonySupported) {
+            } else if (tile.equals(TILE_NETWORKMODE) && mobileDataSupported) {
                 qs = new MobileNetworkTypeTile(mContext, this);
             } else if (tile.equals(TILE_AUTOROTATE)) {
                 qs = new AutoRotateTile(mContext, this, mHandler);
