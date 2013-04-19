@@ -14,13 +14,19 @@
      limitations under the License.
 -->
 
-<com.android.systemui.statusbar.phone.SettingsPanelView 
+<com.android.systemui.statusbar.phone.SettingsPanelView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/settings_panel"
-    android:background="@drawable/notification_panel_bg"
+    android:background="@drawable/notification_empty_bg"
     >
+
+    <com.android.systemui.statusbar.phone.NotificationWallpaper
+        android:id="@+id/notification_wallpaper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <!-- TODO: Put into ScrollView -->
     <com.android.systemui.statusbar.phone.QuickSettingsScrollView
         android:layout_width="match_parent"

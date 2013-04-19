@@ -37,7 +37,7 @@ class NotificationWallpaper extends FrameLayout {
         setNotificationBackground();
     }
 
-    public void setNotificationBackground() {
+    private void setNotificationBackground() {
         String notifBack = Settings.System.getString(getContext().
                 getContentResolver(), Settings.System.NOTIF_BACKGROUND);
 
@@ -50,7 +50,7 @@ class NotificationWallpaper extends FrameLayout {
                 }
             } else {
                 try {
-                    mNotificationWallpaperImage = new ImageView(getContext());
+                    mNotificationWallpaperImage = new ImageView(mContext);
                     mNotificationWallpaperImage.setScaleType(ScaleType.CENTER_CROP);
                     addView(mNotificationWallpaperImage, -1, -1);
                     Context settingsContext = mContext.createPackageContext("com.baked.romcontrol", 0);
@@ -63,7 +63,7 @@ class NotificationWallpaper extends FrameLayout {
                 }
             }
         } else {
-            setBackgroundColor(0xFF000000);
+            setBackground(mContext.getResources().getDrawable(R.drawable.notification_panel_bg));
         }
     }
 
