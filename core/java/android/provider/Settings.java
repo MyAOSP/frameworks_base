@@ -3553,10 +3553,16 @@ public final class Settings {
         public static final String NOTIF_WALLPAPER_ALPHA = "notif_wallpaper_alpha";
 
         /**
-         * Sets the background of the notification pulldown
+         * Sets the background style of the notification pulldown
          * @hide
          */
         public static final String NOTIF_BACKGROUND = "notif_background";
+
+        /**
+         * Sets the color only option of the notification pulldown
+         * @hide
+         */
+        public static final String NOTIF_BACKGROUND_COLOR = "notif_background_color";
 
         /**
          * Disable the hardware keys completely

@@ -16,17 +16,31 @@
 
 package com.android.systemui.statusbar.phone;
 
+import java.io.File;
+import java.io.IOException;
+
 import android.animation.ObjectAnimator;
 import android.animation.TimeAnimator;
 import android.animation.TimeAnimator.TimeListener;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.ContentObserver;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Slog;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 
 import com.android.systemui.R;
 
@@ -78,6 +92,14 @@ public class PanelView extends FrameLayout {
     private int[] mAbsPos = new int[2];
     PanelBar mBar;
 
+    // Notification and settings background
+    private ImageView mNotificationWallpaperImage;
+    private Bitmap bitmapWallpaper;
+    private int mNotifBack;
+    private int mNotifBackColor;
+    private float wallpaperAlpha;
+    private SettingsObserver mSettingsObserver;
+
     private final TimeListener mAnimationCallback = new TimeListener() {
         @Override
         public void onTimeUpdate(TimeAnimator animation, long totalTime, long deltaTime) {
@@ -112,7 +134,7 @@ public class PanelView extends FrameLayout {
             return;
         }
         if (mPeekAnimator == null) {
-            mPeekAnimator = ObjectAnimator.ofFloat(this, 
+            mPeekAnimator = ObjectAnimator.ofFloat(this,
                     "expandedHeight", mPeekHeight)
                 .setDuration(250);
         }
@@ -200,6 +222,10 @@ public class PanelView extends FrameLayout {
 
         mTimeAnimator = new TimeAnimator();
         mTimeAnimator.setTimeListener(mAnimationCallback);
+
+        this.setNotificationBackground();
+
+        mSettingsObserver = new SettingsObserver(new Handler());
     }
 
     private void loadDimens() {
@@ -222,7 +248,7 @@ public class PanelView extends FrameLayout {
 
         mFlingGestureMaxOutputVelocityPx = res.getDimension(R.dimen.fling_gesture_max_output_velocity);
 
-        mPeekHeight = res.getDimension(R.dimen.peek_height) 
+        mPeekHeight = res.getDimension(R.dimen.peek_height)
             + getPaddingBottom() // our window might have a dropshadow
             - (mHandleView == null ? 0 : mHandleView.getPaddingTop()); // the handle might have a topshadow
     }
@@ -371,6 +397,17 @@ public class PanelView extends FrameLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mViewName = getResources().getResourceName(getId());
+        mSettingsObserver.observe();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (bitmapWallpaper != null)
+            bitmapWallpaper.recycle();
+
+        System.gc();
+        mSettingsObserver.unobserve();
     }
 
     public String getName() {
@@ -502,6 +539,57 @@ public class PanelView extends FrameLayout {
             fling(mSelfExpandVelocityPx, /*always=*/ true);
         } else if (DEBUG) {
             if (DEBUG) LOG("skipping expansion: is expanded");
+        }
+    }
+
+    public void setNotificationBackground() {
+        wallpaperAlpha = Settings.System.getFloat(getContext().getContentResolver(),
+                Settings.System.NOTIF_WALLPAPER_ALPHA, 1.0f);
+        mNotifBack = Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.NOTIF_BACKGROUND, 2);
+        mNotifBackColor = Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.NOTIF_BACKGROUND_COLOR, 0xFF000000);
+        if (mNotifBack == 0) {
+            setPadding(0, 0, 0, 0);
+            this.setBackgroundColor(mNotifBackColor);
+        } else if (mNotifBack == 1) {
+            try {
+                Context settingsContext = mContext.createPackageContext("com.baked.romcontrol", 0);
+                String wallpaperFile = settingsContext.getFilesDir() + "/notifwallpaper";
+                bitmapWallpaper = BitmapFactory.decodeFile(wallpaperFile);
+                Drawable d = new BitmapDrawable(getResources(), bitmapWallpaper);
+                d.setAlpha((int) (wallpaperAlpha * 255));
+                setPadding(0, 0, 0, 0);
+                this.setBackground(d);
+            } catch (NameNotFoundException e) {
+            }
+        } else {
+            this.setBackground(mContext.getResources().getDrawable(R.drawable.notification_panel_bg));
+        }
+    }
+
+    class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            getContext().getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NOTIF_BACKGROUND), false, this);
+            getContext().getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NOTIF_BACKGROUND_COLOR), false, this);
+            getContext().getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NOTIF_WALLPAPER_ALPHA), false, this);
+            setNotificationBackground();
+        }
+
+        void unobserve() {
+            getContext().getContentResolver().unregisterContentObserver(this);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            setNotificationBackground();
         }
     }
 }
