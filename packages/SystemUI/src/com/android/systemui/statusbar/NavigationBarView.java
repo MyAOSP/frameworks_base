@@ -187,7 +187,6 @@ public class NavigationBarView extends LinearLayout {
 
     public void setBar(BaseStatusBar phoneStatusBar) {
         mDelegateHelper.setBar(phoneStatusBar);
-        mBar = phoneStatusBar;
     }
 
     @Override
@@ -200,9 +199,6 @@ public class NavigationBarView extends LinearLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (mBar != null) {
-            mBar.onBarTouchEvent(event);
-        }
         return mDelegateHelper.onInterceptTouchEvent(event);
     }
 
@@ -769,7 +765,6 @@ public class NavigationBarView extends LinearLayout {
 
         // force the low profile & disabled states into compliance
         setLowProfile(mLowProfile, false, true /* force */);
-        isRotating = true;
         setDisabledFlags(mDisabledFlags, true /* force */);
         setMenuVisibility(mShowMenu, true /* force */);
         setNavigationIconHints(mNavigationIconHints, true);
