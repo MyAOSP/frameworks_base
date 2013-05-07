@@ -6957,6 +6957,10 @@ public class WindowManagerService extends IWindowManager.Stub
 
     private ApplicationDisplayMetrics updateApplicationDisplayMetricsLocked(
             DisplayContent displayContent) {
+        if (!mDisplayReady) {
+            return null;
+        }
+
         final ApplicationDisplayMetrics m = calculateDisplayMetrics(displayContent);
         final int appWidth = mPolicy.getNonDecorDisplayWidth(m.dw, m.dh, mRotation);
         final int appHeight = mPolicy.getNonDecorDisplayHeight(m.dw, m.dh, mRotation);
