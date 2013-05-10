@@ -83,7 +83,8 @@ public class NavigationBarView extends LinearLayout {
     View mCurrentView = null;
     View[] mRotatedViews = new View[4];
 
-    int mBarSize;
+    float mButtonWidth, mMenuWidth;
+    float mGlowScale = 1.8f;
     boolean mVertical;
     boolean mScreenOn;
 
@@ -242,13 +243,14 @@ public class NavigationBarView extends LinearLayout {
                 ServiceManager.getService(Context.STATUS_BAR_SERVICE));
 
         final Resources res = mContext.getResources();
-        mBarSize = res.getDimensionPixelSize(R.dimen.navigation_bar_size);
         mVertical = false;
         mShowMenu = false;
         mDelegateHelper = new DelegateViewHelper(this);
 
         mBackIcon = NavBarHelpers.getIconImage(mContext, ActionConstant.ACTION_BACK.value());
         mBackAltIcon = ((KeyButtonView)generateKey(false, KEY_BACK_ALT)).getBackImeDrawable();
+        mButtonWidth = res.getDimensionPixelSize(R.dimen.navigation_key_width);
+        mMenuWidth = res.getDimensionPixelSize(R.dimen.navigation_menu_key_width);
     }
 
     private void makeBar() {
@@ -293,7 +295,7 @@ public class NavigationBarView extends LinearLayout {
                 addLightsOutButton(lightsOut, v, landscape && !mLeftyMode, false);
 
                 if (v.getId() == R.id.back){
-                        mBackIcon = v.getDrawable();
+                    mBackIcon = v.getDrawable();
                 }
                 if (mNumberOfButtons == 3 && j != (mNumberOfButtons - 1)) {
                     // add separator view here
@@ -315,6 +317,18 @@ public class NavigationBarView extends LinearLayout {
                 View rightMenuKey = generateKey(landscape, KEY_MENU_RIGHT);
                 addButton(navButtonLayout, rightMenuKey, landscape && !mLeftyMode);
                 addLightsOutButton(lightsOut, rightMenuKey, landscape && !mLeftyMode, true);
+            }
+            if (mCurrentUIMode == 1) {
+                // add spacer views to the outside edges to help with Glowscale cutoff
+                // We'll only do this for Tablet UI for now.  It was suffering the worst from
+                // glowscale cutoff.  I may add some user adjustable padding at a later date that
+                // we'll apply to all styles of NavBar.
+                View spacer = new View(mContext);
+                spacer.setLayoutParams(getSeparatorLayoutParams(landscape));
+                View spacer1 = new View(mContext);
+                spacer1.setLayoutParams(getSeparatorLayoutParams(landscape));
+                navButtonLayout.addView(spacer, 0);
+                navButtonLayout.addView(spacer1);
             }
         }
     }
@@ -347,7 +361,7 @@ public class NavigationBarView extends LinearLayout {
         switch (keyId) {
             case KEY_MENU_RIGHT:
                 v = new KeyButtonView(mContext, null);
-                v.setLayoutParams(getLayoutParams(landscape, (mCurrentUIMode == 1) ? 80 : 40));
+                v.setLayoutParams(getLayoutParams(landscape, (mCurrentUIMode == 1) ? mButtonWidth : mMenuWidth));
 
                 v.setId(R.id.menu);
                 v.setCode(KeyEvent.KEYCODE_MENU);
@@ -365,7 +379,8 @@ public class NavigationBarView extends LinearLayout {
                 break;
             case KEY_MENU_LEFT:
                 v = new KeyButtonView(mContext, null);
-                v.setLayoutParams(getLayoutParams(landscape, (mCurrentUIMode == 1) ? 80 : 40));
+                v.setLayoutParams(getLayoutParams(landscape, (mCurrentUIMode == 1) ? mButtonWidth : mMenuWidth));
+
                 v.setId(R.id.menu_left);
                 v.setCode(KeyEvent.KEYCODE_MENU);
                 if (mCurrentUIMode == 1) {
@@ -382,46 +397,43 @@ public class NavigationBarView extends LinearLayout {
                 break;
             case KEY_BACK_ALT:
                 v = new KeyButtonView(mContext, null);
-                v.setLayoutParams(getLayoutParams(landscape, 80));
+                v.setLayoutParams(getLayoutParams(landscape, mButtonWidth));
                 v.setImageResource(getBackImeIcon());
                 v.setGlowBackground(landscape ? R.drawable.ic_sysbar_highlight_land
                         : R.drawable.ic_sysbar_highlight);
                 v.setTint(true);
 
         }
-
+        v.setCustomGlowScale(mGlowScale);
         return v;
     }
 
     private ExtensibleKeyButtonView generateKey(boolean landscape, String clickAction,
-            String longpress,
-            String iconUri) {
+            String longpress, String iconUri) {
 
-        final int iconSize = 80;
-        ExtensibleKeyButtonView v = null;
-        if (clickAction.equals(ActionConstant.ACTION_RECENTS)) {
-            v = new RecentsKeyButtonView(mContext, null, clickAction, longpress);
-        } else {
-            v = new ExtensibleKeyButtonView(mContext, null, clickAction, longpress);
-        }
-        v.setLayoutParams(getLayoutParams(landscape, iconSize));
+        ExtensibleKeyButtonView v = new ExtensibleKeyButtonView(mContext, null,
+                clickAction, longpress);
+        v.setLayoutParams(getLayoutParams(landscape, mButtonWidth));
         v.setGlowBackground(landscape ? R.drawable.ic_sysbar_highlight_land
                 : R.drawable.ic_sysbar_highlight);
+        v.setCustomGlowScale(mGlowScale);
         return v;
     }
 
-    private LayoutParams getLayoutParams(boolean landscape, float dp) {
-        float px = dp * getResources().getDisplayMetrics().density;
+    private LayoutParams getLayoutParams(boolean landscape, float px) {
         return landscape ?
                 new LayoutParams(LayoutParams.MATCH_PARENT, (int) px, 1f) :
                 new LayoutParams((int) px, LayoutParams.MATCH_PARENT, 1f);
     }
 
     private LayoutParams getSeparatorLayoutParams(boolean landscape) {
-        float px = 25 * getResources().getDisplayMetrics().density;
+        int width = (int) mMenuWidth /2 ;
+        // set the outer separator params to half the width of a menu button
+        // to keep from squeezing in on the navbar too much, but still allow
+        // some breathing room for NavGlow
         return landscape ?
-                new LayoutParams(LayoutParams.MATCH_PARENT, (int) px) :
-                new LayoutParams((int) px, LayoutParams.MATCH_PARENT);
+                new LayoutParams(LayoutParams.MATCH_PARENT, (int) width,1f) :
+                new LayoutParams((int) width, LayoutParams.MATCH_PARENT,1f);
     }
 
     public void notifyScreenOn(boolean screenOn) {
@@ -893,7 +905,10 @@ public class NavigationBarView extends LinearLayout {
             Settings.System.putInt(resolver,
                     Settings.System.NAVIGATION_BAR_BUTTONS_QTY, StockButtonsQty);
         }
-
+        // I would like to figure out a way to dynamically adjust the Glowscale based on
+        // Width of the NavBar vs the number & width of the buttons, but that is proving to be
+        // difficult.  for now, we'll simply adjust the scale based on the number of buttons we have.
+        mGlowScale = 2f - (mNumberOfButtons * 0.1f);
         for (int j = 0; j < 7; j++) {
             mClickActions[j] = Settings.System.getString(resolver,
                     Settings.System.NAVIGATION_CUSTOM_ACTIVITIES[j]);
