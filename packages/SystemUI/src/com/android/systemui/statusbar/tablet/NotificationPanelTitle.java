@@ -77,6 +77,7 @@ public class NotificationPanelTitle extends RelativeLayout implements View.OnCli
             case MotionEvent.ACTION_UP:
                 if (isPressed()) {
                     playSoundEffect(SoundEffectConstants.CLICK);
+                    mPanel.swapPanels();
                     setPressed(false);
                 }
                 break;
@@ -89,6 +90,9 @@ public class NotificationPanelTitle extends RelativeLayout implements View.OnCli
 
     @Override
     public void onClick(View v) {
+        if (mSettingsButton.isEnabled() && v == this) {
+            mPanel.swapPanels();
+        }
     }
 
     @Override

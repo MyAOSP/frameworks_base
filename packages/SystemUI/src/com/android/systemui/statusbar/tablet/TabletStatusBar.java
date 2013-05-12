@@ -258,6 +258,9 @@ public class TabletStatusBar extends BaseStatusBar implements
         mNotificationPanel.setOnTouchListener(
                 new TouchOutsideListener(MSG_CLOSE_NOTIFICATION_PANEL, mNotificationPanel));
 
+        // Add QuickSettings
+        mNotificationPanel.setupQuickSettings(this);
+
         // Bt
         mBluetoothController.addIconView(
                 (ImageView)mNotificationPanel.findViewById(R.id.bluetooth));
@@ -409,6 +412,39 @@ public class TabletStatusBar extends BaseStatusBar implements
         mNotificationHolder.setLayoutParams(new LinearLayout.LayoutParams(0,LayoutParams.MATCH_PARENT,notif));
     }
 
+    private static void copyNotifications(ArrayList<Pair<IBinder, StatusBarNotification>> dest,
+            NotificationData source) {
+        int N = source.size();
+        for (int i = 0; i < N; i++) {
+            NotificationData.Entry entry = source.get(i);
+            dest.add(Pair.create(entry.key, entry.notification));
+        }
+    }
+
+    private void recreateStatusBar() {
+        mRecreating = true;
+        mStatusBarContainer.removeAllViews();
+
+        // extract notifications.
+        int nNotifs = mNotificationData.size();
+        ArrayList<Pair<IBinder, StatusBarNotification>> notifications =
+                new ArrayList<Pair<IBinder, StatusBarNotification>>(nNotifs);
+        copyNotifications(notifications, mNotificationData);
+        mNotificationData.clear();
+
+        mStatusBarContainer.addView(makeStatusBarView());
+        addPanelWindows();
+
+        // recreate notifications.
+        for (int i = 0; i < nNotifs; i++) {
+            Pair<IBinder, StatusBarNotification> notifData = notifications.get(i);
+            addNotificationViews(notifData.first, notifData.second);
+        }
+
+        setAreThereNotifications();
+        mRecreating = false;
+    }
+
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         // detect theme change.
@@ -416,12 +452,7 @@ public class TabletStatusBar extends BaseStatusBar implements
         if (newTheme != null &&
                 (mCurrentTheme == null || !mCurrentTheme.equals(newTheme))) {
             mCurrentTheme = (CustomTheme)newTheme.clone();
-            // restart systemui
-            try {
-                Runtime.getRuntime().exec("pkill -TERM -f com.android.systemui");
-            } catch (IOException e) {
-                // we're screwed here fellas
-            }
+            recreateStatusBar();
         }
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             mLandscape = true;
@@ -491,6 +522,22 @@ public class TabletStatusBar extends BaseStatusBar implements
         mStatusBarView = sb;
 
         sb.setHandler(mHandler);
+
+        try {
+            // Sanity-check that someone hasn't set up the config wrong and asked for a navigation
+            // bar on a tablet that has only the system bar
+            if (mWindowManagerService.hasNavigationBar()) {
+                Slog.e(TAG, "Tablet device cannot show navigation bar and system bar");
+            }
+        } catch (RemoteException ex) {
+        }
+
+        // Overload screen with views that literally do nothing, thank you Google
+        int dummyGravity[] = {Gravity.LEFT, Gravity.TOP, Gravity.RIGHT, Gravity.BOTTOM};
+        for (int i = 0; i < 4; i++) {
+            mPieDummyTrigger[i] = new View(mContext);
+            mWindowManager.addView(mPieDummyTrigger[i], getDummyTriggerLayoutParams(mContext, dummyGravity[i]));
+        }
 
         mBarContents = (ViewGroup) sb.findViewById(R.id.bar_contents);
 
@@ -1051,6 +1098,7 @@ public class TabletStatusBar extends BaseStatusBar implements
         animateCollapsePanels(CommandQueue.FLAG_EXCLUDE_NONE);
     }
 
+    @Override
     public void animateCollapsePanels(int flags) {
         if ((flags & CommandQueue.FLAG_EXCLUDE_NOTIFICATION_PANEL) == 0) {
             mHandler.removeMessages(MSG_CLOSE_NOTIFICATION_PANEL);
@@ -1072,7 +1120,7 @@ public class TabletStatusBar extends BaseStatusBar implements
             mHandler.removeMessages(MSG_CLOSE_COMPAT_MODE_PANEL);
             mHandler.sendEmptyMessage(MSG_CLOSE_COMPAT_MODE_PANEL);
         }
-
+        super.animateCollapsePanels(flags);
     }
 
     @Override

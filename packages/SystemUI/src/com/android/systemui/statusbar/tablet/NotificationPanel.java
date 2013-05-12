@@ -57,6 +57,7 @@ import android.widget.RelativeLayout;
 
 import com.android.systemui.ExpandHelper;
 import com.android.systemui.R;
+import com.android.systemui.statusbar.BaseStatusBar;
 import com.android.systemui.statusbar.phone.PanelBar;
 import com.android.systemui.statusbar.phone.QuickSettings;
 import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
@@ -77,6 +78,7 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
     boolean mShowing;
     boolean mHasClearableNotifications = false;
     int mNotificationCount = 0;
+    NotificationPanelTitle mTitleArea;
     ImageView mSettingsButton;
     ImageView mNotificationButton;
     View mNotificationScroller;
@@ -88,6 +90,18 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
     Interpolator mAccelerateInterpolator = new AccelerateInterpolator();
     Interpolator mDecelerateInterpolator = new DecelerateInterpolator();
 
+    // amount to slide mContentParent down by when mContentFrame is missing
+    float mContentFrameMissingTranslation;
+
+    private Handler mHandler;
+    Choreographer mChoreo = new Choreographer();
+
+    final int FLIP_DURATION_OUT = 125;
+    final int FLIP_DURATION_IN = 225;
+    final int FLIP_DURATION = (FLIP_DURATION_IN + FLIP_DURATION_OUT);
+    Animator mScrollViewAnim, mFlipSettingsViewAnim, mNotificationButtonAnim,
+    mSettingsButtonAnim, mClearButtonAnim;
+
     // settings
     QuickSettingsController mQS;
     boolean mHasSettingsPanel, mHasFlipSettings;
@@ -97,18 +111,20 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
     int mSettingsPanelGravity;
     boolean mNotificationPanelIsFullScreenWidth;
 
-    // amount to slide mContentParent down by when mContentFrame is missing
-    float mContentFrameMissingTranslation;
+    public QuickSettingsCallback mCallback;
     private TilesChangedObserver mTilesChangedObserver;
-    private Handler mHandler;
 
-    Choreographer mChoreo = new Choreographer();
+    // Simple callback used to provide a bar to QuickSettings
+    class QuickSettingsCallback extends PanelBar {
+        public QuickSettingsCallback(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
 
-    final int FLIP_DURATION_OUT = 125;
-    final int FLIP_DURATION_IN = 225;
-    final int FLIP_DURATION = (FLIP_DURATION_IN + FLIP_DURATION_OUT);
-    Animator mScrollViewAnim, mFlipSettingsViewAnim, mNotificationButtonAnim,
-    mSettingsButtonAnim, mClearButtonAnim;
+        @Override
+        public void collapseAllPanels(boolean animate) {
+            mBar.animateCollapsePanels();
+        }
+    }
 
     public NotificationPanel(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
@@ -120,16 +136,6 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
 
     public void setBar(TabletStatusBar b) {
         mBar = b;
-        // Since we are putting QuickSettings inside the NoticationPanel for TabletBar.
-        // we can't set the services on inflate.  Need to wait until the StatusBar gets attached to
-        // notification Panel.
-        if (mQS != null && mBar != null) {
-            mQS.setService(mBar);
-            mQS.setBar(mBar.mStatusBarView);
-            mQS.setupQuickSettings();
-            //mQS.setup(mBar.mNetworkController, mBar.mBluetoothController, mBar.mBatteryController,
-            //    mBar.mLocationController);
-        }
     }
 
     @Override
@@ -140,6 +146,8 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
 
         mContentParent = (ViewGroup)findViewById(R.id.content_parent);
         mContentParent.bringToFront();
+        mTitleArea = (NotificationPanelTitle) findViewById(R.id.title_area);
+        mTitleArea.setPanel(this);
 
         mNotificationScroller = findViewById(R.id.notification_scroller);
         mContentFrame = (ViewGroup)findViewById(R.id.content_frame);
@@ -215,10 +223,7 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
                 }
             }
 
-            // wherever you find it, Quick Settings needs a container to survive
-            mSettingsContainer = (QuickSettingsContainerView) findViewById(R.id.quick_settings_container);
             if (mSettingsContainer != null) {
-                mQS = new QuickSettingsController(mContext, mSettingsContainer, mBar);
                 if (!mNotificationPanelIsFullScreenWidth) {
                     mSettingsContainer.setSystemUiVisibility(
                             View.STATUS_BAR_DISABLE_NOTIFICATION_TICKER
@@ -230,10 +235,6 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
             } else {
                 mQS = null; // fly away, be free
             }
-
-            // Start observing for changes
-            mTilesChangedObserver = new TilesChangedObserver(mHandler);
-            mTilesChangedObserver.startObserving();
         }
     }
 
@@ -371,6 +372,9 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
 
     @Override
     public void onClick(View v) {
+        if (mSettingsButton.isEnabled() && v == mTitleArea) {
+            swapPanels();
+        }
     }
 
     public void setNotificationCount(int n) {
@@ -378,6 +382,10 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
     }
 
     public void setContentFrameVisible(final boolean showing, boolean animate) {
+    }
+
+    public void swapPanels() {
+        flipPanels();
     }
 
     public void updateClearButton() {
@@ -415,6 +423,21 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         mContext.startActivityAsUser(intent, new UserHandle(UserHandle.USER_CURRENT));
         mBar.animateCollapsePanels();
+    }
+
+    public void setupQuickSettings(BaseStatusBar statusBar) {
+        mCallback = new QuickSettingsCallback(mContext, null);
+        mCallback.setStatusBar(statusBar);
+        // Add Quick Settings
+        mSettingsContainer = (QuickSettingsContainerView) findViewById(R.id.quick_settings_container);
+        mQS = new QuickSettingsController(mContext, mSettingsContainer, mBar);
+        mQS.setService(statusBar);
+        mQS.setBar(mCallback);
+        mQS.setupQuickSettings();
+
+        // Start observing for changes
+        mTilesChangedObserver = new TilesChangedObserver(mHandler);
+        mTilesChangedObserver.startObserving();
     }
 
     public void animateExpandSettingsPanel() {
@@ -489,10 +512,6 @@ public class NotificationPanel extends RelativeLayout implements StatusBarPanel,
                 flipToNotifications();
             }
         }
-    }
-
-    public void animateCollapseQuickSettings() {
-        mBar.mStatusBarView.collapseAllPanels(true);
     }
 
     public void flipToNotifications() {
