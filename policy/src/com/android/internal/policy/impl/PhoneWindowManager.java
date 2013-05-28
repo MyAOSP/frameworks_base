@@ -2579,7 +2579,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 }
                 if (repeatCount == 0) {
                     mAppSwitchLongPressed = false;
-                    showOrHideRecentAppsDialog(RECENT_APPS_BEHAVIOR_SHOW_OR_DISMISS);
                 } else if (longPress) {
                     if (mRecentAppsPreloaded &&
                             mLongPressOnAppSwitchBehavior != KEY_ACTION_APP_SWITCH) {
