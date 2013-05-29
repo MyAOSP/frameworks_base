@@ -2370,7 +2370,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     /** {@inheritDoc} */
     @Override
     public long interceptKeyBeforeDispatching(WindowState win, KeyEvent event, int policyFlags) {
-	ContentResolver resolver = mContext.getContentResolver();
         final boolean keyguardOn = keyguardOn();
         final int keyCode = event.getKeyCode();
         final int repeatCount = event.getRepeatCount();
@@ -2380,8 +2379,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean canceled = event.isCanceled();
         final boolean longPress = ((flags & KeyEvent.FLAG_LONG_PRESS) == KeyEvent.FLAG_LONG_PRESS);
         final int scanCode = event.getScanCode();
-        boolean keyRebindingEnabled = Settings.System.getInt(resolver,
-                    Settings.System.HARDWARE_KEY_REBINDING, 0) == 1;	
+
         if (DEBUG_INPUT) {
             Log.d(TAG, "interceptKeyTi keyCode=" + keyCode + " down=" + down + " repeatCount="
                     + repeatCount + " keyguardOn=" + keyguardOn + " mHomePressed=" + mHomePressed
@@ -2581,9 +2579,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 }
                 if (repeatCount == 0) {
                     mAppSwitchLongPressed = false;
-		    if (!keyRebindingEnabled) {
-                    	showOrHideRecentAppsDialog(RECENT_APPS_BEHAVIOR_SHOW_OR_DISMISS);
-		    }
                 } else if (longPress) {
                     if (mRecentAppsPreloaded &&
                             mLongPressOnAppSwitchBehavior != KEY_ACTION_APP_SWITCH) {
