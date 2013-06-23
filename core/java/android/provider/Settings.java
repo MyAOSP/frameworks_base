@@ -3261,10 +3261,16 @@ public final class Settings {
         };
 
         /**
-         * Pie controls, should enough to dumb users
+         * Pie controls
          * @hide
          */
         public static final String PIE_CONTROLS = "pie_controls";
+
+        /**
+         * Pie control override for enabling pie anytime
+         * @hide
+         */
+        public static final String PIE_CONTROL_OVERRIDE = "pie_control_override";
 
         /**
          * Restart Launcher

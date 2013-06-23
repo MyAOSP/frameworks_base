@@ -202,6 +202,8 @@ public abstract class BaseStatusBar extends SystemUI implements
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.PIE_CONTROLS), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.PIE_CONTROL_OVERRIDE), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.PIE_MODE), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.PIE_GRAVITY), false, this);
@@ -425,8 +427,13 @@ public abstract class BaseStatusBar extends SystemUI implements
                 Settings.System.PIE_CONTROLS, 0);
         boolean expanded = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.EXPANDED_DESKTOP_STATE, 0) == 1;
-
-        return (pie == 1 && expanded) || pie == 2;
+        boolean alwaysShowPie = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.PIE_CONTROL_OVERRIDE, 0) == 1;
+        if (alwaysShowPie) {
+            return (pie == 1) || pie == 2;
+        } else {
+            return (pie == 1 && expanded) || pie == 2;
+        }
     }
 
     public void updatePieControls() {
