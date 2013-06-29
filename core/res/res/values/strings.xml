@@ -4114,4 +4114,10 @@
     <string name="action_alarm">Alarm</string>
     <string name="action_null">Blank</string>
     <string name="action_app">Custom App/Shortcut</string>
+
+    <!-- The title of the profile picker dialog. -->
+    <string name="profile_picker_title">Profiles</string>
+
+    <!-- The item label for the no profile selection item. -->
+    <string name="profile_none">None</string>
 </resources>
