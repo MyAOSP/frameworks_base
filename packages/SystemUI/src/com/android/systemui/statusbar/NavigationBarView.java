@@ -88,6 +88,13 @@ public class NavigationBarView extends LinearLayout {
     boolean mVertical;
     boolean mScreenOn;
 
+    // Custom background
+    int mBgStyle;
+    int mNbBgColor;
+    ContentResolver resolver;
+    Resources res;
+    int mNavbarIconStyle = 0;
+
     boolean mHidden, mLowProfile, mShowMenu;
     int mDisabledFlags = 0;
     int mNavigationIconHints = 0;
@@ -112,7 +119,6 @@ public class NavigationBarView extends LinearLayout {
      * 2 = Phablet UI
      */
     int mCurrentUIMode = 0;
-    int mNavbarIconStyle = 0;
 
     public String[] mClickActions = new String[7];
     public String[] mLongpressActions = new String[7];
@@ -235,6 +241,8 @@ public class NavigationBarView extends LinearLayout {
         mWindowManagerService = WindowManagerGlobal.getWindowManagerService();
 
         mContext = context;
+        resolver = mContext.getContentResolver();
+        res = mContext.getResources();
         mHidden = false;
 
         mDisplay = ((WindowManager)context.getSystemService(
@@ -242,13 +250,13 @@ public class NavigationBarView extends LinearLayout {
         mBarService = IStatusBarService.Stub.asInterface(
                 ServiceManager.getService(Context.STATUS_BAR_SERVICE));
 
-        final Resources res = mContext.getResources();
         mVertical = false;
         mShowMenu = false;
         mDelegateHelper = new DelegateViewHelper(this);
 
         mBackIcon = NavBarHelpers.getIconImage(mContext, ActionConstant.ACTION_BACK.value());
-        mBackAltIcon = ((KeyButtonView)generateKey(false, KEY_BACK_ALT)).getBackImeDrawable();
+        mBackAltIcon = ((KeyButtonView)generateKey(false, KEY_BACK_ALT))
+                .getBackImeDrawable(mNavbarIconStyle);
         mButtonWidth = res.getDimensionPixelSize(R.dimen.navigation_key_width);
         mMenuWidth = res.getDimensionPixelSize(R.dimen.navigation_menu_key_width);
     }
@@ -366,10 +374,11 @@ public class NavigationBarView extends LinearLayout {
                 v.setId(R.id.menu);
                 v.setCode(KeyEvent.KEYCODE_MENU);
                 if (mCurrentUIMode == 1) {
-                    v.setImageResource(getMenuBigIcon());
+                    v.setImageResource(getNavbarIconStyle(mNavbarIconStyle, "menu_big"));
                     v.setVisibility(View.GONE);
                 } else {
-                    v.setImageResource(landscape ? getMenuLandIcon() : getMenuIcon());
+                    v.setImageResource(landscape ? getNavbarIconStyle(mNavbarIconStyle, "menu_land") :
+                            getNavbarIconStyle(mNavbarIconStyle, "menu"));
                     v.setVisibility(View.INVISIBLE);
                 }
                 v.setContentDescription(r.getString(R.string.accessibility_menu));
@@ -384,10 +393,11 @@ public class NavigationBarView extends LinearLayout {
                 v.setId(R.id.menu_left);
                 v.setCode(KeyEvent.KEYCODE_MENU);
                 if (mCurrentUIMode == 1) {
-                    v.setImageResource(getMenuBigIcon());
+                    v.setImageResource(getNavbarIconStyle(mNavbarIconStyle, "menu_big"));
                     v.setVisibility(View.GONE);
                 } else {
-                    v.setImageResource(landscape ? getMenuLandIcon() : getMenuIcon());
+                    v.setImageResource(landscape ? getNavbarIconStyle(mNavbarIconStyle, "menu_land") :
+                            getNavbarIconStyle(mNavbarIconStyle, "menu"));
                     v.setVisibility(View.INVISIBLE);
                 }
                 v.setContentDescription(r.getString(R.string.accessibility_menu));
@@ -398,7 +408,7 @@ public class NavigationBarView extends LinearLayout {
             case KEY_BACK_ALT:
                 v = new KeyButtonView(mContext, null);
                 v.setLayoutParams(getLayoutParams(landscape, mButtonWidth));
-                v.setImageResource(getBackImeIcon());
+                v.setImageResource(getNavbarIconStyle(mNavbarIconStyle, "back"));
                 v.setGlowBackground(landscape ? R.drawable.ic_sysbar_highlight_land
                         : R.drawable.ic_sysbar_highlight);
                 v.setTint(true);
@@ -590,11 +600,15 @@ public class NavigationBarView extends LinearLayout {
                 localShow = true;
             case VISIBILITY_SYSTEM:
                 if (mCurrentUIMode == 1) {
-                    rightButton.setImageResource(getMenuBigIcon());
-                    leftButton.setImageResource(getMenuBigIcon());
+                    rightButton.setImageResource(getNavbarIconStyle(mNavbarIconStyle, "menu_big"));
+                    leftButton.setImageResource(getNavbarIconStyle(mNavbarIconStyle, "menu_big"));
                 } else {
-                    rightButton.setImageResource(mVertical ? getMenuLandIcon() : getMenuIcon());
-                    leftButton.setImageResource(mVertical ? getMenuLandIcon() : getMenuIcon());
+                    rightButton.setImageResource(mVertical ?
+                            getNavbarIconStyle(mNavbarIconStyle, "menu_land") :
+                            getNavbarIconStyle(mNavbarIconStyle, "menu"));
+                    leftButton.setImageResource(mVertical ?
+                            getNavbarIconStyle(mNavbarIconStyle, "menu_land") :
+                            getNavbarIconStyle(mNavbarIconStyle, "menu"));
                 }
                 break;
             case VISIBILITY_NEVER:
@@ -605,11 +619,15 @@ public class NavigationBarView extends LinearLayout {
             case VISIBILITY_SYSTEM_AND_INVIZ:
                 if (localShow) {
                     if (mCurrentUIMode == 1) {
-                        rightButton.setImageResource(getMenuBigIcon());
-                        leftButton.setImageResource(getMenuBigIcon());
+                        rightButton.setImageResource(getNavbarIconStyle(mNavbarIconStyle, "menu_big"));
+                        leftButton.setImageResource(getNavbarIconStyle(mNavbarIconStyle, "menu_big"));
                     } else {
-                        rightButton.setImageResource(mVertical ? getMenuLandIcon() : getMenuIcon());
-                        leftButton.setImageResource(mVertical ? getMenuLandIcon() : getMenuIcon());
+                        rightButton.setImageResource(mVertical ?
+                                getNavbarIconStyle(mNavbarIconStyle, "menu_land") :
+                                getNavbarIconStyle(mNavbarIconStyle, "menu"));
+                        leftButton.setImageResource(mVertical ?
+                                getNavbarIconStyle(mNavbarIconStyle, "menu_land") :
+                                getNavbarIconStyle(mNavbarIconStyle, "menu"));
                     }
                 } else {
                     localShow = true;
@@ -741,14 +759,18 @@ public class NavigationBarView extends LinearLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        mSettingsObserver.observe();
+        if (mSettingsObserver != null) {
+            mSettingsObserver.observe();
+        }
         updateSettings();
     }
 
     @Override
     protected void onDetachedFromWindow() {
-        mContext.getContentResolver().unregisterContentObserver(mSettingsObserver);
         super.onDetachedFromWindow();
+        if (mSettingsObserver != null) {
+            mSettingsObserver.unobserve();
+        }
     }
 
     public void reorient() {
@@ -822,8 +844,6 @@ public class NavigationBarView extends LinearLayout {
         }
 
         void observe() {
-            ContentResolver resolver = mContext.getContentResolver();
-
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.MENU_LOCATION), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
@@ -852,6 +872,10 @@ public class NavigationBarView extends LinearLayout {
             updateNavigationBarBackground();
         }
 
+        void unobserve() {
+            resolver.unregisterContentObserver(this);
+        }
+
         @Override
         public void onChange(boolean selfChange) {
             updateSettings();
@@ -860,34 +884,16 @@ public class NavigationBarView extends LinearLayout {
     }
 
     protected void updateNavigationBarBackground() {
-        try {
-            boolean showNav = mWindowManagerService.hasNavigationBar();
-            if (showNav) {
-                // NavigationBar background color
-                int defaultBg = Settings.System.getInt(mContext.getContentResolver(),
-                        Settings.System.NAVIGATION_BAR_BACKGROUND_STYLE, 2);
-                int navbarBackgroundColor = Settings.System.getInt(mContext.getContentResolver(),
-                        Settings.System.NAVIGATION_BAR_BACKGROUND_COLOR, 0xFF000000);
+        // NavigationBar background color
+        mBgStyle = Settings.System.getInt(resolver,
+                Settings.System.NAVIGATION_BAR_BACKGROUND_STYLE, 2);
+        mNbBgColor = Settings.System.getInt(resolver,
+                Settings.System.NAVIGATION_BAR_BACKGROUND_COLOR, 0xFF000000);
 
-                if (defaultBg == 0) {
-                    this.setBackgroundColor(navbarBackgroundColor);
-                } else if (defaultBg == 1) {
-                    this.setBackgroundResource(R.drawable.nav_bar_bg);
-                    this.getBackground().setColorFilter(ColorFilterMaker.
-                            changeColorAlpha(navbarBackgroundColor, .32f, 0f));
-                } else {
-                    this.setBackground(mContext.getResources().getDrawable(
-                            R.drawable.nav_bar_bg));
-                }
-            }
-        } catch (RemoteException ex) {
-            // no window manager? good luck with that
-        }
+        getBackgroundStyle(mBgStyle);
     }
 
     protected void updateSettings() {
-        ContentResolver resolver = mContext.getContentResolver();
-
         mMenuLocation = Settings.System.getInt(resolver,
                 Settings.System.MENU_LOCATION, SHOW_RIGHT_MENU);
         mMenuVisbility = Settings.System.getInt(resolver,
@@ -937,42 +943,75 @@ public class NavigationBarView extends LinearLayout {
         setMenuVisibility(mShowMenu);
     }
 
-    private int getBackImeIcon() {
-        int resId;
-        if (mNavbarIconStyle != 0) {
-            resId = R.drawable.ic_sysbar_alt_back_ime;
-        } else {
-            resId = R.drawable.ic_sysbar_back_ime;
+    private void getBackgroundStyle(int style) {
+        try {
+            boolean showNav = mWindowManagerService.hasNavigationBar();
+            if (showNav) {
+                switch (style) {
+                    case 0:
+                        setBackgroundColor(mNbBgColor);
+                        break;
+                    case 1:
+                        setBackgroundResource(R.drawable.nav_bar_bg);
+                        getBackground().setColorFilter(ColorFilterMaker.
+                                changeColorAlpha(mNbBgColor, .32f, 0f));
+                        break;
+                    case 2:
+                    default:
+                        setBackground(res.getDrawable(
+                                R.drawable.nav_bar_bg));
+                        break;
+                }
+            }
+        } catch (RemoteException ex) {
+            // no window manager? good luck with that
         }
-        return resId;
     }
 
-    private int getMenuIcon() {
+    private int getNavbarIconStyle(int style, String string) {
         int resId;
-        if (mNavbarIconStyle != 0) {
-            resId = R.drawable.ic_sysbar_alt_menu;
-        } else {
-            resId = R.drawable.ic_sysbar_menu;
+        string = "back";
+        switch (style) {
+            case 0:
+            default:
+                resId = R.drawable.ic_sysbar_back_ime;
+                break;
+            case 1:
+                resId = R.drawable.ic_stock_sysbar_back_ime;
+                break;
         }
-        return resId;
-    }
 
-    private int getMenuLandIcon() {
-        int resId;
-        if (mNavbarIconStyle != 0) {
-            resId = R.drawable.ic_sysbar_alt_menu_land;
-        } else {
-            resId = R.drawable.ic_sysbar_menu_land;
+        string = "menu";
+        switch (style) {
+            case 0:
+            default:
+                resId = R.drawable.ic_sysbar_menu;
+                break;
+            case 1:
+                resId = R.drawable.ic_stock_sysbar_menu;
+                break;
         }
-        return resId;
-    }
 
-    private int getMenuBigIcon() {
-        int resId;
-        if (mNavbarIconStyle != 0) {
-            resId = R.drawable.ic_sysbar_alt_menu_big;
-        } else {
-            resId = R.drawable.ic_sysbar_menu_big;
+        string = "menu_land";
+        switch (style) {
+            case 0:
+            default:
+                resId = R.drawable.ic_sysbar_menu_land;
+                break;
+            case 1:
+                resId = R.drawable.ic_stock_sysbar_menu_land;
+                break;
+        }
+
+        string = "menu_big";
+        switch (style) {
+            case 0:
+            default:
+                resId = R.drawable.ic_sysbar_menu_big;
+                break;
+            case 1:
+                resId = R.drawable.ic_stock_sysbar_menu_big;
+                break;
         }
         return resId;
     }

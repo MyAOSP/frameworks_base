@@ -214,7 +214,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_home");
                 } else {
                     value = getSystemUIDrawable(context,
-                            "com.android.systemui:drawable/ic_sysbar_alt_home");
+                            "com.android.systemui:drawable/ic_stock_sysbar_home");
                 }
                 break;
             case ACTION_BACK:
@@ -223,7 +223,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_back");
                 } else {
                     value = getSystemUIDrawable(context,
-                            "com.android.systemui:drawable/ic_sysbar_alt_back");
+                            "com.android.systemui:drawable/ic_stock_sysbar_back");
                 }
                 break;
             case ACTION_RECENTS:
@@ -232,7 +232,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_recent");
                 } else {
                     value = getSystemUIDrawable(context,
-                            "com.android.systemui:drawable/ic_sysbar_alt_recent");
+                            "com.android.systemui:drawable/ic_stock_sysbar_recent");
                 }
                 break;
             case ACTION_RECENTS_GB:
@@ -241,7 +241,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_recent_gb");
                 } else {
                     value = getSystemUIDrawable(context,
-                            "com.android.systemui:drawable/ic_sysbar_alt_recent_gb");
+                            "com.android.systemui:drawable/ic_stock_sysbar_recent_gb");
                 }
                 break;
             case ACTION_SEARCH:
@@ -250,7 +250,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_search");
                 } else {
                     value = getSystemUIDrawable(context,
-                            "com.android.systemui:drawable/ic_sysbar_alt_search");
+                            "com.android.systemui:drawable/ic_stock_sysbar_search");
                 }
                 break;
             /*case ACTION_SCREENSHOT:
@@ -262,7 +262,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_menu_big");
                 } else {
                     value = getSystemUIDrawable(context,
-                            "com.android.systemui:drawable/ic_sysbar_alt_menu_big");
+                            "com.android.systemui:drawable/ic_stock_sysbar_menu_big");
                 }
                 break;
             case ACTION_IME:
@@ -271,7 +271,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_ime_switcher");
                 } else {
                     value = getSystemUIDrawable(context,
-                            "com.android.systemui:drawable/ic_sysbar_alt_ime_switcher");
+                            "com.android.systemui:drawable/ic_stock_sysbar_ime_switcher");
                 }
                 break;
             case ACTION_KILL:
@@ -280,7 +280,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_killtask");
                 } else {
                     value = getSystemUIDrawable(context,
-                            "com.android.systemui:drawable/ic_sysbar_alt_killtask");
+                            "com.android.systemui:drawable/ic_stock_sysbar_killtask");
                 }
                 break;
             case ACTION_LAST_APP:
@@ -289,7 +289,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_lastapp");
                 } else {
                     value = getSystemUIDrawable(context,
-                            "com.android.systemui:drawable/ic_sysbar_alt_lastapp");
+                            "com.android.systemui:drawable/ic_stock_sysbar_lastapp");
                 }
                 break;
             case ACTION_POWER:
@@ -298,7 +298,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_power");
                 } else {
                     value = getSystemUIDrawable(context,
-                            "com.android.systemui:drawable/ic_sysbar_alt_power");
+                            "com.android.systemui:drawable/ic_stock_sysbar_power");
                 }
                 break;
             case ACTION_NOTIFICATIONS:
@@ -307,7 +307,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_notifications");
                 } else {
                     value = getSystemUIDrawable(context,
-                            "com.android.systemui:drawable/ic_sysbar_alt_notifications");
+                            "com.android.systemui:drawable/ic_stock_sysbar_notifications");
                 }
                 break;
             case ACTION_ASSIST:
@@ -316,7 +316,7 @@ public class ActionConstants {
                                 "com.android.systemui:drawable/ic_sysbar_assist");
                 } else {
                     value = getSystemUIDrawable(context,
-                                "com.android.systemui:drawable/ic_sysbar_alt_assist");
+                                "com.android.systemui:drawable/ic_stock_sysbar_assist");
                 }
                 break;
             case ACTION_CLOCKOPTIONS:
@@ -325,7 +325,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_clockoptions");
                 } else {
                     value = getSystemUIDrawable(context,
-                                "com.android.systemui:drawable/ic_sysbar_alt_clockoptions");
+                                "com.android.systemui:drawable/ic_stock_sysbar_clockoptions");
                 }
                 break;
             case ACTION_VOICEASSIST:
@@ -334,7 +334,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_voiceassist");
                 } else {
                     value = getSystemUIDrawable(context,
-                                "com.android.systemui:drawable/ic_sysbar_alt_voiceassist");
+                                "com.android.systemui:drawable/ic_stock_sysbar_voiceassist");
                 }
                 break;
             case ACTION_TORCH:
@@ -343,7 +343,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_torch");
                 } else {
                     value = getSystemUIDrawable(context,
-                                "com.android.systemui:drawable/ic_sysbar_alt_torch");
+                                "com.android.systemui:drawable/ic_stock_sysbar_torch");
                 }
                 break;
             case ACTION_SILENT:
@@ -352,7 +352,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_silent");
                 } else {
                     value = getSystemUIDrawable(context,
-                                "com.android.systemui:drawable/ic_sysbar_alt_silent");
+                                "com.android.systemui:drawable/ic_stock_sysbar_silent");
                 }
                 break;
             case ACTION_VIB:
@@ -361,7 +361,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_vib");
                 } else {
                     value = getSystemUIDrawable(context,
-                                "com.android.systemui:drawable/ic_sysbar_alt_vib");
+                                "com.android.systemui:drawable/ic_stock_sysbar_vib");
                 }
                 break;
             case ACTION_SILENT_VIB:
@@ -370,7 +370,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_silent_vib");
                 } else {
                     value = getSystemUIDrawable(context,
-                                "com.android.systemui:drawable/ic_sysbar_alt_silent_vib");
+                                "com.android.systemui:drawable/ic_stock_sysbar_silent_vib");
                 }
                 break;
             case ACTION_EVENT:
@@ -379,7 +379,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_event");
                 } else {
                     value = getSystemUIDrawable(context,
-                                "com.android.systemui:drawable/ic_sysbar_alt_event");
+                                "com.android.systemui:drawable/ic_stock_sysbar_event");
                 }
                 break;
             case ACTION_TODAY:
@@ -388,7 +388,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_today");
                 } else {
                     value = getSystemUIDrawable(context,
-                                "com.android.systemui:drawable/ic_sysbar_alt_today");
+                                "com.android.systemui:drawable/ic_stock_sysbar_today");
                 }
                 break;
             case ACTION_ALARM:
@@ -397,7 +397,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_alarm");
                 } else {
                     value = getSystemUIDrawable(context,
-                                "com.android.systemui:drawable/ic_sysbar_alt_alarm");
+                                "com.android.systemui:drawable/ic_stock_sysbar_alarm");
                 }
                 break;
             case ACTION_APP: // APP doesn't really have an icon - it should look up
@@ -409,7 +409,7 @@ public class ActionConstants {
                             "com.android.systemui:drawable/ic_sysbar_null");
                 } else {
                     value = getSystemUIDrawable(context,
-                                "com.android.systemui:drawable/ic_sysbar_alt_null");
+                                "com.android.systemui:drawable/ic_stock_sysbar_null");
                 }
                 break;
 

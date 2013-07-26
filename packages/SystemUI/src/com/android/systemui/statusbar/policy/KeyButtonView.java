@@ -69,8 +69,6 @@ public class KeyButtonView extends ImageView {
     RectF mRect = new RectF(0f,0f,0f,0f);
     AnimatorSet mPressedAnim;
 
-    int mNavbarIconStyle;
-
     Runnable mCheckLongPress = new Runnable() {
         public void run() {
             if (isPressed()) {
@@ -386,8 +384,6 @@ public class KeyButtonView extends ImageView {
 
     protected void updateSettings() {
         ContentResolver resolver = mContext.getContentResolver();
-        mNavbarIconStyle = Settings.System.getInt(resolver,
-                Settings.System.NAVIGATION_BAR_ICON_STYLE, 0);
         mDurationSpeedOff = Settings.System.getInt(resolver,
                 Settings.System.NAVIGATION_BAR_GLOW_DURATION[0], 10);
         mDurationSpeedOn = Settings.System.getInt(resolver,
@@ -409,12 +405,16 @@ public class KeyButtonView extends ImageView {
         invalidate();
     }
 
-    public Drawable getBackImeDrawable() {
+    public Drawable getBackImeDrawable(int style) {
         Drawable backIme;
-        if (mNavbarIconStyle != 0) {
-            backIme = mContext.getResources().getDrawable(R.drawable.ic_sysbar_alt_back_ime);
-        } else {
-            backIme = mContext.getResources().getDrawable(R.drawable.ic_sysbar_back_ime);
+        switch (style) {
+            case 0:
+            default:
+                backIme = mContext.getResources().getDrawable(R.drawable.ic_sysbar_back_ime);
+                break;
+            case 1:
+                backIme = mContext.getResources().getDrawable(R.drawable.ic_stock_sysbar_back_ime);
+                break;
         }
         return backIme;
     }
