@@ -161,6 +161,17 @@ class TelephonyIcons {
               R.drawable.stat_sys_data_fully_connected_4g }
         };
 
+    // Actual LTE
+    static final int[][] DATA_4GLTE = {
+            { R.drawable.stat_sys_data_connected_4glte,
+              R.drawable.stat_sys_data_connected_4glte,
+              R.drawable.stat_sys_data_connected_4glte,
+              R.drawable.stat_sys_data_connected_4glte },
+            { R.drawable.stat_sys_data_fully_connected_4glte,
+              R.drawable.stat_sys_data_fully_connected_4glte,
+              R.drawable.stat_sys_data_fully_connected_4glte,
+              R.drawable.stat_sys_data_fully_connected_4glte }
+        };
+
 
 }
-
