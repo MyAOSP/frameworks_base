@@ -106,7 +106,7 @@ public class Action {
                 injectKeyDelayed(KeyEvent.KEYCODE_SEARCH);
                 break;
             case ACTION_RECENTS_GB:
-                injectKeyDelayed(KeyEvent.KEYCODE_APP_SWITCH);
+                injectKeyDelayed(KeyEvent.KEYCODE_APP_SWITCH_GB);
                 break;
             case ACTION_KILL:
                 KillTask mKillTask = new KillTask(mContext);

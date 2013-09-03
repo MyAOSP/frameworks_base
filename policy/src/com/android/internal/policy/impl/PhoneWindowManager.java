@@ -2652,6 +2652,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     mHandler.removeCallbacks(mBackLongPress);
                 }
             }
+        } else if (keyCode == KeyEvent.KEYCODE_APP_SWITCH_GB) {
+            if (down) {
+                showOrHideRecentAppsDialog(RECENT_APPS_BEHAVIOR_SHOW_OR_DISMISS);
+            }
         }
 
         // Shortcuts are invoked through Search+key, so intercept those here
