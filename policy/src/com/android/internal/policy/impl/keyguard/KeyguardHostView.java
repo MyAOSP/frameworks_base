@@ -341,7 +341,7 @@ public class KeyguardHostView extends KeyguardViewBase {
                 String wallpaperFile = settingsContext.getFilesDir() + "/lockwallpaper";
                 Bitmap backgroundBitmap = BitmapFactory.decodeFile(wallpaperFile);
                 Drawable d = new BitmapDrawable(getContext().getResources(), backgroundBitmap);
-                d.setAlpha((int) (wallpaperAlpha *255));
+                d.setAlpha((int) (wallpaperAlpha * 255));
                 setBackgroundDrawable(d);
             } catch (NameNotFoundException e) {
             // Do nothing here
@@ -1021,7 +1021,7 @@ public class KeyguardHostView extends KeyguardViewBase {
                 Settings.System.LOCKSCREEN_MAXIMIZE_WIDGETS, 0, UserHandle.USER_CURRENT);
 
         if (setting == 1) {
-            mSlidingChallengeLayout.showChallenge(false);
+            mSlidingChallengeLayout.fadeOutChallenge();
         }
     }
 

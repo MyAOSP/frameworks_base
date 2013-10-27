@@ -227,7 +227,7 @@ public class TabletStatusBar extends BaseStatusBar implements
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                     | WindowManager.LayoutParams.FLAG_TOUCHABLE_WHEN_WAKING
                     | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
-                PixelFormat.OPAQUE);
+                PixelFormat.TRANSLUCENT);
 
         // We explicitly leave FLAG_HARDWARE_ACCELERATED out of the flags.  The status bar occupies
         // very little screen real-estate and is updated fairly frequently.  By using CPU rendering
@@ -666,6 +666,10 @@ public class TabletStatusBar extends BaseStatusBar implements
         xition.setStartDelay(LayoutTransition.DISAPPEARING, 0);
         ((ViewGroup)sb.findViewById(R.id.bar_shadow_holder)).setLayoutTransition(xition);
 
+        mTransparencyManager.setStatusbar(mStatusBarView);
+        mTransparencyManager.setNavbar(mNavBarView);
+        mTransparencyManager.update();
+
         // set the initial view visibility
         setAreThereNotifications();
 
@@ -1048,6 +1052,7 @@ public class TabletStatusBar extends BaseStatusBar implements
                 mHandler.sendEmptyMessage(MSG_CLOSE_RECENTS_PANEL);
            }
         }
+        mTransparencyManager.update();
     }
 
     private void setNavigationVisibility(int visibility) {
@@ -1185,6 +1190,7 @@ public class TabletStatusBar extends BaseStatusBar implements
     }
 
     public void topAppWindowChanged(boolean showMenu) {
+        mTransparencyManager.update();
         if (mPieControlPanel != null)
             mPieControlPanel.setMenu(showMenu);
 

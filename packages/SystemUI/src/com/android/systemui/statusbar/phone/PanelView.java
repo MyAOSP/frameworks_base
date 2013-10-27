@@ -549,22 +549,27 @@ public class PanelView extends FrameLayout {
                 Settings.System.NOTIF_BACKGROUND, 2);
         mNotifBackColor = Settings.System.getInt(getContext().getContentResolver(),
                 Settings.System.NOTIF_BACKGROUND_COLOR, 0xFF000000);
-        if (mNotifBack == 0) {
-            setPadding(0, 0, 0, 0);
-            this.setBackgroundColor(mNotifBackColor);
-        } else if (mNotifBack == 1) {
-            try {
-                Context settingsContext = mContext.createPackageContext("com.baked.romcontrol", 0);
-                String wallpaperFile = settingsContext.getFilesDir() + "/notifwallpaper";
-                bitmapWallpaper = BitmapFactory.decodeFile(wallpaperFile);
-                Drawable d = new BitmapDrawable(getResources(), bitmapWallpaper);
-                d.setAlpha((int) (wallpaperAlpha * 255));
-                setPadding(0, 0, 0, 0);
-                this.setBackground(d);
-            } catch (NameNotFoundException e) {
-            }
-        } else {
-            this.setBackground(mContext.getResources().getDrawable(R.drawable.notification_panel_bg));
+        switch (mNotifBack) {
+            case 0:
+                this.setPadding(0, 0, 0, 0);
+                this.setBackgroundColor(mNotifBackColor);
+                break;
+            case 1:
+                try {
+                    Context settingsContext = mContext.createPackageContext("com.baked.romcontrol", 0);
+                    String wallpaperFile = settingsContext.getFilesDir() + "/notifwallpaper";
+                    bitmapWallpaper = BitmapFactory.decodeFile(wallpaperFile);
+                    Drawable d = new BitmapDrawable(getResources(), bitmapWallpaper);
+                    d.setAlpha((int) (wallpaperAlpha * 255));
+                    setPadding(0, 0, 0, 0);
+                    this.setBackground(d);
+                } catch (NameNotFoundException e) {
+                }
+                break;
+            case 2:
+            default:
+                this.setBackground(mContext.getResources().getDrawable(
+                        R.drawable.notification_panel_bg));
         }
     }
 

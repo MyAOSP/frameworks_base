@@ -51,8 +51,8 @@ public class PhoneStatusBarView extends PanelBar {
     private boolean mShouldFade;
 
     // Custom background
-    int mBgStyle;
-    int mSbBgColor;
+    private int mBgStyle;
+    private int mStatusBarColor;
 
     SettingsObserver mSettingsObserver;
     ContentResolver resolver;
@@ -251,11 +251,10 @@ public class PhoneStatusBarView extends PanelBar {
         if (panel.getAlpha() != alpha) {
             panel.setAlpha(alpha);
         }
-
         mBar.updateCarrierLabelVisibility(false);
     }
 
-    //setup observer to do stuff!
+    // setup observer to do stuff!
     class SettingsObserver extends ContentObserver {
         SettingsObserver(Handler handler) {
             super(handler);
@@ -281,8 +280,8 @@ public class PhoneStatusBarView extends PanelBar {
 
     private void updateSettings() {
         mBgStyle = Settings.System.getInt(resolver,
-                    Settings.System.STATUSBAR_BACKGROUND_STYLE, 2);
-        mSbBgColor = Settings.System.getInt(resolver,
+                Settings.System.STATUSBAR_BACKGROUND_STYLE, 2);
+        mStatusBarColor = Settings.System.getInt(resolver,
                 Settings.System.STATUSBAR_BACKGROUND_COLOR, 0xFF000000);
 
         getBackgroundStyle(mBgStyle);
@@ -291,12 +290,12 @@ public class PhoneStatusBarView extends PanelBar {
     public void getBackgroundStyle(int style) {
         switch (style) {
             case 0:
-                setBackgroundColor(mSbBgColor);
+                setBackgroundColor(mStatusBarColor);
                 break;
             case 1:
                 setBackgroundResource(R.drawable.status_bar_background);
                 getBackground().setColorFilter(ColorFilterMaker.
-                        changeColorAlpha(mSbBgColor, .32f, 0f));
+                        changeColorAlpha(mStatusBarColor, .32f, 0f));
                 break;
             case 2:
             default:

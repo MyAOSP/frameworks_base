@@ -31,7 +31,9 @@ import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.ColorFilterMaker;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -62,6 +64,7 @@ import com.android.internal.util.action.NavBarHelpers;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar;
 import com.android.systemui.statusbar.DelegateViewHelper;
+import com.android.systemui.statusbar.TransparencyManager;
 import com.android.systemui.statusbar.policy.KeyButtonView;
 import com.android.systemui.statusbar.policy.ExtensibleKeyButtonView;
 import com.android.systemui.statusbar.policy.RecentsKeyButtonView;
@@ -89,11 +92,17 @@ public class NavigationBarView extends LinearLayout {
     boolean mScreenOn;
 
     // Custom background
-    int mBgStyle;
-    int mNbBgColor;
-    ContentResolver resolver;
-    Resources res;
-    int mNavbarIconStyle = 0;
+    private int mBgStyle;
+    private int mNbBgColor;
+    private ColorDrawable mBackgroundColorDrawable;
+    private ColorDrawable mOverlayDrawable;
+    private ColorDrawable mSecOverlayDrawable;
+    private ColorDrawable mUnderlayDrawable;
+    private Drawable mBackgroundDrawable;
+
+    private ContentResolver resolver;
+    private Resources res;
+    private int mNavbarIconStyle = 0;
 
     boolean mHidden, mLowProfile, mShowMenu;
     int mDisabledFlags = 0;
@@ -259,6 +268,9 @@ public class NavigationBarView extends LinearLayout {
                 .getBackImeDrawable(mNavbarIconStyle);
         mButtonWidth = res.getDimensionPixelSize(R.dimen.navigation_key_width);
         mMenuWidth = res.getDimensionPixelSize(R.dimen.navigation_menu_key_width);
+        mOverlayDrawable = new ColorDrawable(TransparencyManager.DEFAULT_BACKGROUND_OVERLAY_COLOR);
+        mSecOverlayDrawable = new ColorDrawable(TransparencyManager.DEFAULT_BACKGROUND_OVERLAY_COLOR);
+        mUnderlayDrawable = new ColorDrawable(TransparencyManager.DEFAULT_BACKGROUND_OVERLAY_COLOR);
     }
 
     private void makeBar() {
@@ -818,6 +830,24 @@ public class NavigationBarView extends LinearLayout {
     }
 
     /*
+     * ]0 < alpha < 1[
+     */
+    public void setBackgroundAlpha(float alpha, int overlayColor,
+            int underlayColor, boolean toggleColor) {
+        Drawable bg = getBackground();
+
+        if (underlayColor == -2) {
+            mSecOverlayDrawable.setColor(overlayColor);
+            return;
+        }
+
+        int a = Math.round(alpha * 255);
+        bg.setAlpha(a);
+        mOverlayDrawable.setColor(overlayColor);
+        mUnderlayDrawable.setColor(underlayColor);
+    }
+
+    /*
     @Override
     protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
         if (DEBUG) Slog.d(TAG, String.format(
@@ -944,22 +974,44 @@ public class NavigationBarView extends LinearLayout {
     }
 
     private void getBackgroundStyle(int style) {
+        mBackgroundColorDrawable = new ColorDrawable(mNbBgColor);
+        mBackgroundDrawable = res.getDrawable(R.drawable.nav_bar_bg);
         try {
             boolean showNav = mWindowManagerService.hasNavigationBar();
             if (showNav) {
                 switch (style) {
                     case 0:
-                        setBackgroundColor(mNbBgColor);
+                        Drawable layer0[] = new Drawable[] {
+                            mUnderlayDrawable,
+                            mOverlayDrawable,
+                            mBackgroundColorDrawable,
+                            mSecOverlayDrawable
+                        };
+                        LayerDrawable layerDrawable0 = new LayerDrawable(layer0);
+                        setBackground(layerDrawable0);
                         break;
                     case 1:
-                        setBackgroundResource(R.drawable.nav_bar_bg);
-                        getBackground().setColorFilter(ColorFilterMaker.
-                                changeColorAlpha(mNbBgColor, .32f, 0f));
+                        mBackgroundDrawable.setColorFilter(ColorFilterMaker.changeColorAlpha(
+                                mNbBgColor, .32f, 0f));
+                        Drawable layer1[] = new Drawable[] {
+                            mUnderlayDrawable,
+                            mOverlayDrawable,
+                            mBackgroundDrawable,
+                            mSecOverlayDrawable
+                        };
+                        LayerDrawable layerDrawable1 = new LayerDrawable(layer1);
+                        setBackground(layerDrawable1);
                         break;
                     case 2:
                     default:
-                        setBackground(res.getDrawable(
-                                R.drawable.nav_bar_bg));
+                        Drawable layer2[] = new Drawable[] {
+                            mUnderlayDrawable,
+                            mOverlayDrawable,
+                            mBackgroundDrawable,
+                            mSecOverlayDrawable
+                        };
+                        LayerDrawable layerDrawable2 = new LayerDrawable(layer2);
+                        setBackground(layerDrawable2);
                         break;
                 }
             }

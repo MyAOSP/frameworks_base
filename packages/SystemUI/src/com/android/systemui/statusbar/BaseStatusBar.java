@@ -77,6 +77,7 @@ import com.android.internal.widget.SizeAdaptiveLayout;
 import com.android.systemui.R;
 import com.android.systemui.SearchPanelView;
 import com.android.systemui.SystemUI;
+import com.android.systemui.statusbar.TransparencyManager;
 import com.android.systemui.recent.RecentTasksLoader;
 import com.android.systemui.recent.RecentsActivity;
 import com.android.systemui.recent.TaskDescription;
@@ -119,6 +120,8 @@ public abstract class BaseStatusBar extends SystemUI implements
     protected CommandQueue mCommandQueue;
     protected IStatusBarService mBarService;
     protected H mHandler = createHandler();
+
+    public TransparencyManager mTransparencyManager;
 
     // all notifications
     protected NotificationData mNotificationData = new NotificationData();
@@ -344,6 +347,10 @@ public abstract class BaseStatusBar extends SystemUI implements
                     switches, binders);
         } catch (RemoteException ex) {
             // If the system process isn't there we're doomed anyway.
+        }
+
+        if (mTransparencyManager == null) {
+            mTransparencyManager = new TransparencyManager(mContext);
         }
 
         createAndAddWindows();

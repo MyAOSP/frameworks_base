@@ -2947,6 +2947,21 @@ public final class Settings {
         public static final String STATUSBAR_BATTERY_BAR_ANIMATE = "statusbar_battery_bar_animate";
 
         /**
+         * Statusbar background alpha
+         * @hide
+         */
+        public static final String STATUSBAR_BACKGROUND_ALPHA = "statusbar_background_alpha";
+
+        /**
+         * Statusbar background alpha mode
+         * 0 - Home only
+         * 1 - Home and keyguard
+         * 2 - Always on
+         * @hide
+         */
+        public static final String STATUSBAR_BACKGROUND_ALPHA_MODE = "statusbar_background_alpha_mode";
+
+        /**
          * Statusbar background style
          * 0 - Color/alpha only
          * 1 - Default drawable with color/alpha
@@ -3265,10 +3280,22 @@ public final class Settings {
         public static final String NAVIGATION_BAR_BACKGROUND_STYLE = "navigation_bar_background_style";
 
         /**
-         * Sets navbar background color/alpha
+         * Sets navbar background color
          * @hide
          */
         public static final String NAVIGATION_BAR_BACKGROUND_COLOR = "navigation_bar_background_color";
+
+        /**
+         * Sets navbar background transparency
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_ALPHA = "navigation_bar_alpha";
+
+        /**
+         * Alpha mode for navbar
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_ALPHA_MODE = "navigation_bar_alpha_mode";
 
         /**
          * @hide
@@ -3479,10 +3506,19 @@ public final class Settings {
         public static final String LOCKSCREEN_CUSTOM_TEXT_COLOR = "lockscreen_custom_text_color";
 
         /**
-         * Custom background for lockscreen
+         * Custom lockscreen background string for holding the value of selection
+         * 0 = hex value for color fill
+         * 1 = string value "" empty which then sets custom image for background
+         * 2 = null (default aosp value is used for background)
          * @hide
          */
         public static final String LOCKSCREEN_BACKGROUND = "lockscreen_background";
+
+        /**
+         * Value for custom lockscreen background mode
+         * @hide
+         */
+        public static final String LOCKSCREEN_BACKGROUND_MODE = "lockscreen_background_mode";
 
         /**
          * Sets alpha transparency of custom lockscreen background
@@ -3623,6 +3659,7 @@ public final class Settings {
           * 3 - Search
           * 4 - Voice search
           * 5 - In-app search
+          * 6 - App-switch Gingerbread style
           * @hide
           */
          public static final String KEY_HOME_LONG_PRESS_ACTION = "key_home_long_press_action";
