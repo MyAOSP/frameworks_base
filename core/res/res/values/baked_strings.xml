@@ -196,4 +196,6 @@
     <string name="hex_hint">ffffff</string>
     <string name="set">Set</string>
 
+    <string name="immersive_mode_confirmation_bottom">Swipe up from the bottom to exit full screen.</string>
+
 </resources>
