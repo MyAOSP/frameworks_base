@@ -120,7 +120,7 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState, Intent intent,
             CharSequence title, Intent[] initialIntents, List<ResolveInfo> rList,
             boolean alwaysUseOption) {
-        setTheme(R.style.Theme_DeviceDefault_Light_Dialog_Alert);
+        setTheme(R.style.Theme_DeviceDefault_Dialog_Alert);
         super.onCreate(savedInstanceState);
         try {
             mLaunchedFromUid = ActivityManagerNative.getDefault().getLaunchedFromUid(
@@ -660,7 +660,7 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
 
         public Intent intentForPosition(int position) {
             DisplayResolveInfo dri = mList.get(position);
-            
+
             Intent intent = new Intent(dri.origIntent != null
                     ? dri.origIntent : mIntent);
             intent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT
@@ -757,4 +757,3 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
         }
     }
 }
-
