@@ -19,13 +19,25 @@ package com.android.systemui.statusbar.phone;
 import android.animation.ObjectAnimator;
 import android.animation.TimeAnimator;
 import android.animation.TimeAnimator.TimeListener;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.database.ContentObserver;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 
 import com.android.systemui.R;
 
@@ -81,6 +93,15 @@ public class PanelView extends FrameLayout {
     private TimeAnimator mTimeAnimator;
     private ObjectAnimator mPeekAnimator;
     private FlingTracker mVelocityTracker;
+
+    // Notification and settings background
+    private ImageView mNotificationWallpaperImage;
+    private Bitmap mBitmapWallpaper;
+    private int mNotifBack;
+    private int mNotifBackColor;
+    private float mWallpaperAlpha;
+    private SettingsObserver mSettingsObserver;
+    private ContentResolver mResolver;
 
     /**
      * A very simple low-pass velocity filter for motion events; not nearly as sophisticated as
@@ -323,9 +344,14 @@ public class PanelView extends FrameLayout {
 
     public PanelView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mResolver = mContext.getContentResolver();
+
+        mSettingsObserver = new SettingsObserver(new Handler());
 
         mTimeAnimator = new TimeAnimator();
         mTimeAnimator.setTimeListener(mAnimationCallback);
+
+        this.setNotificationBackground();
     }
 
     private void loadDimens() {
@@ -518,6 +544,20 @@ public class PanelView extends FrameLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mViewName = getResources().getResourceName(getId());
+        if (mSettingsObserver != null) {
+            mSettingsObserver.observe();
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (mBitmapWallpaper != null) {
+            mBitmapWallpaper.recycle();
+        }
+        if (mSettingsObserver != null) {
+            mSettingsObserver.unobserve();
+        }
     }
 
     public String getName() {
@@ -694,5 +734,62 @@ public class PanelView extends FrameLayout {
                 mPeekAnimator, ((mPeekAnimator!=null && mPeekAnimator.isStarted())?" (started)":""),
                 mTimeAnimator, ((mTimeAnimator!=null && mTimeAnimator.isStarted())?" (started)":"")
         ));
+    }
+
+    public void setNotificationBackground() {
+        mWallpaperAlpha = Settings.System.getFloat(getContext().getContentResolver(),
+                Settings.System.PANEL_WALLPAPER_ALPHA, 1.0f);
+        mNotifBack = Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.PANEL_BACKGROUND_STYLE, 2);
+        mNotifBackColor = Settings.System.getInt(getContext().getContentResolver(),
+                Settings.System.PANEL_BACKGROUND_COLOR, 0xFF000000);
+        switch (mNotifBack) {
+            case 0:
+                this.setPadding(0, 0, 0, 0);
+                this.setBackgroundColor(mNotifBackColor);
+                break;
+            case 1:
+                try {
+                    Context settingsContext = mContext.createPackageContext("com.android.settings", 0);
+                    String wallpaperFile = settingsContext.getFilesDir() + "/notifwallpaper";
+                    mBitmapWallpaper = BitmapFactory.decodeFile(wallpaperFile);
+                    Drawable d = new BitmapDrawable(getResources(), mBitmapWallpaper);
+                    d.setAlpha((int) (mWallpaperAlpha * 255));
+                    setPadding(0, 0, 0, 0);
+                    this.setBackground(d);
+                } catch (NameNotFoundException e) {
+                }
+                break;
+            case 2:
+            default:
+                this.setBackground(mContext.getResources().getDrawable(
+                        R.drawable.notification_panel_bg));
+                break;
+        }
+    }
+
+    class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            mResolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.PANEL_BACKGROUND_STYLE), false, this);
+            mResolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.PANEL_BACKGROUND_COLOR), false, this);
+            mResolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.PANEL_WALLPAPER_ALPHA), false, this);
+            setNotificationBackground();
+        }
+
+        void unobserve() {
+            mResolver.unregisterContentObserver(this);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            setNotificationBackground();
+        }
     }
 }

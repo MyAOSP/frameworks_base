@@ -2954,6 +2954,25 @@ public final class Settings {
         public static final int STATUS_BAR_COLLAPSE_IF_NO_CLEARABLE = 2;
 
         /**
+         * Notification panel background style
+         * @hide
+         */
+        public static final String PANEL_BACKGROUND_STYLE = "notification_background_style";
+
+        /**
+         * Alpha value for notification wallpaper
+         * @hide
+         */
+        public static final String PANEL_WALLPAPER_ALPHA = "notification_wallpaper_alpha";
+
+        /**
+         * Notification panel background color
+         * color only value
+         * @hide
+         */
+        public static final String PANEL_BACKGROUND_COLOR = "notification_color";
+
+        /**
          * Whether to use a separate delay for "slide to unlock" and security
          * lock
          * @hide
