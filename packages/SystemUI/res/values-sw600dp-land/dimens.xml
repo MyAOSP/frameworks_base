@@ -17,6 +17,8 @@
 -->
 <resources>
     <!-- Layout parameters for the notification panel -->
-	<dimen name="notification_panel_margin_bottom">0dp</dimen>
+    <dimen name="notification_panel_margin_bottom">0dp</dimen>
     <dimen name="notification_panel_margin_left">32dp</dimen>
+    <!-- Recent Applications parameters -->
+    <dimen name="status_bar_recents_app_label_width">190dip</dimen>
 </resources>
