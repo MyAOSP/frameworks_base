@@ -2028,6 +2028,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             loadStringSetting(stmt, Settings.System.LOCKSCREEN_TARGETS,
                     R.string.def_lockscreen_targets);
+            loadBooleanSetting(stmt, Settings.System.ENABLE_TRANSLUCENT_DECOR,
+                    R.bool.def_enable_translucent_decor);
         } finally {
             if (stmt != null) stmt.close();
         }
