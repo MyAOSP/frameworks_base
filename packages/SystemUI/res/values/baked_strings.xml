@@ -112,6 +112,7 @@
 
     <!-- Screenshot delete -->
     <string name="screenshot_delete_action">Delete</string>
+    <string name="screenshot_delete_confirmation">Screenshot deleted.</string>
 
     <!-- Create shortcut -->
     <string name="shortcut_label">SystemUi actions</string>
