@@ -370,8 +370,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode {
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_CIRCLE_BATTERY_ANIMATIONSPEED), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.STATUS_BAR_CLOCK), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_SIGNAL_TEXT), false, this);
             updateSettings();
         }
@@ -2919,7 +2917,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode {
             mCircleBattery.updateSettings();
         }
     }
-    
+
     private void resetUserSetupObserver() {
         mContext.getContentResolver().unregisterContentObserver(mUserSetupObserver);
         mUserSetupObserver.onChange(false);
