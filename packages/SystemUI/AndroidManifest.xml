@@ -260,5 +260,29 @@
                 <category android:name="android.intent.category.DESK_DOCK" />
             </intent-filter>
         </activity>
+        <!-- create activity for custom shortcuts -->
+        <activity
+            android:name="com.android.systemui.CreateShortcut"
+            android:label="@string/shortcut_label"
+            android:icon="@drawable/bugdroid">
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <!-- sleep toggle shortcut -->
+        <activity
+            android:name="com.android.systemui.cm.SleepToggle"
+            android:label="@string/sleep_shortcut"
+            android:icon="@drawable/ic_qs_sleep"
+            android:theme="@android:style/Widget.Holo.PopupWindow"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTop" >
+            <intent-filter>
+                <action android:name="com.android.systemui.INTENT_SLEEP_SCREEN" />
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.android.systemui.SHORTCUT" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

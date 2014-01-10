@@ -112,4 +112,10 @@
 
     <!-- Screenshot delete -->
     <string name="screenshot_delete_action">Delete</string>
+
+    <!-- Create shortcut -->
+    <string name="shortcut_label">SystemUi actions</string>
+
+    <!-- Sleep shortcut -->
+    <string name="sleep_shortcut">Sleep</string>
 </resources>
