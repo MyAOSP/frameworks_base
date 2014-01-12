@@ -8,13 +8,14 @@ import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.UserHandle;
 import android.provider.Settings;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.ViewGroup.MarginLayoutParams;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.android.systemui.BatteryMeterView;
 import com.android.systemui.BatteryCircleMeterView;
@@ -24,7 +25,8 @@ import com.android.systemui.statusbar.phone.QuickSettingsController;
 import com.android.systemui.statusbar.policy.BatteryController;
 import com.android.systemui.statusbar.policy.BatteryController.BatteryStateChangeCallback;
 
-public class BatteryTile extends QuickSettingsTile implements BatteryStateChangeCallback{
+public class BatteryTile extends QuickSettingsTile implements BatteryStateChangeCallback {
+
     private BatteryController mController;
 
     private int mBatteryLevel = 0;
@@ -49,7 +51,7 @@ public class BatteryTile extends QuickSettingsTile implements BatteryStateChange
             public boolean onLongClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_MAIN);
                 intent.setClassName("com.android.settings",
-                        "com.android.settings.Settings$BatteryIconStyleSettingsActivity");
+                        "com.android.settings.Settings$SystemSettingsActivity");
                 startSettingsActivity(intent);
                 return true;
             }
@@ -81,9 +83,8 @@ public class BatteryTile extends QuickSettingsTile implements BatteryStateChange
 
     @Override
     public void onChangeUri(ContentResolver resolver, Uri uri) {
-        battery = (BatteryMeterView) mTile.findViewById(R.id.image);
-        circleBattery = (BatteryCircleMeterView) mTile.findViewById(
-                R.id.circle_battery);
+        battery = (BatteryMeterView) mTile.findViewById(R.id.battery);
+        circleBattery = (BatteryCircleMeterView) mTile.findViewById(R.id.circle_battery);
         if (circleBattery != null) {
             circleBattery.updateSettings();
         }
@@ -138,9 +139,30 @@ public class BatteryTile extends QuickSettingsTile implements BatteryStateChange
     }
 
     @Override
+    public void switchToRibbonMode() {
+        TextView tv = (TextView) mTile.findViewById(R.id.text);
+        if (tv != null) {
+            tv.setVisibility(View.GONE);
+        }
+        int margin = mContext.getResources().getDimensionPixelSize(
+                R.dimen.qs_tile_ribbon_icon_margin);
+        View batteryMeter = mTile.findViewById(R.id.battery);
+        if (batteryMeter != null) {
+            MarginLayoutParams params = (MarginLayoutParams) batteryMeter.getLayoutParams();
+            params.topMargin = params.bottomMargin = margin;
+            batteryMeter.setLayoutParams(params);
+        }
+        View batteryCircle = mTile.findViewById(R.id.circle_battery);
+        if (batteryCircle != null) {
+            MarginLayoutParams params = (MarginLayoutParams) batteryCircle.getLayoutParams();
+            params.topMargin = params.bottomMargin = margin;
+            batteryCircle.setLayoutParams(params);
+        }
+    }
+
+    @Override
     void updateQuickSettings() {
         TextView tv = (TextView) mTile.findViewById(R.id.text);
         tv.setText(mLabel);
     }
-
 }

@@ -235,7 +235,7 @@ public class BatteryCircleMeterView extends ImageView {
             mBatteryStyle == BatteryMeterView.BATTERY_STYLE_DOTTED_CIRCLE) {
             // change usePaint from solid to dashed
             usePaint.setPathEffect(new DashPathEffect(new float[]{3,2},0));
-        }else {
+        } else {
             usePaint.setPathEffect(null);
         }
 

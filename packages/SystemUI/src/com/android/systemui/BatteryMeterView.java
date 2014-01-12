@@ -38,6 +38,8 @@ import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -451,35 +453,37 @@ public class BatteryMeterView extends View implements DemoMode {
         setVisibility(activated ? View.VISIBLE : View.GONE);
 
         if (activated) {
-            LinearLayout.LayoutParams lp = null;
-            float width = 0f;
-            float height = 0f;
-            Resources res = mContext.getResources();
-            DisplayMetrics metrics = res.getDisplayMetrics();
-            if (mBatteryTypeView.equals("statusbar")) {
-                height = metrics.density * 16f + 0.5f;
-                if (mBatteryStyle == BATTERY_STYLE_PERCENT) {
-                    width = metrics.density * 35f + 0.5f;
-                } else {
-                    width = metrics.density * 10.5f + 0.5f;
+            DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
+            View v = (View) findViewById(R.id.battery);
+            LayoutParams lp = (LayoutParams) v.getLayoutParams();
+            try {
+                if (mBatteryTypeView.equals("statusbar")) {
+                    lp.height = (int) TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP, 16f, metrics);
+                    if (mBatteryStyle == BATTERY_STYLE_PERCENT) {
+                        lp.width = (int) TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP, 36f, metrics);
+                    } else {
+                        lp.width = (int) TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP, 10.5f, metrics);
+                    }
+                    v.setLayoutParams(lp);
+                } else if (mBatteryTypeView.equals("quicksettings")) {
+                    lp.height = (int) TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP, 32f, metrics);
+                    if (mBatteryStyle == BATTERY_STYLE_PERCENT) {
+                        lp.width = (int) TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP, 52f, metrics);
+                    } else {
+                        lp.width = (int) TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP, 22f, metrics);
+                    }
+                    v.setLayoutParams(lp);
                 }
-                lp = new LinearLayout.LayoutParams((int) width, (int) height);
-                lp.setMarginStart((int) (metrics.density * 6f + 0.5f));
-                setLayoutParams(lp);
-            } else if (mBatteryTypeView.equals("quicksettings")) {
-                height = metrics.density * 32f + 0.5f;
-                if (mBatteryStyle == BATTERY_STYLE_PERCENT) {
-                    width = metrics.density * 52f + 0.5f;
-                } else {
-                    width = metrics.density * 22f + 0.5f;
-                }
-                lp = new LinearLayout.LayoutParams((int) width, (int) height);
-                lp.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-                lp.setMargins(0, res.getDimensionPixelSize(R.dimen.qs_tile_margin_above_icon),
-                    0, res.getDimensionPixelSize(R.dimen.qs_tile_margin_below_icon));
-                setLayoutParams(lp);
+            } catch (NullPointerException e) {
+                // do nothing
+                Log.e(TAG, "Problem setting width for view");
             }
-
             updateBattery();
         }
     }

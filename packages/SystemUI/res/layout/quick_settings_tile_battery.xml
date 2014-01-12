@@ -22,13 +22,16 @@
     android:orientation="vertical">
 
     <com.android.systemui.BatteryMeterView
-        android:id="@+id/image"
+        android:id="@+id/battery"
         android:layout_marginTop="@dimen/qs_tile_margin_above_icon"
         android:layout_marginBottom="@dimen/qs_tile_margin_below_icon"
         android:layout_width="22dp"
         android:layout_height="32dp"
         android:padding="3dp"
         android:layout_gravity="top|center_horizontal"
+        android:layout_centerHorizontal="true"
+        android:scaleType="centerInside"
+        android:visibility="gone"
         systemui:batteryView="quicksettings" />
 
     <com.android.systemui.BatteryCircleMeterView
@@ -39,6 +42,9 @@
         android:layout_height="wrap_content"
         android:padding="3dp"
         android:layout_gravity="top|center_horizontal"
+        android:layout_centerHorizontal="true"
+        android:scaleType="centerInside"
+        android:visibility="gone"
         systemui:batteryView="quicksettings" />
 
     <TextView
