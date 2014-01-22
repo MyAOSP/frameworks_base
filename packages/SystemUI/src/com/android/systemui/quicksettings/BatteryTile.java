@@ -14,7 +14,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.TextView;
 
-import com.android.internal.utils.cm.QSUtils;
+import com.android.internal.util.cm.QSUtils;
 import com.android.systemui.BatteryMeterView;
 import com.android.systemui.BatteryCircleMeterView;
 import com.android.systemui.R;
