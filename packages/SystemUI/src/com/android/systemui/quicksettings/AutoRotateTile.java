@@ -11,7 +11,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 
 import com.android.internal.view.RotationPolicy;
-import com.android.systemui.R; 
+import com.android.systemui.R;
 import com.android.systemui.statusbar.phone.QuickSettingsController;
 import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
 
@@ -24,6 +24,7 @@ public class AutoRotateTile extends QuickSettingsTile {
             @Override
             public void onClick(View v) {
                 RotationPolicy.setRotationLock(mContext, getAutoRotation());
+                animateTile(100, enable);
             }
         };
 
@@ -48,9 +49,11 @@ public class AutoRotateTile extends QuickSettingsTile {
         if(!getAutoRotation()){
             mDrawable = R.drawable.ic_qs_rotation_locked;
             mLabel = mContext.getString(R.string.quick_settings_rotation_locked_label);
-        }else{
+            enable = false;
+        } else {
             mDrawable = R.drawable.ic_qs_auto_rotate;
             mLabel = mContext.getString(R.string.quick_settings_rotation_unlocked_label);
+            enable = true;
         }
     }
 

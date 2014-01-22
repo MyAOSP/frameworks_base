@@ -25,6 +25,7 @@ public class QuietHoursTile extends QuickSettingsTile {
             public void onClick(View v) {
                 Settings.System.putIntForUser(mContext.getContentResolver(), Settings.System.QUIET_HOURS_ENABLED,
                         mEnabled ? 0 : 1, UserHandle.USER_CURRENT);
+                animateTile(100, enable);
             }
         };
         mOnLongClick = new View.OnLongClickListener() {
@@ -57,9 +58,11 @@ public class QuietHoursTile extends QuickSettingsTile {
         if (mEnabled) {
             mDrawable = R.drawable.ic_qs_quiet_hours_on;
             mLabel = mContext.getString(R.string.quick_settings_quiethours);
+            enable = false;
         } else {
             mDrawable = R.drawable.ic_qs_quiet_hours_off;
             mLabel = mContext.getString(R.string.quick_settings_quiethours_off);
+            enable = true;
         }
     }
 

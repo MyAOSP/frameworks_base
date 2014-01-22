@@ -58,6 +58,7 @@ public class PerformanceProfileTile extends QuickSettingsTile {
             @Override
             public void onClick(View v) {
                 changeToNextProfile();
+                animateTile(100, true);
             }
         };
     }
@@ -121,4 +122,3 @@ public class PerformanceProfileTile extends QuickSettingsTile {
     }
 
 }
-

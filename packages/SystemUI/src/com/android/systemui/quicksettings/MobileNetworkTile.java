@@ -12,13 +12,12 @@ import android.view.View.OnLongClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.internal.util.cm.QSUtils;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.phone.QuickSettingsController;
 import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
 import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.NetworkController.NetworkSignalChangedCallback;
-
-import static com.android.internal.util.cm.QSUtils.deviceSupportsMobileData;
 
 public class MobileNetworkTile extends NetworkTile {
     private static final int NO_OVERLAY = 0;
@@ -45,9 +44,11 @@ public class MobileNetworkTile extends NetworkTile {
                 if (!mCm.getMobileDataEnabled()) {
                     updateOverlayImage(NO_OVERLAY); // None, onMobileDataSignalChanged will set final overlay image
                     mCm.setMobileDataEnabled(true);
+                    animateTile(100, true);
                 } else {
                     updateOverlayImage(DISABLED_OVERLAY);
                     mCm.setMobileDataEnabled(false);
+                    animateTile(100, false);
                 }
             }
         };
@@ -88,7 +89,7 @@ public class MobileNetworkTile extends NetworkTile {
             int mobileSignalIconId, String mobileSignalContentDescriptionId,
             int dataTypeIconId, boolean activityIn, boolean activityOut,
             String dataTypeContentDescriptionId, String description) {
-        if (deviceSupportsMobileData(mContext)) {
+        if (QSUtils.deviceSupportsMobileData(mContext)) {
             // TODO: If view is in awaiting state, disable
             Resources r = mContext.getResources();
             mDrawable = enabled && (mobileSignalIconId > 0)
@@ -121,12 +122,15 @@ public class MobileNetworkTile extends NetworkTile {
 
     @Override
     void updateQuickSettings() {
+        updateTilesPerRow();
         TextView tv = (TextView) mTile.findViewById(R.id.text);
         ImageView iv = (ImageView) mTile.findViewById(R.id.rssi_image);
 
         iv.setImageResource(mDrawable);
         updateOverlayImage(mDataTypeIconId);
         tv.setText(mLabel);
+        tv.setTextSize(1, mTileTextSize);
+        tv.setTextColor(QSUtils.getTileTextColor(mContext));
         mTile.setContentDescription(mContext.getResources().getString(
                 R.string.accessibility_quick_settings_mobile,
                 signalContentDescription, dataContentDescription,

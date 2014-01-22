@@ -32,6 +32,7 @@ public class QuickSettingsTileView extends FrameLayout {
 
     private int mContentLayoutId;
     private int mColSpan;
+    private int mRowSpan;
     private boolean mPrepared;
     private OnPrepareListener mOnPrepareListener;
 
@@ -40,6 +41,7 @@ public class QuickSettingsTileView extends FrameLayout {
 
         mContentLayoutId = -1;
         mColSpan = 1;
+        mRowSpan = 1;
     }
 
     void setColumnSpan(int span) {
@@ -48,6 +50,14 @@ public class QuickSettingsTileView extends FrameLayout {
 
     int getColumnSpan() {
         return mColSpan;
+    }
+
+    void setRowSpan(int span) {
+        mRowSpan = span;
+    }
+
+    int getRowSpan() {
+        return mRowSpan;
     }
 
     public void setContent(int layoutId, LayoutInflater inflater) {

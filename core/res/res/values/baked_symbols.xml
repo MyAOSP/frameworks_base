@@ -36,4 +36,7 @@
     <java-symbol type="id" name="current_value" />
     <java-symbol type="id" name="max_value" />
     <java-symbol type="id" name="textsize_seekbar" />
+
+    <!-- QuickSettings -->
+    <java-symbol type="integer" name="config_quickSettingsColumns" />
 </resources>

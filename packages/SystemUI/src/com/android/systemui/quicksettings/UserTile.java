@@ -32,6 +32,7 @@ import android.view.WindowManagerGlobal;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.internal.util.cm.QSUtils;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
 import com.android.systemui.statusbar.phone.QuickSettingsController;
@@ -97,9 +98,12 @@ public class UserTile extends QuickSettingsTile {
 
     @Override
     void updateQuickSettings() {
+        updateTilesPerRow();
         ImageView iv = (ImageView) mTile.findViewById(R.id.user_imageview);
         TextView tv = (TextView) mTile.findViewById(R.id.user_textview);
         tv.setText(mLabel);
+        tv.setTextSize(1, mTileTextSize);
+        tv.setTextColor(QSUtils.getTileTextColor(mContext));
         iv.setImageDrawable(userAvatar);
     }
 
@@ -124,7 +128,8 @@ public class UserTile extends QuickSettingsTile {
             @Override
             protected Pair<String, Drawable> doInBackground(Void... params) {
                 try {
-                    // The system needs some time to change the picture, if we try to load it when we receive the broadcast, we will load the old one
+                    // The system needs some time to change the picture,
+                    // if we try to load it when we receive the broadcast, we will load the old one
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -132,9 +137,17 @@ public class UserTile extends QuickSettingsTile {
                 final UserManager um =
                         (UserManager) mContext.getSystemService(Context.USER_SERVICE);
 
-                String name = null;
+                // Fall back to the UserManager nickname if we can't read the name from the local
+                // profile below.
+                String name = userName;
                 Drawable avatar = null;
-                String id = null;
+                Bitmap rawAvatar = um.getUserIcon(userId);
+                if (rawAvatar != null) {
+                    avatar = new BitmapDrawable(mContext.getResources(), rawAvatar);
+                } else {
+                    avatar = mContext.getResources().getDrawable(R.drawable.ic_qs_default_user);
+                }
+
                 // If it's a single-user device, get the profile name, since the nickname is not
                 // usually valid
                 if (um.getUsers().size() <= 1) {
@@ -146,36 +159,9 @@ public class UserTile extends QuickSettingsTile {
                         try {
                             if (cursor.moveToFirst()) {
                                 name = cursor.getString(cursor.getColumnIndex(Phone.DISPLAY_NAME));
-                                id = cursor.getString(cursor.getColumnIndex(Phone._ID));
                             }
                         } finally {
                             cursor.close();
-                        }
-                        // Fall back to the UserManager nickname if we can't read the name from the local
-                        // profile below.
-                        if (name == null) {
-                            avatar = mContext.getResources().getDrawable(R.drawable.ic_qs_default_user);
-                            name = mContext.getResources().getString(com.android.internal.R.string.owner_name);
-                        } else {
-                            Bitmap rawAvatar = null;
-                            InputStream is = null;
-                            try {
-                                Uri.Builder uriBuilder = ContactsContract.RawContacts.CONTENT_URI.buildUpon();
-                                uriBuilder.appendPath(id);
-                                uriBuilder.appendPath(Contacts.Photo.DISPLAY_PHOTO);
-                                is = mContext.getContentResolver().openInputStream(uriBuilder.build());
-                                rawAvatar = BitmapFactory.decodeStream(is);
-                                avatar = new BitmapDrawable(mContext.getResources(), rawAvatar);
-                            } catch (FileNotFoundException e) {
-                                avatar = mContext.getResources().getDrawable(R.drawable.ic_qs_default_user);
-                            } finally {
-                                if (is != null) {
-                                    try {
-                                        is.close();
-                                    } catch (IOException e) {
-                                    }
-                                }
-                            }
                         }
                     }
                 }

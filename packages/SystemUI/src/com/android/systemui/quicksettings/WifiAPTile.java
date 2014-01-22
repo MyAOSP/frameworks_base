@@ -29,11 +29,14 @@ public class WifiAPTile extends QuickSettingsTile {
                     case WifiManager.WIFI_AP_STATE_ENABLING:
                     case WifiManager.WIFI_AP_STATE_ENABLED:
                         setSoftapEnabled(false);
+                        animateTile(100, false);
                         break;
                     case WifiManager.WIFI_AP_STATE_DISABLING:
                     case WifiManager.WIFI_AP_STATE_DISABLED:
                         setSoftapEnabled(true);
+                        animateTile(100, true);
                         break;
+
                 }
             }
         };

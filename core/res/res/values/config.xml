@@ -1448,4 +1448,7 @@
          performance profiles  -->
     <string name="config_perf_profile_default_entry" translatable="false"></string>
 
+    <!-- The number of columns in the QuickSettings -->
+    <integer name="config_quickSettingsColumns">3</integer>
+
 </resources>

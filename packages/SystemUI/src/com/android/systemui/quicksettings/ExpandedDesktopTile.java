@@ -28,6 +28,7 @@ public class ExpandedDesktopTile extends QuickSettingsTile {
                 Settings.System.putIntForUser(mContext.getContentResolver(),
                         Settings.System.EXPANDED_DESKTOP_STATE, mEnabled ? 0 : 1,
                         UserHandle.USER_CURRENT);
+                animateTile(100, enable);
             }
         };
 
@@ -63,9 +64,11 @@ public class ExpandedDesktopTile extends QuickSettingsTile {
         if (mEnabled) {
             mDrawable = R.drawable.ic_qs_expanded_desktop_on;
             mLabel = mContext.getString(R.string.quick_settings_expanded_desktop);
+            enable = false;
         } else {
             mDrawable = R.drawable.ic_qs_expanded_desktop_off;
             mLabel = mContext.getString(R.string.quick_settings_expanded_desktop_off);
+            enable = true;
         }
     }
 

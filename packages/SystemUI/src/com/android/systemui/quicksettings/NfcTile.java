@@ -16,7 +16,7 @@ public class NfcTile extends QuickSettingsTile {
     private static NfcAdapter mNfcAdapter;
     private static final int NFC_ADAPTER_UNKNOWN = -100;
 
-    public NfcTile(Context context, 
+    public NfcTile(Context context,
             QuickSettingsController qsc) {
         super(context, qsc);
 
@@ -25,6 +25,7 @@ public class NfcTile extends QuickSettingsTile {
             public void onClick(View v) {
                 toggleState();
                 updateResources();
+                animateTile(100, enable);
             }
         };
 
@@ -65,28 +66,29 @@ public class NfcTile extends QuickSettingsTile {
             case NfcAdapter.STATE_TURNING_ON:
             case NfcAdapter.STATE_ON:
                 mNfcAdapter.disable();
+                enable = false;
                 break;
             case NfcAdapter.STATE_TURNING_OFF:
             case NfcAdapter.STATE_OFF:
                 mNfcAdapter.enable();
+                enable = true;
                 break;
         }
     }
 
     private synchronized void updateTile(int state) {
-
         switch (state) {
-        case NfcAdapter.STATE_TURNING_ON:
-        case NfcAdapter.STATE_ON:
-            mDrawable = R.drawable.ic_qs_nfc_on;
-            mLabel = mContext.getString(R.string.quick_settings_nfc);
-            break;
-        case NfcAdapter.STATE_TURNING_OFF:
-        case NfcAdapter.STATE_OFF:
-        default:
-            mDrawable = R.drawable.ic_qs_nfc_off;
-            mLabel = mContext.getString(R.string.quick_settings_nfc_off);
-            break;
+            case NfcAdapter.STATE_TURNING_ON:
+            case NfcAdapter.STATE_ON:
+                mDrawable = R.drawable.ic_qs_nfc_on;
+                mLabel = mContext.getString(R.string.quick_settings_nfc);
+                break;
+            case NfcAdapter.STATE_TURNING_OFF:
+            case NfcAdapter.STATE_OFF:
+            default:
+                mDrawable = R.drawable.ic_qs_nfc_off;
+                mLabel = mContext.getString(R.string.quick_settings_nfc_off);
+                break;
         }
     }
 

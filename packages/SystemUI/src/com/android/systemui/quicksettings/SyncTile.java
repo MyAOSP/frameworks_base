@@ -24,6 +24,7 @@ public class SyncTile extends QuickSettingsTile {
             public void onClick(View v) {
                 toggleState();
                 updateResources();
+                animateTile(100, enable);
             }
         };
 
@@ -56,16 +57,18 @@ public class SyncTile extends QuickSettingsTile {
         if (getSyncState()) {
             mDrawable = R.drawable.ic_qs_sync_on;
             mLabel = mContext.getString(R.string.quick_settings_sync);
+            enable = true;
         } else {
             mDrawable = R.drawable.ic_qs_sync_off;
             mLabel = mContext.getString(R.string.quick_settings_sync_off);
+            enable = false;
         }
     }
 
     @Override
     public void setupQuickSettingsTile(LayoutInflater inflater, QuickSettingsContainerView container) {
         super.setupQuickSettingsTile(inflater, container);
-        if(mSyncObserverHandle != null) {
+        if (mSyncObserverHandle != null) {
             //Unregistering sync state listener
             ContentResolver.removeStatusChangeListener(mSyncObserverHandle);
             mSyncObserverHandle = null;

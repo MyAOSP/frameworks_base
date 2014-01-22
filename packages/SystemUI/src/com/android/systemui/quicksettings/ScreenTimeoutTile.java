@@ -37,6 +37,7 @@ public class ScreenTimeoutTile extends QuickSettingsTile {
             public void onClick(View v) {
                 toggleState();
                 updateResources();
+                animateTile(100, true);
             }
         };
 
@@ -73,17 +74,7 @@ public class ScreenTimeoutTile extends QuickSettingsTile {
     private synchronized void updateTile() {
         int timeout = getScreenTimeout();
         mLabel = makeTimeoutSummaryString(mContext, timeout);
-        mDrawable = R.drawable.ic_qs_screen_timeout_off;
-
-        /* TODO: Determine if we need an on and off state
-        if (timeout <= SCREEN_TIMEOUT_LOW) {
-            mDrawable = R.drawable.ic_qs_screen_timeout_off;
-        } else if (timeout <= SCREEN_TIMEOUT_HIGH) {
-            mDrawable = R.drawable.ic_qs_screen_timeout_off;
-        } else {
-            mDrawable = R.drawable.ic_qs_screen_timeout_on;
-        }
-        */
+        mDrawable = R.drawable.ic_qs_screen_timeout_on;
     }
 
     protected void toggleState() {

@@ -696,9 +696,9 @@ public class TelephonyManager {
     /**
      * {@hide}
      */
-    public void toggleLTE(boolean on) {
+    public void toggleLTE() {
         try {
-            getITelephony().toggleLTE(on);
+            getITelephony().toggleLTE();
         } catch (RemoteException e) {
             //Silently fail
         }

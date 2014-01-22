@@ -28,6 +28,7 @@ public class UsbTetherTile extends QuickSettingsTile {
             public void onClick(View v) {
                 if (mUsbConnected) {
                     setUsbTethering(!mUsbTethered);
+                    animateTile(100, enable);
                 }
             }
         };
@@ -124,6 +125,7 @@ public class UsbTetherTile extends QuickSettingsTile {
             }
         }
 
+        enable = mUsbTethered ? false : true;
     }
 
     private void setUsbTethering(boolean enabled) {

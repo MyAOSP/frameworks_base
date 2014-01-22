@@ -30,6 +30,7 @@ public class NetworkAdbTile extends QuickSettingsTile {
             public void onClick(View v) {
                 Settings.Secure.putInt(mContext.getContentResolver(),
                         Settings.Secure.ADB_PORT, !getEnabled() ? 5555 : -1);
+                animateTile(100, enable);
             }
         };
 
@@ -70,10 +71,12 @@ public class NetworkAdbTile extends QuickSettingsTile {
                 mLabel = mContext.getString(R.string.quick_settings_network_adb_enabled_label);
             }
             mDrawable = R.drawable.ic_qs_network_adb_on;
+            enable = false;
         } else {
             // Otherwise set the disabled label and icon
             mLabel = mContext.getString(R.string.quick_settings_network_adb_disabled_label);
             mDrawable = R.drawable.ic_qs_network_adb_off;
+            enable = true;
         }
     }
 

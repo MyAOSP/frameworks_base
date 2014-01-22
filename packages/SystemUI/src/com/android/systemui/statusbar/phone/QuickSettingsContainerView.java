@@ -18,13 +18,16 @@ package com.android.systemui.statusbar.phone;
 
 import android.animation.LayoutTransition;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.android.internal.util.cm.QSUtils;
 import com.android.systemui.R;
 
 /**
@@ -35,6 +38,8 @@ public class QuickSettingsContainerView extends FrameLayout {
     // The number of columns in the QuickSettings grid
     private int mNumColumns;
 
+    private Context mContext;
+
     // The gap between tiles in the QuickSettings grid
     private float mCellGap;
 
@@ -42,6 +47,7 @@ public class QuickSettingsContainerView extends FrameLayout {
 
     public QuickSettingsContainerView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mContext = context;
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.QuickSettingsContainer, 0, 0);
         mSingleRow = a.getBoolean(R.styleable.QuickSettingsContainer_singleRow, false);
         a.recycle();
@@ -59,7 +65,11 @@ public class QuickSettingsContainerView extends FrameLayout {
     void updateResources() {
         Resources r = getContext().getResources();
         mCellGap = r.getDimension(R.dimen.quick_settings_cell_gap);
-        mNumColumns = r.getInteger(R.integer.quick_settings_num_columns);
+        if (r.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mNumColumns = QSUtils.getMaxColumns(mContext, Configuration.ORIENTATION_PORTRAIT);
+        } else {
+            mNumColumns = QSUtils.getMaxColumns(mContext, Configuration.ORIENTATION_LANDSCAPE);
+        }
         requestLayout();
     }
 
@@ -79,7 +89,7 @@ public class QuickSettingsContainerView extends FrameLayout {
             cellHeight = (int) cellWidth;
             cellGap /= 2;
         } else {
-            cellHeight = (int) getResources().getDimension(R.dimen.quick_settings_cell_height);
+            cellHeight = (int) cellWidth;
         }
 
         // Update each of the children's widths accordingly to the cell width
@@ -172,5 +182,9 @@ public class QuickSettingsContainerView extends FrameLayout {
                 }
             }
         }
+    }
+
+    public void setColumnCount(int num) {
+        mNumColumns = num;
     }
 }

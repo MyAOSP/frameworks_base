@@ -32,10 +32,12 @@ public class BluetoothTile extends QuickSettingsTile implements BluetoothStateCh
 
             @Override
             public void onClick(View v) {
-                if(enabled){
+                if (enabled) {
                     mBluetoothAdapter.disable();
-                }else{
+                    animateTile(100, false);
+                } else {
                     mBluetoothAdapter.enable();
+                    animateTile(100, true);
                 }
             }
         };

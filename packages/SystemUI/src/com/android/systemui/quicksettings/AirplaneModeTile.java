@@ -28,6 +28,7 @@ public class AirplaneModeTile extends QuickSettingsTile implements NetworkSignal
                 // Change the system setting
                 Settings.Global.putInt(mContext.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON,
                                         !enabled ? 1 : 0);
+                animateTile(100, enable);
 
                 // Post the intent
                 Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
@@ -67,6 +68,7 @@ public class AirplaneModeTile extends QuickSettingsTile implements NetworkSignal
     private synchronized void updateTile() {
         mLabel = mContext.getString(R.string.quick_settings_airplane_mode_label);
         mDrawable = (enabled) ? R.drawable.ic_qs_airplane_on : R.drawable.ic_qs_airplane_off;
+        enable = (enabled) ? false : true;
     }
 
     @Override

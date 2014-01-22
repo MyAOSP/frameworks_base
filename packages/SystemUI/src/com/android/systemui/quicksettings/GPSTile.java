@@ -19,21 +19,26 @@ import com.android.systemui.statusbar.policy.LocationController.LocationSettings
 
 public class GPSTile extends QuickSettingsTile implements LocationSettingsChangeCallback {
 
-    ContentResolver mContentResolver;
+    private QuickSettingsController mQsc;
     private LocationController mLocationController;
     private boolean mLocationEnabled;
+    private int mLocationMode;
 
     public GPSTile(Context context, QuickSettingsController qsc) {
         super(context, qsc);
 
-        mContentResolver = mContext.getContentResolver();
+        mQsc = qsc;
         mLocationController = new LocationController(mContext);
         mLocationController.addSettingsChangedCallback(this);
+        mLocationMode = mLocationController.getLocationMode();
+        mLocationEnabled = mLocationController.isLocationEnabled();
+        enable = mLocationEnabled ? false : true;
 
         mOnClick = new OnClickListener() {
             @Override
             public void onClick(View v) {
                 mLocationController.setLocationEnabled(!mLocationEnabled);
+                animateTile(100, enable);
             }
         };
 
@@ -67,7 +72,16 @@ public class GPSTile extends QuickSettingsTile implements LocationSettingsChange
     }
 
     @Override
-    public void onLocationSettingsChanged(boolean locationEnabled) {
+    public void onLocationSettingsChanged(boolean locationEnabled, int locationMode) {
+        // collapse all panels in case the confirmation dialog needs to show up
+        if ((mLocationMode == Settings.Secure.LOCATION_MODE_SENSORS_ONLY
+                        && locationMode == Settings.Secure.LOCATION_MODE_HIGH_ACCURACY)
+                || (!mLocationEnabled && locationEnabled
+                        && (locationMode == Settings.Secure.LOCATION_MODE_HIGH_ACCURACY
+                        || locationMode == Settings.Secure.LOCATION_MODE_BATTERY_SAVING))) {
+            mQsc.mBar.collapseAllPanels(true);
+        }
+        mLocationMode = locationMode;
         mLocationEnabled = locationEnabled;
         updateResources();
     }

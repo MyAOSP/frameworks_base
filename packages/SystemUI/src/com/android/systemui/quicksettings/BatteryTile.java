@@ -12,11 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
-import android.view.ViewGroup.MarginLayoutParams;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.internal.utils.cm.QSUtils;
 import com.android.systemui.BatteryMeterView;
 import com.android.systemui.BatteryCircleMeterView;
 import com.android.systemui.R;
@@ -51,7 +49,7 @@ public class BatteryTile extends QuickSettingsTile implements BatteryStateChange
             public boolean onLongClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_MAIN);
                 intent.setClassName("com.android.settings",
-                        "com.android.settings.Settings$SystemSettingsActivity");
+                        "com.android.settings.Settings$StatusBarSettingsActivity");
                 startSettingsActivity(intent);
                 return true;
             }
@@ -139,30 +137,11 @@ public class BatteryTile extends QuickSettingsTile implements BatteryStateChange
     }
 
     @Override
-    public void switchToRibbonMode() {
-        TextView tv = (TextView) mTile.findViewById(R.id.text);
-        if (tv != null) {
-            tv.setVisibility(View.GONE);
-        }
-        int margin = mContext.getResources().getDimensionPixelSize(
-                R.dimen.qs_tile_ribbon_icon_margin);
-        View batteryMeter = mTile.findViewById(R.id.battery);
-        if (batteryMeter != null) {
-            MarginLayoutParams params = (MarginLayoutParams) batteryMeter.getLayoutParams();
-            params.topMargin = params.bottomMargin = margin;
-            batteryMeter.setLayoutParams(params);
-        }
-        View batteryCircle = mTile.findViewById(R.id.circle_battery);
-        if (batteryCircle != null) {
-            MarginLayoutParams params = (MarginLayoutParams) batteryCircle.getLayoutParams();
-            params.topMargin = params.bottomMargin = margin;
-            batteryCircle.setLayoutParams(params);
-        }
-    }
-
-    @Override
     void updateQuickSettings() {
+        updateTilesPerRow();
         TextView tv = (TextView) mTile.findViewById(R.id.text);
         tv.setText(mLabel);
+        tv.setTextSize(1, mTileTextSize);
+        tv.setTextColor(QSUtils.getTileTextColor(mContext));
     }
 }

@@ -23,6 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
+        android:gravity="center"
         android:orientation="vertical">
 
         <ImageView
@@ -31,7 +32,8 @@
             android:layout_height="@dimen/qs_tile_icon_size"
             android:layout_marginTop="@dimen/qs_tile_margin_above_icon"
             android:layout_marginBottom="@dimen/qs_tile_margin_below_icon"
-            android:layout_gravity="top|center_horizontal"
+            android:layout_gravity="center_horizontal"
+            android:layout_centerHorizontal="true"
             android:scaleType="centerInside"
             android:src="@drawable/ic_qs_camera"
             />
@@ -40,8 +42,9 @@
             android:id="@+id/text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:gravity="top|center_horizontal"
+            android:layout_gravity="center_horizontal"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_horizontal"
             android:text="@string/quick_settings_camera_label"
             />
 

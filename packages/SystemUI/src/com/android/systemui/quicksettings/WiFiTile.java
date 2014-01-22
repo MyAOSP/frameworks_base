@@ -23,6 +23,7 @@ public class WiFiTile extends NetworkTile {
             public void onClick(View v) {
                 WifiManager wfm = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
                 wfm.setWifiEnabled(!wfm.isWifiEnabled());
+                animateTile(100, enable);
             }
         };
         mOnLongClick = new OnLongClickListener() {
@@ -39,12 +40,15 @@ public class WiFiTile extends NetworkTile {
         if (mWifiConnected) {
             mDrawable = mWifiSignalIconId;
             mLabel = mDescription.substring(1, mDescription.length()-1);
+            enable = false;
         } else if (mWifiNotConnected) {
             mDrawable = R.drawable.ic_qs_wifi_0;
             mLabel = mContext.getString(R.string.quick_settings_wifi_label);
+            enable = false;
         } else {
             mDrawable = R.drawable.ic_qs_wifi_no_network;
             mLabel = mContext.getString(R.string.quick_settings_wifi_off_label);
+            enable = true;
         }
     }
 

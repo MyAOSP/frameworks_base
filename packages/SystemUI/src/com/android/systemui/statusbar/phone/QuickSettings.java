@@ -25,6 +25,7 @@ import android.app.admin.DevicePolicyManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -32,7 +33,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.UserInfo;
+import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -61,7 +64,9 @@ import android.view.WindowManagerGlobal;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+
 import com.android.internal.app.MediaRouteDialogPresenter;
+import com.android.internal.util.cm.QSUtils;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.phone.QuickSettingsModel.ActivityState;
 import com.android.systemui.statusbar.phone.QuickSettingsModel.BluetoothState;
@@ -110,6 +115,8 @@ class QuickSettings {
 
     private Handler mHandler;
 
+    private int mTileTextSize = 12;
+
     // The set of QuickSettingsTiles that have dynamic spans (and need to be updated on
     // configuration change)
     private final ArrayList<QuickSettingsTileView> mDynamicSpannedTiles =
@@ -141,6 +148,7 @@ class QuickSettings {
         profileFilter.addAction(Intent.ACTION_USER_INFO_CHANGED);
         mContext.registerReceiverAsUser(mProfileReceiver, UserHandle.ALL, profileFilter,
                 null, null);
+        new SettingsObserver(mHandler).observe();
     }
 
     void setBar(PanelBar bar) {
@@ -337,6 +345,8 @@ class QuickSettings {
                 ImageView iv = (ImageView) view.findViewById(R.id.user_imageview);
                 TextView tv = (TextView) view.findViewById(R.id.user_textview);
                 tv.setText(state.label);
+                tv.setTextSize(1, mTileTextSize);
+                tv.setTextColor(QSUtils.getTileTextColor(mContext));
                 iv.setImageDrawable(us.avatar);
                 view.setContentDescription(mContext.getString(
                         R.string.accessibility_quick_settings_user, state.label));
@@ -420,6 +430,8 @@ class QuickSettings {
                 setActivity(view, wifiState);
                 TextView tv = (TextView) view.findViewById(R.id.text);
                 tv.setText(wifiState.label);
+                tv.setTextSize(1, mTileTextSize);
+                tv.setTextColor(QSUtils.getTileTextColor(mContext));
                 wifiTile.setContentDescription(mContext.getString(
                         R.string.accessibility_quick_settings_wifi,
                         wifiState.signalContentDescription,
@@ -462,6 +474,8 @@ class QuickSettings {
                     setActivity(view, rssiState);
 
                     tv.setText(state.label);
+                    tv.setTextSize(1, mTileTextSize);
+                    tv.setTextColor(QSUtils.getTileTextColor(mContext));
                     view.setContentDescription(mContext.getResources().getString(
                             R.string.accessibility_quick_settings_mobile,
                             rssiState.signalContentDescription, rssiState.dataContentDescription,
@@ -837,7 +851,8 @@ class QuickSettings {
     }
 
     private void applyLocationEnabledStatus() {
-        mModel.onLocationSettingsChanged(mLocationController.isLocationEnabled());
+        mModel.onLocationSettingsChanged(
+                mLocationController.isLocationEnabled(), mLocationController.getLocationMode());
     }
 
     void reloadUserInfo() {
@@ -916,6 +931,68 @@ class QuickSettings {
                     .alpha(newAlpha)
                     .start();
             }
+        }
+    }
+
+    void updateTileTextSize(int column) {
+        // adjust Tile Text Size based on column count
+        switch (column) {
+            case 7:
+                mTileTextSize = 8;
+                break;
+            case 6:
+                mTileTextSize = 8;
+                break;
+            case 5:
+                mTileTextSize = 9;
+                break;
+            case 4:
+                mTileTextSize = 10;
+                break;
+            case 3:
+            default:
+                mTileTextSize = 12;
+                break;
+            case 2:
+                mTileTextSize = 14;
+                break;
+            case 1:
+                mTileTextSize = 16;
+                break;
+        }
+    }
+
+    private void updateSettings() {
+        Resources r = mContext.getResources();
+        int columnCount;
+        if (r.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            columnCount = QSUtils.getMaxColumns(mContext, Configuration.ORIENTATION_PORTRAIT);
+        } else {
+            columnCount = QSUtils.getMaxColumns(mContext, Configuration.ORIENTATION_LANDSCAPE);
+        }
+        ((QuickSettingsContainerView) mContainerView).setColumnCount(columnCount);
+        updateTileTextSize(columnCount);
+        setupQuickSettings();
+        updateResources();
+    }
+
+    class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_NUM_COLUMNS_PORT), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_NUM_COLUMNS_LAND), false, this);
+            updateSettings();
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            updateSettings();
         }
     }
 }

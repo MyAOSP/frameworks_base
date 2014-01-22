@@ -18,7 +18,7 @@ import com.android.systemui.statusbar.phone.QuickSettingsController;
 public class TorchTile extends QuickSettingsTile {
     private boolean mActive = false;
 
-    public TorchTile(Context context, 
+    public TorchTile(Context context,
             QuickSettingsController qsc, Handler handler) {
         super(context, qsc);
 
@@ -27,6 +27,7 @@ public class TorchTile extends QuickSettingsTile {
             public void onClick(View v) {
                 Intent i = new Intent(TorchConstants.ACTION_TOGGLE_STATE);
                 mContext.sendBroadcast(i);
+                animateTile(100, enable);
             }
         };
 
@@ -57,9 +58,11 @@ public class TorchTile extends QuickSettingsTile {
         if (mActive) {
             mDrawable = R.drawable.ic_qs_torch_on;
             mLabel = mContext.getString(R.string.quick_settings_torch);
+            enable = false;
         } else {
             mDrawable = R.drawable.ic_qs_torch_off;
             mLabel = mContext.getString(R.string.quick_settings_torch_off);
+            enable = true;
         }
     }
 
