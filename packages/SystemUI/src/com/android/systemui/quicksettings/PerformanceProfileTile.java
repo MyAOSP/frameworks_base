@@ -50,10 +50,6 @@ public class PerformanceProfileTile extends QuickSettingsTile {
 
         updateCurrentValue();
 
-        // Register a callback to detect changes in system properties
-        qsc.registerObservedContent(Settings.System.getUriFor(
-                Settings.System.PERFORMANCE_PROFILE), this);
-
         mOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,6 +57,21 @@ public class PerformanceProfileTile extends QuickSettingsTile {
                 animateTile(100, true);
             }
         };
+
+        mOnLongClick = new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.setClassName("com.android.settings",
+                        "com.android.settings.Settings$PerformanceSettingsActivity");
+                startSettingsActivity(intent);
+                return true;
+            }
+        };
+
+        // Register a callback to detect changes in system properties
+        qsc.registerObservedContent(Settings.System.getUriFor(
+                Settings.System.PERFORMANCE_PROFILE), this);
     }
 
     @Override
