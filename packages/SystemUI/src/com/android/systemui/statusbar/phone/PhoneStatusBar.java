@@ -294,6 +294,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private boolean mRecreating = false;
 
     private boolean mBrightnessControl;
+    private boolean mAnimatingFlip = false;
     private float mScreenWidth;
     private int mMinBrightness;
     private int mPeekHeight;
@@ -1306,7 +1307,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         final boolean makeVisible =
             !(emergencyCallsShownElsewhere && mNetworkController.isEmergencyOnly())
             && mPile.getHeight() < (mNotificationPanel.getHeight() - mCarrierLabelHeight - mNotificationHeaderHeight)
-            && mScrollView.getVisibility() == View.VISIBLE;
+            && mScrollView.getVisibility() == View.VISIBLE
+            && !mAnimatingFlip;
 
         if (force || mCarrierLabelVisible != makeVisible) {
             mCarrierLabelVisible = makeVisible;
@@ -1755,6 +1757,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             mFlipSettingsView.setScaleX(1f);
         }
 
+        mAnimatingFlip = true;
         mScrollView.setVisibility(View.VISIBLE);
         mScrollViewAnim = start(
             startDelay(FLIP_DURATION_OUT * zeroOutDelays,
@@ -1792,6 +1795,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         setAreThereNotifications(); // this will show/hide the button as necessary
         mNotificationPanel.postDelayed(new Runnable() {
             public void run() {
+                mAnimatingFlip = false;
                 updateCarrierLabelVisibility(false);
             }
         }, FLIP_DURATION - 150);
@@ -1885,6 +1889,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             mNotificationButton.setAlpha(progress);
         }
         mClearButton.setVisibility(View.GONE);
+
+        mAnimatingFlip = true;
+        updateCarrierLabelVisibility(false);
     }
 
     public void flipToSettings() {
@@ -1910,6 +1917,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
 
         mFlipSettingsView.setVisibility(View.VISIBLE);
+        mAnimatingFlip = true;
         mFlipSettingsViewAnim = start(
             startDelay(FLIP_DURATION_OUT * zeroOutDelays,
                 interpolator(mDecelerateInterpolator,
@@ -1948,9 +1956,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 mClearButton, View.INVISIBLE));
         mNotificationPanel.postDelayed(new Runnable() {
             public void run() {
-                updateCarrierLabelVisibility(false);
+                mAnimatingFlip = false;
             }
         }, FLIP_DURATION - 150);
+        updateCarrierLabelVisibility(false);
     }
 
     public void flipPanels() {
