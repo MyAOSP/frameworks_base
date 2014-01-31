@@ -88,9 +88,11 @@ public class UsbTetherTile extends QuickSettingsTile {
             if (mUsbTethered) {
                 mDrawable = R.drawable.ic_qs_usb_tether_on;
                 mLabel = mContext.getString(R.string.quick_settings_usb_tether_on_label);
+                enable = false;
             } else {
                 mDrawable = R.drawable.ic_qs_usb_tether_connected;
                 mLabel = mContext.getString(R.string.quick_settings_usb_tether_connected_label);
+                enable = true;
             }
         } else {
             mDrawable = R.drawable.ic_qs_usb_tether_off;
@@ -124,8 +126,6 @@ public class UsbTetherTile extends QuickSettingsTile {
                 if (s.matches(regex)) mUsbTethered = true;
             }
         }
-
-        enable = mUsbTethered ? false : true;
     }
 
     private void setUsbTethering(boolean enabled) {
