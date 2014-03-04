@@ -1452,4 +1452,7 @@
     <!-- The number of columns in the QuickSettings -->
     <integer name="config_quickSettingsColumns">3</integer>
 
+    <!-- bool value to for enabling motion accelerometer -->
+    <bool name="use_motion_accel">false</bool>
+
 </resources>
