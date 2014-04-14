@@ -2068,6 +2068,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         R.string.def_lockscreen_targets_no_telephony);
             }
 
+            loadIntegerSetting(stmt, Settings.System.DEV_FORCE_SHOW_NAVBAR,
+                    R.integer.def_force_disable_navkeys);
+
             loadBooleanSetting(stmt, Settings.System.ENABLE_TRANSLUCENT_DECOR,
                     R.bool.def_enable_translucent_decor);
         } finally {
