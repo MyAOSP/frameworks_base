@@ -622,19 +622,18 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
 
     void refreshLocationTile() {
         if (mLocationTile != null) {
-            onLocationSettingsChanged(mLocationState.enabled, mLocationState.mode);
+            onLocationSettingsChanged(mLocationState.enabled);
         }
     }
 
     @Override
-    public void onLocationSettingsChanged(boolean locationEnabled, int locationMode) {
+    public void onLocationSettingsChanged(boolean locationEnabled) {
         int textResId = locationEnabled ? R.string.quick_settings_location_label
                 : R.string.quick_settings_location_off_label;
         String label = mContext.getText(textResId).toString();
         int locationIconId = locationEnabled
                 ? R.drawable.ic_qs_location_on : R.drawable.ic_qs_location_off;
         mLocationState.enabled = locationEnabled;
-        mLocationState.mode = locationMode;
         mLocationState.label = label;
         mLocationState.iconId = locationIconId;
         mLocationCallback.refreshView(mLocationTile, mLocationState);
