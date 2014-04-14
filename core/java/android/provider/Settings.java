@@ -52,6 +52,7 @@ import android.text.TextUtils;
 import android.util.AndroidException;
 import android.util.Log;
 
+import com.android.internal.util.cm.LockscreenBackgroundUtil;
 import com.android.internal.widget.ILockSettings;
 
 import java.net.URISyntaxException;
@@ -3363,23 +3364,12 @@ public final class Settings {
         public static final String QUIET_HOURS_DIM = "quiet_hours_dim";
 
         /**
-         * Sets the lockscreen background style
+         * Sets the lockscreen background style. Integer.
+         * @see LockscreenBackgroundUtil#LOCKSCREEN_STYLE_DEFAULT
+         * @see LockscreenBackgroundUtil#LOCKSCREEN_STYLE_IMAGE
          * @hide
          */
         public static final String LOCKSCREEN_BACKGROUND_STYLE = "lockscreen_background_style";
-
-        /**
-         * Color for lockscreen background when set to color fill
-         * @hide
-         */
-        public static final String LOCKSCREEN_BACKGROUND_COLOR = "lockscreen_background_color";
-
-        /**
-         * Alpha value for custom image on lockscreen background
-         * when set to custom image
-         * @hide
-         */
-        public static final String LOCKSCREEN_WALLPAPER_ALPHA = "lockscreen_wallpaper_alpha";
 
          /**
          * Action for long-pressing back button on lock screen
