@@ -355,13 +355,13 @@ public class KeyguardViewManager {
             mLockscreenStyle = LockscreenBackgroundUtil.getLockscreenStyle(mContext);
             switch (mLockscreenStyle) {
                 case LockscreenBackgroundUtil.LOCKSCREEN_STYLE_IMAGE:
-                        File imageFile = LockscreenBackgroundUtil.getWallpaperFile(mContext);
-                        if (imageFile != null) {
-                            Bitmap bitmap = BitmapFactory.decodeFile(imageFile.toString());
-                            userDrawable = new BitmapDrawable(mContext.getResources(), bitmap);
-                        } else {
-                            userDrawable = null;
-                        }
+                    File imageFile = LockscreenBackgroundUtil.getWallpaperFile(mContext);
+                    if (imageFile != null) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(imageFile.toString());
+                        userDrawable = new BitmapDrawable(mContext.getResources(), bitmap);
+                    } else {
+                        userDrawable = null;
+                    }
                     break;
                 case LockscreenBackgroundUtil.LOCKSCREEN_STYLE_DEFAULT:
                 default:

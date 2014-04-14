@@ -11,8 +11,8 @@ import android.provider.Settings;
  */
 public class LockscreenBackgroundUtil {
 
-    public static final int LOCKSCREEN_STYLE_IMAGE = 1;
     public static final int LOCKSCREEN_STYLE_DEFAULT = 0;
+    public static final int LOCKSCREEN_STYLE_IMAGE = 1;
 
     private static final String SETTINGS_PACKAGE_NAME = "com.android.settings";
     private static final String LOCKSCREEN_WALLPAPER_FILE_NAME = "lockwallpaper";
