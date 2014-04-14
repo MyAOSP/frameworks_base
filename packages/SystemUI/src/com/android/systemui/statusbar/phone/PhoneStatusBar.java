@@ -187,7 +187,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     BatteryController mBatteryController;
     LocationController mLocationController;
     NetworkController mNetworkController;
-    RotationLockController mRotationLockController;
     MSimNetworkController mMSimNetworkController;
 
     int mNaturalBarHeight = -1;
@@ -475,6 +474,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             mCurrentTheme = (CustomTheme)currentTheme.clone();
         }
 
+        mLocationController = new LocationController(mContext);
+        mBatteryController = new BatteryController(mContext);
+        mDockBatteryController = new DockBatteryController(mContext);
+        mBluetoothController = new BluetoothController(mContext);
+
         super.start(); // calls createAndAddWindows()
 
         addNavigationBar();
@@ -711,10 +715,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         setAreThereNotifications();
 
         // Other icons
-        mLocationController = new LocationController(mContext); // will post a notification
-        mBatteryController = new BatteryController(mContext);
-        mBluetoothController = new BluetoothController(mContext);
-        mRotationLockController = new RotationLockController(mContext);
+        mBattery = (BatteryMeterView) mStatusBarView.findViewById(R.id.battery);
+        mCircleBattery = (BatteryCircleMeterView) mStatusBarView.findViewById(R.id.circle_battery);
+        updateBatteryIcons();
 
         if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
             mMSimNetworkController = new MSimNetworkController(mContext);
@@ -905,10 +908,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         // listen for USER_SETUP_COMPLETE setting (per-user)
         resetUserSetupObserver();
-
-        mBattery = (BatteryMeterView) mStatusBarView.findViewById(R.id.battery);
-        mCircleBattery = (BatteryCircleMeterView) mStatusBarView.findViewById(R.id.circle_battery);
-        updateBatteryIcons();
 
         if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
             mMSimNetworkController.setListener(this);
