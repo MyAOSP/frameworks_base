@@ -207,4 +207,6 @@
     <integer name="def_force_disable_navkeys">0</integer>
     <!-- Default translucent decor setting. -->
     <bool name="def_enable_translucent_decor">true</bool>
+    <!-- Default value of Settings.System.NOISE_SUPPRESSION -->
+    <bool name="def_noise_suppression">false</bool>
 </resources>
