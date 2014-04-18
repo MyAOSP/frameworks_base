@@ -8,13 +8,7 @@ import android.app.ActivityManagerNative;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -25,7 +19,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -35,8 +28,6 @@ import com.android.systemui.statusbar.phone.QuickSettingsController;
 import com.android.systemui.statusbar.phone.PhoneStatusBar;
 import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
 import com.android.systemui.statusbar.phone.QuickSettingsTileView;
-
-import java.util.Random;
 
 public class QuickSettingsTile implements OnClickListener {
 
@@ -75,11 +66,11 @@ public class QuickSettingsTile implements OnClickListener {
         mTile = (QuickSettingsTileView) inflater.inflate(
                 R.layout.quick_settings_tile, container, false);
         mTile.setContent(mTileLayout, inflater);
+        QSUtils.setTileBackground(mContext, mTile, true);
         mContainer = container;
         mContainer.addView(mTile);
         onPostCreate();
         updateQuickSettings();
-        setTileBackground();
         mTile.setOnClickListener(this);
         mTile.setOnLongClickListener(mOnLongClick);
     }
@@ -193,86 +184,9 @@ public class QuickSettingsTile implements OnClickListener {
         }
     }
 
-    void updateTileTextSize(int column) {
-        // adjust Tile Text Size based on column count
-        switch (column) {
-            case 7:
-                mTileTextSize = 8;
-                break;
-            case 6:
-                mTileTextSize = 8;
-                break;
-            case 5:
-                mTileTextSize = 9;
-                break;
-            case 4:
-                mTileTextSize = 10;
-                break;
-            case 3:
-            default:
-                mTileTextSize = 12;
-                break;
-            case 2:
-                mTileTextSize = 14;
-                break;
-            case 1:
-                mTileTextSize = 16;
-                break;
-        }
-    }
-
     public void updateTilesPerRow() {
-        Resources res = mContext.getResources();
-        int columnCount;
-        if (res.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            columnCount = QSUtils.getMaxColumns(mContext, Configuration.ORIENTATION_PORTRAIT);
-        } else {
-            columnCount = QSUtils.getMaxColumns(mContext, Configuration.ORIENTATION_LANDSCAPE);
-        }
-        ((QuickSettingsContainerView) mContainer).setColumnCount(columnCount);
-        updateTileTextSize(columnCount);
-    }
-
-    protected void setTileBackground() {
-        ContentResolver mContentResolver = mContext.getContentResolver();
-        StateListDrawable states = new StateListDrawable();
-        ColorDrawable cd = new ColorDrawable(0xAA505050);
-        ColorDrawable colorDrawable;
-        int tileBg = Settings.System.getInt(mContentResolver,
-                Settings.System.QUICK_SETTINGS_BACKGROUND_STYLE, 2);
-        int blue = Settings.System.getInt(mContentResolver,
-                Settings.System.RANDOM_COLOR_ONE, com.android.internal.R.color.holo_blue_dark);
-        int green = Settings.System.getInt(mContentResolver,
-                Settings.System.RANDOM_COLOR_TWO, com.android.internal.R.color.holo_green_dark);
-        int red = Settings.System.getInt(mContentResolver,
-                Settings.System.RANDOM_COLOR_THREE, com.android.internal.R.color.holo_red_dark);
-        int orange = Settings.System.getInt(mContentResolver,
-                Settings.System.RANDOM_COLOR_FOUR, com.android.internal.R.color.holo_orange_dark);
-        int purple = Settings.System.getInt(mContentResolver,
-                Settings.System.RANDOM_COLOR_FIVE, com.android.internal.R.color.holo_purple);
-        int blueBright = Settings.System.getInt(mContentResolver,
-                Settings.System.RANDOM_COLOR_SIX, com.android.internal.R.color.holo_blue_bright);
-        switch (tileBg) {
-            case 0:
-                int[] colors = new int[] {blue, green, red, orange, purple, blueBright};
-                Random generator = new Random();
-                colorDrawable = new ColorDrawable(colors[generator.nextInt(colors.length)]);
-                states.addState(new int[] {com.android.internal.R.attr.state_pressed}, cd);
-                states.addState(new int[] {}, colorDrawable);
-                mTile.setBackground(states);
-                break;
-            case 1:
-                int tileBgColor = Settings.System.getInt(mContentResolver,
-                        Settings.System.QUICK_SETTINGS_BACKGROUND_COLOR, 0xFF000000);
-                colorDrawable = new ColorDrawable(tileBgColor);
-                states.addState(new int[] {com.android.internal.R.attr.state_pressed}, cd);
-                states.addState(new int[] {}, colorDrawable);
-                mTile.setBackground(states);
-                break;
-            case 2:
-            default:
-                mTile.setBackgroundResource(R.drawable.qs_tile_background);
-                break;
-        }
+        int colCount = QSUtils.getMaxColumns(mContext);
+        ((QuickSettingsContainerView) mContainer).setColumnCount(colCount);
+        mTileTextSize = QSUtils.updateTileTextSize(colCount);
     }
 }

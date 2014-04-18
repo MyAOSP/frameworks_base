@@ -933,44 +933,10 @@ class QuickSettings {
         }
     }
 
-    void updateTileTextSize(int column) {
-        // adjust Tile Text Size based on column count
-        switch (column) {
-            case 7:
-                mTileTextSize = 8;
-                break;
-            case 6:
-                mTileTextSize = 8;
-                break;
-            case 5:
-                mTileTextSize = 9;
-                break;
-            case 4:
-                mTileTextSize = 10;
-                break;
-            case 3:
-            default:
-                mTileTextSize = 12;
-                break;
-            case 2:
-                mTileTextSize = 14;
-                break;
-            case 1:
-                mTileTextSize = 16;
-                break;
-        }
-    }
-
     private void updateSettings() {
-        Resources r = mContext.getResources();
-        int columnCount;
-        if (r.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            columnCount = QSUtils.getMaxColumns(mContext, Configuration.ORIENTATION_PORTRAIT);
-        } else {
-            columnCount = QSUtils.getMaxColumns(mContext, Configuration.ORIENTATION_LANDSCAPE);
-        }
-        ((QuickSettingsContainerView) mContainerView).setColumnCount(columnCount);
-        updateTileTextSize(columnCount);
+        int colCount = QSUtils.getMaxColumns(mContext);
+        ((QuickSettingsContainerView) mContainerView).setColumnCount(colCount);
+        mTileTextSize = QSUtils.updateTileTextSize(colCount);
         setupQuickSettings();
         updateResources();
     }
