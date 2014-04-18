@@ -1,12 +1,13 @@
 package com.android.internal.util.cm;
 
-import android.R;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.hardware.Camera;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.WifiDisplayStatus;
@@ -16,8 +17,11 @@ import android.os.UserHandle;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.view.View;
 
 import com.android.internal.telephony.PhoneConstants;
+
+import java.util.Random;
 
 public class QSUtils {
     public static boolean deviceSupportsImeSwitcher(Context ctx) {
@@ -91,23 +95,107 @@ public class QSUtils {
         return (Settings.Global.getInt(resolver, Settings.Global.ADB_ENABLED, 0)) == 1;
     }
 
-    public static int getMaxColumns(Context ctx, int orientation) {
-        int maxColumns = ctx.getResources().getInteger(
-                com.android.internal.R.integer.config_quickSettingsColumns);
+    public static int getMaxColumns(Context ctx) {
+        Resources res = ctx.getResources();
+        int colCount = res.getInteger(com.android.internal.R.integer.config_quickSettingsColumns);
+        boolean isPortrait =
+                res.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            maxColumns = Settings.System.getInt(ctx.getContentResolver(),
-                    Settings.System.QUICK_SETTINGS_NUM_COLUMNS_PORT, maxColumns);
+        if (isPortrait) {
+            colCount = Settings.System.getInt(ctx.getContentResolver(),
+                    Settings.System.QUICK_SETTINGS_NUM_COLUMNS_PORT, colCount);
         } else {
-            maxColumns = Settings.System.getInt(ctx.getContentResolver(),
-                    Settings.System.QUICK_SETTINGS_NUM_COLUMNS_LAND, maxColumns);
+            colCount = Settings.System.getInt(ctx.getContentResolver(),
+                    Settings.System.QUICK_SETTINGS_NUM_COLUMNS_LAND, colCount);
         }
-        return maxColumns;
+        return colCount;
     }
 
     public static int getTileTextColor(Context ctx) {
         int tileTextColor = Settings.System.getInt(ctx.getContentResolver(),
                 Settings.System.QUICK_SETTINGS_TEXT_COLOR, 0xFFFFFFFF);
         return tileTextColor;
+    }
+
+    public static int updateTileTextSize(int column) {
+        int mTileTextSize = 12;
+        // adjust Tile Text Size based on column count
+        switch (column) {
+            case 7:
+                mTileTextSize = 8;
+                break;
+            case 6:
+                mTileTextSize = 8;
+                break;
+            case 5:
+                mTileTextSize = 9;
+                break;
+            case 4:
+                mTileTextSize = 10;
+                break;
+            case 3:
+            default:
+                mTileTextSize = 12;
+                break;
+            case 2:
+                mTileTextSize = 14;
+                break;
+            case 1:
+                mTileTextSize = 16;
+                break;
+        }
+        return mTileTextSize;
+    }
+
+    public static void setTileBackground(Context ctx, View v, boolean useStates) {
+        ContentResolver resolver = ctx.getContentResolver();
+        StateListDrawable sld = new StateListDrawable();
+        ColorDrawable pcd = new ColorDrawable(
+                com.android.internal.R.drawable.notification_item_background_color_pressed);
+        ColorDrawable cd;
+        int tileBg = Settings.System.getInt(resolver,
+                Settings.System.QUICK_SETTINGS_BACKGROUND_STYLE, 2);
+        int blue = Settings.System.getInt(resolver,
+                Settings.System.RANDOM_COLOR_ONE, com.android.internal.R.color.holo_blue_dark);
+        int green = Settings.System.getInt(resolver,
+                Settings.System.RANDOM_COLOR_TWO, com.android.internal.R.color.holo_green_dark);
+        int red = Settings.System.getInt(resolver,
+                Settings.System.RANDOM_COLOR_THREE, com.android.internal.R.color.holo_red_dark);
+        int orange = Settings.System.getInt(resolver,
+                Settings.System.RANDOM_COLOR_FOUR, com.android.internal.R.color.holo_orange_dark);
+        int purple = Settings.System.getInt(resolver,
+                Settings.System.RANDOM_COLOR_FIVE, com.android.internal.R.color.holo_purple);
+        int blueBright = Settings.System.getInt(resolver,
+                Settings.System.RANDOM_COLOR_SIX, com.android.internal.R.color.holo_blue_bright);
+        switch (tileBg) {
+            case 0:
+                int[] colors = new int[] {blue, green, red, orange, purple, blueBright};
+                Random generator = new Random();
+                cd = new ColorDrawable(colors[generator.nextInt(colors.length)]);
+                if (useStates) {
+                    sld.addState(new int[] {com.android.internal.R.attr.state_pressed}, pcd);
+                    sld.addState(new int[] {}, cd);
+                    v.setBackground(sld);
+                } else {
+                    v.setBackground(cd);
+                }
+                break;
+            case 1:
+                int tileBgColor = Settings.System.getInt(resolver,
+                        Settings.System.QUICK_SETTINGS_BACKGROUND_COLOR, 0xFF000000);
+                cd = new ColorDrawable(tileBgColor);
+                if (useStates) {
+                    sld.addState(new int[] {com.android.internal.R.attr.state_pressed}, pcd);
+                    sld.addState(new int[] {}, cd);
+                    v.setBackground(sld);
+                } else {
+                    v.setBackground(cd);
+                }
+                break;
+            case 2:
+            default:
+                v.setBackgroundResource(com.android.internal.R.drawable.qs_tile_background);
+                break;
+        }
     }
 }
