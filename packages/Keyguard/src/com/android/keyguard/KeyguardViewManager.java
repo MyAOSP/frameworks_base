@@ -16,9 +16,19 @@
 
 package com.android.keyguard;
 
+import java.io.File;
+
+import android.app.PendingIntent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.TransitionDrawable;
+
+import com.android.internal.policy.IKeyguardShowCallback;
+import com.android.internal.widget.LockPatternUtils;
+
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.PendingIntent;
 import android.app.WallpaperManager;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
@@ -29,17 +39,13 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -62,12 +68,7 @@ import android.view.ViewManager;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
-import com.android.internal.policy.IKeyguardShowCallback;
-import com.android.internal.util.cm.LockscreenBackgroundUtil;
 import com.android.internal.util.cm.TorchConstants;
-import com.android.internal.widget.LockPatternUtils;
-
-import java.io.File;
 
 /**
  * Manages creating, showing, hiding and resetting the keyguard.  Calls back
@@ -181,7 +182,6 @@ public class KeyguardViewManager {
         private Drawable mUserBackground;
         private Drawable mCustomBackground;
         private Configuration mLastConfiguration;
-        private int mLockscreenStyle;
 
         // This is a faster way to draw the background on devices without hardware acceleration
         private final Drawable mBackgroundDrawable = new Drawable() {
@@ -351,25 +351,14 @@ public class KeyguardViewManager {
         }
 
         private void cacheUserImage() {
-            Drawable userDrawable = null;
-            mLockscreenStyle = LockscreenBackgroundUtil.getLockscreenStyle(mContext);
-            switch (mLockscreenStyle) {
-                case LockscreenBackgroundUtil.LOCKSCREEN_STYLE_IMAGE:
-                    File imageFile = LockscreenBackgroundUtil.getWallpaperFile(mContext);
-                    if (imageFile != null) {
-                        Bitmap bitmap = BitmapFactory.decodeFile(imageFile.toString());
-                        userDrawable = new BitmapDrawable(mContext.getResources(), bitmap);
-                    } else {
-                        userDrawable = null;
-                    }
-                    break;
-                case LockscreenBackgroundUtil.LOCKSCREEN_STYLE_DEFAULT:
-                default:
-                    userDrawable = null;
-                    break;
+            WallpaperManager wm = WallpaperManager.getInstance(mContext);
+            Bitmap bitmap = wm.getKeyguardBitmap();
+            if (bitmap != null) {
+                mUserBackground = new BitmapDrawable(mContext.getResources(), bitmap);
+            } else {
+                mUserBackground = null;
             }
-            mUserBackground = userDrawable;
-            setCustomBackground(mUserBackground);
+            setCustomBackground(null);
         }
 
         public boolean shouldShowWallpaper(boolean hiding) {
@@ -387,7 +376,7 @@ public class KeyguardViewManager {
         }
 
         public boolean shouldShowWallpaper() {
-            return mLockscreenStyle == LockscreenBackgroundUtil.LOCKSCREEN_STYLE_DEFAULT;
+            return mUserBackground == null;
         }
 
     }
