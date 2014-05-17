@@ -252,8 +252,6 @@ private:
         String8 prefixPath;
         String8 resfilePath;
         String8 resApkPath;
-        uint32_t pkgIdOverride;
-        asset_path() : pkgIdOverride(0) {}
     };
 
     bool updateResTableFromAssetPath(ResTable* rt, const asset_path& ap, void* cookie) const;
