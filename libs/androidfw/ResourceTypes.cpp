@@ -2538,8 +2538,7 @@ struct ResTable::Package
 
     ResStringPool                   typeStrings;
     ResStringPool                   keyStrings;
-    uint32_t                        pkgIdOverride;
-
+    
     const Type* getType(size_t idx) const {
         return idx < types.size() ? types[idx] : NULL;
     }
@@ -2924,13 +2923,12 @@ inline ssize_t ResTable::getResourcePackageIndex(uint32_t resID) const
 }
 
 status_t ResTable::add(const void* data, size_t size, void* cookie, bool copyData,
-                       const void* idmap, const uint32_t pkgIdOverride)
+                       const void* idmap)
 {
-    return add(data, size, cookie, NULL, copyData, reinterpret_cast<const Asset*>(idmap), pkgIdOverride);
+    return add(data, size, cookie, NULL, copyData, reinterpret_cast<const Asset*>(idmap));
 }
 
-status_t ResTable::add(Asset* asset, void* cookie, bool copyData, const void* idmap,
-                       const uint32_t pkgIdOverride)
+status_t ResTable::add(Asset* asset, void* cookie, bool copyData, const void* idmap)
 {
     const void* data = asset->getBuffer(true);
     if (data == NULL) {
@@ -2938,8 +2936,7 @@ status_t ResTable::add(Asset* asset, void* cookie, bool copyData, const void* id
         return UNKNOWN_ERROR;
     }
     size_t size = (size_t)asset->getLength();
-    return add(data, size, cookie, asset, copyData,
-               reinterpret_cast<const Asset*>(idmap),pkgIdOverride);
+    return add(data, size, cookie, asset, copyData, reinterpret_cast<const Asset*>(idmap));
 }
 
 status_t ResTable::add(ResTable* src)
@@ -2967,8 +2964,7 @@ status_t ResTable::add(ResTable* src)
 }
 
 status_t ResTable::add(const void* data, size_t size, void* cookie,
-                       Asset* asset, bool copyData,
-                       const Asset* idmap, const uint32_t pkgIdOverride)
+                       Asset* asset, bool copyData, const Asset* idmap)
 {
     if (!data) return NO_ERROR;
     Header* header = new Header(this);
@@ -3067,11 +3063,7 @@ status_t ResTable::add(const void* data, size_t size, void* cookie,
                     idmap_id = tmp;
                 }
             }
-            // Warning: If the pkg id will be overriden and there is more than one package in the
-            // resource table then the caller should make sure there are enough unique ids above
-            // pkgIdOverride.
-            uint32_t idOverride = (pkgIdOverride == 0) ? 0 : pkgIdOverride + curPackage;
-            if (parsePackage((ResTable_package*)chunk, header, idmap_id, idOverride) != NO_ERROR) {
+            if (parsePackage((ResTable_package*)chunk, header, idmap_id) != NO_ERROR) {
                 return mError;
             }
             curPackage++;
@@ -5190,9 +5182,8 @@ ssize_t ResTable::getEntry(
     return offset + dtohs(entry->size);
 }
 
-status_t ResTable::parsePackage(ResTable_package* const pkg,
-                                const Header* const header,
-                                uint32_t idmap_id, uint32_t pkgIdOverride)
+status_t ResTable::parsePackage(const ResTable_package* const pkg,
+                                const Header* const header, uint32_t idmap_id)
 {
     const uint8_t* base = (const uint8_t*)pkg;
     status_t err = validate_chunk(&pkg->header, sizeof(*pkg),
@@ -5223,31 +5214,21 @@ status_t ResTable::parsePackage(ResTable_package* const pkg,
              (void*)dtohl(pkg->keyStrings));
         return (mError=BAD_TYPE);
     }
-
+    
     Package* package = NULL;
     PackageGroup* group = NULL;
     uint32_t id = dtohl(pkg->id);
-
-    if (pkgIdOverride != 0) {
-        ALOGV("Overriding pkg id %d with %d", pkg, pkgIdOverride);
-        id = pkgIdOverride;
-    }
-
     // If at this point id == 0, pkg is an overlay package without a
     // corresponding idmap. During regular usage, overlay packages are
     // always loaded alongside their idmaps, but during idmap creation
     // the package is temporarily loaded by itself.
     if (id < 256) {
+    
         package = new Package(this, header, pkg);
-
-        if (pkgIdOverride != 0) {
-            package->pkgIdOverride = pkgIdOverride;
-        }
-
         if (package == NULL) {
             return (mError=NO_MEMORY);
         }
-
+        
         size_t idx = mPackageMap[id];
         if (idx == 0) {
             idx = mPackageGroups.size()+1;
@@ -5680,9 +5661,6 @@ void ResTable::removeAssetsByCookie(const String8 &packageName, void* cookie)
             const Package* pkg = pg->packages[index];
             ALOGV("Looking at pkg: %s", String8(pkg->package->name).string());
             uint32_t id = dtohl(pkg->package->id);
-            if (pkg->pkgIdOverride != 0) {
-                id = pkg->pkgIdOverride;
-            }
             if (id != 0 && id < 256 && pkgCount == 1) {
                 ALOGV("Settings id:%d to zero in mPackageMap", id);
                 mPackageMap[id] = 0;
