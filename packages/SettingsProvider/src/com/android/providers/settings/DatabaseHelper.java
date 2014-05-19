@@ -2119,6 +2119,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             loadBooleanSetting(stmt, Settings.System.ENABLE_TRANSLUCENT_DECOR,
                     R.bool.def_enable_translucent_decor);
+
+            loadIntegerSetting(stmt, Settings.System.DOUBLE_TAP_SLEEP_GESTURE,
+                    R.integer.def_double_tap_sleep_gesture);
+
         } finally {
             if (stmt != null) stmt.close();
         }
