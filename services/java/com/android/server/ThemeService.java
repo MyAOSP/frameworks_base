@@ -717,7 +717,6 @@ public class ThemeService extends IThemeService.Stub {
         if (anim.exists())
             anim.delete();
     }
-}
 
     private BroadcastReceiver mWallpaperChangeReceiver = new BroadcastReceiver() {
         @Override
