@@ -4,9 +4,12 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.Resources.NotFoundException;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.hardware.Camera;
 import android.hardware.display.DisplayManager;
@@ -194,7 +197,21 @@ public class QSUtils {
                 break;
             case 2:
             default:
-                v.setBackgroundResource(com.android.internal.R.drawable.qs_tile_background);
+                PackageManager pm = ctx.getPackageManager();
+                if (pm != null) {
+                    try {
+                        Resources mSystemUiResources =
+                                pm.getResourcesForApplication("com.android.systemui");
+                        try {
+                            int resID = mSystemUiResources.getIdentifier("qs_tile_background",
+                                    "drawable", "com.android.systemui");
+                            Drawable d = mSystemUiResources.getDrawable(resID);
+                            v.setBackground(d);
+                        } catch (NotFoundException e) {
+                        }
+                    } catch (Exception e) {
+                    }
+                }
                 break;
         }
     }
