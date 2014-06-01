@@ -42,5 +42,4 @@
 
     <!-- Drawable for quicksettings tile background -->
     <java-symbol type="drawable" name="notification_item_background_color_pressed" />
-    <java-symbol type="drawable" name="qs_tile_background" />
 </resources>

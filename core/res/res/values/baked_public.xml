@@ -27,7 +27,4 @@
     <public type="attr" name="alphaSlider" id="0x10103f3" />
     <public type="attr" name="enableDefaultColorPanels" id="0x10103f4" />
     <public type="attr" name="searchViewTextField" id="0x10103f5" />
-
-    <!-- Drawable for quicksettings tile background -->
-    <public type="drawable" name="qs_tile_background" id="0x010800b4" />
 </resources>
