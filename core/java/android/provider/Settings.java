@@ -2860,6 +2860,13 @@ public final class Settings {
          *
          * @hide
          */
+        public static final String QS_DYNAMIC_EQUALIZER = "qs_dynamic_equalizer";
+
+        /**
+         * Quick Settings Panel Dynamic Tiles
+         *
+         * @hide
+         */
         public static final String QS_DYNAMIC_USBTETHER = "qs_dyanmic_usbtether";
 
         /**
