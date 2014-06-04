@@ -213,6 +213,14 @@ public class ViewConfiguration {
      */
     private static final int OVERFLING_DISTANCE = 6;
 
+    /**
+     * Configuration values for overriding {@link #hasPermanentMenuKey()} behavior.
+     * These constants must match the definition in res/values/config.xml.
+     */
+    private static final int HAS_PERMANENT_MENU_KEY_AUTODETECT = 0;
+    private static final int HAS_PERMANENT_MENU_KEY_TRUE = 1;
+    private static final int HAS_PERMANENT_MENU_KEY_FALSE = 2;
+
     private final int mEdgeSlop;
     private final int mFadingEdgeLength;
     private final int mMinimumFlingVelocity;
@@ -227,6 +235,9 @@ public class ViewConfiguration {
     private final int mOverscrollDistance;
     private final int mOverflingDistance;
     private final boolean mFadingMarqueeEnabled;
+
+    private boolean sHasPermanentMenuKey;
+    private boolean sHasPermanentMenuKeySet;
 
     static final SparseArray<ViewConfiguration> sConfigurations =
             new SparseArray<ViewConfiguration>(2);
@@ -292,6 +303,35 @@ public class ViewConfiguration {
 
         mOverscrollDistance = (int) (sizeAndDensity * OVERSCROLL_DISTANCE + 0.5f);
         mOverflingDistance = (int) (sizeAndDensity * OVERFLING_DISTANCE + 0.5f);
+
+        if (!sHasPermanentMenuKeySet) {
+            final int configVal = res.getInteger(
+                    com.android.internal.R.integer.config_overrideHasPermanentMenuKey);
+
+            switch (configVal) {
+                default:
+                case HAS_PERMANENT_MENU_KEY_AUTODETECT: {
+                    IWindowManager wm = WindowManagerGlobal.getWindowManagerService();
+                    try {
+                        sHasPermanentMenuKey = !wm.hasNavigationBar();
+                        sHasPermanentMenuKeySet = true;
+                    } catch (RemoteException ex) {
+                        sHasPermanentMenuKey = false;
+                    }
+                }
+                break;
+
+                case HAS_PERMANENT_MENU_KEY_TRUE:
+                    sHasPermanentMenuKey = true;
+                    sHasPermanentMenuKeySet = true;
+                    break;
+
+                case HAS_PERMANENT_MENU_KEY_FALSE:
+                    sHasPermanentMenuKey = false;
+                    sHasPermanentMenuKeySet = true;
+                    break;
+            }
+        }
 
         mFadingMarqueeEnabled = res.getBoolean(
                 com.android.internal.R.bool.config_ui_enableFadingMarquee);
@@ -684,22 +724,7 @@ public class ViewConfiguration {
      * @return true if a permanent menu key is present, false otherwise.
      */
     public boolean hasPermanentMenuKey() {
-        IWindowManager wm = WindowManagerGlobal.getWindowManagerService();
-        // Report no menu key if device has soft buttons
-        try {
-            if (wm.hasNavigationBar()) {
-                return false;
-            }
-        } catch (RemoteException ex) {
-            // do nothing, continue trying to guess
-        }
-
-        // Report menu key presence based on hardware key rebinding
-        try {
-            return wm.hasMenuKeyEnabled();
-        } catch (RemoteException ex) {
-            return true;
-        }
+        return sHasPermanentMenuKey;
     }
 
     /**

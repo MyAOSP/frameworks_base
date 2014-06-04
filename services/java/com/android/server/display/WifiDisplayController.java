@@ -749,7 +749,7 @@ final class WifiDisplayController implements DumpUtils.Dump {
             Slog.i(TAG, "Listening for RTSP connection on " + iface
                     + " from Wifi display: " + mConnectedDevice.deviceName);
 
-            RemoteDisplay.Listener listener = new RemoteDisplay.Listener() {
+            mRemoteDisplay = RemoteDisplay.listen(iface, new RemoteDisplay.Listener() {
                 @Override
                 public void onDisplayConnected(Surface surface,
                         int width, int height, int flags, int session) {
