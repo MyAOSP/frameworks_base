@@ -788,14 +788,7 @@ final class WifiDisplayController implements DumpUtils.Dump {
                         handleConnectionFailure(false);
                     }
                 }
-            };
-            if(ExtendedRemoteDisplayHelper.isAvailable()){
-                mExtRemoteDisplay = ExtendedRemoteDisplayHelper.listen(iface,
-                        listener, mHandler, mContext);
-            } else {
-                mRemoteDisplay = RemoteDisplay.listen(iface, listener,
-                        mHandler);
-            }
+            }, mHandler);
 
             // Use extended timeout value for certification, as some tests require user inputs
             int rtspTimeout = mWifiDisplayCertMode ?
