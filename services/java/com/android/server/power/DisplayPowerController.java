@@ -872,15 +872,15 @@ final class DisplayPowerController {
     private void unblockScreenOn() {
         if (mScreenOnWasBlocked) {
             mScreenOnWasBlocked = false;
-            if (DEBUG) {
-                Slog.d(TAG, "Unblocked screen on after " +
-                        (SystemClock.elapsedRealtime() - mScreenOnBlockStartRealTime) + " ms");
+            long delay = SystemClock.elapsedRealtime() - mScreenOnBlockStartRealTime;
+            if (delay > 1000 || DEBUG) {
+                Slog.d(TAG, "Unblocked screen on after " + delay + " ms");
             }
         }
     }
 
     private void setScreenOn(boolean on) {
-        if (!mPowerState.isScreenOn() == on) {
+        if (mPowerState.isScreenOn() != on) {
             mPowerState.setScreenOn(on);
             if (on) {
                 mNotifier.onScreenOn();
