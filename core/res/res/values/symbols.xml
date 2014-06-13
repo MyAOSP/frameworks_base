@@ -1968,4 +1968,7 @@
   <java-symbol type="dimen" name="edge_gesture_trigger_thickness" />
 
   <java-symbol type="bool" name="use_motion_accel" />
+
+  <!-- Label for the Android system components when they are shown to the user. -->
+  <java-symbol type="string" name="android_system_label" />
 </resources>
