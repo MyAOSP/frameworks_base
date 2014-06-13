@@ -636,6 +636,11 @@ public class TelephonyManager {
     public static final int NETWORK_TYPE_TD_SCDMA = 17;
 
 
+    /** Current network is DC-HSPAP
+    * @hide
+    */
+    public static final int NETWORK_TYPE_DCHSPAP = 30;
+
     /**
      * @return the NETWORK_TYPE_xxxx for current data connection.
      */
@@ -665,7 +670,7 @@ public class TelephonyManager {
      * @see #NETWORK_TYPE_EHRPD
      * @see #NETWORK_TYPE_HSPAP
      * @see #NETWORK_TYPE_TD_SCDMA
-     *
+     * @see #NETWORK_TYPE_DCHSPAP
      * @hide
      */
     public int getDataNetworkType() {
@@ -754,6 +759,7 @@ public class TelephonyManager {
             case NETWORK_TYPE_EHRPD:
             case NETWORK_TYPE_HSPAP:
             case NETWORK_TYPE_TD_SCDMA:
+            case NETWORK_TYPE_DCHSPAP:
                 return NETWORK_CLASS_3_G;
             case NETWORK_TYPE_LTE:
                 return NETWORK_CLASS_4_G;
@@ -810,6 +816,8 @@ public class TelephonyManager {
                 return "GSM";
             case NETWORK_TYPE_TD_SCDMA:
                 return "TD-SCDMA";
+            case NETWORK_TYPE_DCHSPAP:
+                return "DC-HSPA+";
             default:
                 return "UNKNOWN";
         }
