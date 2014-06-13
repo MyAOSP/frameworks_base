@@ -37,7 +37,7 @@ public class ExpandedDesktopTile extends QuickSettingsTile {
             public boolean onLongClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_MAIN);
                 intent.setClassName("com.android.settings",
-                        "com.android.settings.Settings$SystemSettingsActivity");
+                        "com.android.settings.Settings$StatusBarActivity");
                 startSettingsActivity(intent);
                 return true;
             }
