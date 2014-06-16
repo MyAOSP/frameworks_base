@@ -805,7 +805,7 @@ final class DisplayPowerController {
                             } else if (mPowerState.prepareElectronBeam(
                                     mElectronBeamFadesConfig() ?
                                             ElectronBeam.MODE_FADE :
-                                            ElectronBeam.MODE_WARM_UP)) {
+                                                    ElectronBeam.MODE_WARM_UP)) {
                                 mElectronBeamOnAnimator.start();
                             } else {
                                 mElectronBeamOnAnimator.end();
@@ -828,8 +828,9 @@ final class DisplayPowerController {
                     } else if (mPowerState.prepareElectronBeam(
                             mElectronBeamFadesConfig() ?
                                     ElectronBeam.MODE_FADE :
-                                    ElectronBeam.MODE_COOL_DOWN)
-                            && mPowerState.isScreenOn()) {
+                                            ElectronBeam.MODE_COOL_DOWN)
+                            && mPowerState.isScreenOn()
+                            && useScreenOffAnimation()) {
                         mElectronBeamOffAnimator.start();
                     } else {
                         mElectronBeamOffAnimator.end();
