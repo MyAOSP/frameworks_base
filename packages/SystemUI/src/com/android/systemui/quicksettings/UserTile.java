@@ -16,6 +16,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -41,38 +42,46 @@ public class UserTile extends QuickSettingsTile {
 
     private static final String TAG = "UserTile";
     private static final String INTENT_EXTRA_NEW_LOCAL_PROFILE = "newLocalProfile";
+    private Handler mHandler;
     private Drawable userAvatar;
     private AsyncTask<Void, Void, Pair<String, Drawable>> mUserInfoTask;
 
-    public UserTile(Context context, QuickSettingsController qsc) {
+    public UserTile(Context context, QuickSettingsController qsc, Handler handler) {
         super(context, qsc, R.layout.quick_settings_tile_user);
-
+        mHandler = handler;
         mOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mQsc.mBar.collapseAllPanels(true);
-                final UserManager um =
-                        (UserManager) mContext.getSystemService(Context.USER_SERVICE);
-                int numUsers = um.getUsers(true).size();
-                if (numUsers <= 1) {
+                final UserManager um = UserManager.get(mContext);
+                if (um.getUsers(true).size() > 1) {
+                    // Since keyguard and systemui were merged into the same process to save
+                    // memory, they share the same Looper and graphics context.  As a result,
+                    // there's no way to allow concurrent animation while keyguard inflates.
+                    // The workaround is to add a slight delay to allow the animation to finish.
+                    mHandler.postDelayed(new Runnable() {
+                        public void run() {
+                            try {
+                                WindowManagerGlobal.getWindowManagerService().lockNow(null);
+                            } catch (RemoteException e) {
+                                Log.e(TAG, "Couldn't show user switcher", e);
+                            }
+                        }
+                    }, 400); // TODO: ideally this would be tied to the collapse of the panel
+                } else {
                     final Cursor cursor = mContext.getContentResolver().query(
                             Profile.CONTENT_URI, null, null, null, null);
                     if (cursor.moveToNext() && !cursor.isNull(0)) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, ContactsContract.Profile.CONTENT_URI);
-                        startSettingsActivity(intent);
+                        Intent intent = ContactsContract.QuickContact.composeQuickContactsIntent(
+                                mContext, v, ContactsContract.Profile.CONTENT_URI,
+                                ContactsContract.QuickContact.MODE_LARGE, null);
+                        mContext.startActivityAsUser(intent, new UserHandle(UserHandle.USER_CURRENT));
                     } else {
                         Intent intent = new Intent(Intent.ACTION_INSERT, Contacts.CONTENT_URI);
                         intent.putExtra(INTENT_EXTRA_NEW_LOCAL_PROFILE, true);
                         startSettingsActivity(intent);
                     }
                     cursor.close();
-                } else {
-                    try {
-                        WindowManagerGlobal.getWindowManagerService().lockNow(
-                                null);
-                    } catch (RemoteException e) {
-                        Log.e(TAG, "Couldn't show user switcher", e);
-                    }
                 }
             }
         };
@@ -127,44 +136,63 @@ public class UserTile extends QuickSettingsTile {
         mUserInfoTask = new AsyncTask<Void, Void, Pair<String, Drawable>>() {
             @Override
             protected Pair<String, Drawable> doInBackground(Void... params) {
-                try {
-                    // The system needs some time to change the picture,
-                    // if we try to load it when we receive the broadcast, we will load the old one
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                final UserManager um =
-                        (UserManager) mContext.getSystemService(Context.USER_SERVICE);
+                final UserManager um = UserManager.get(mContext);
 
-                // Fall back to the UserManager nickname if we can't read the name from the local
-                // profile below.
-                String name = userName;
+                String name = null;
                 Drawable avatar = null;
-                Bitmap rawAvatar = um.getUserIcon(userId);
-                if (rawAvatar != null) {
-                    avatar = new BitmapDrawable(mContext.getResources(), rawAvatar);
-                } else {
-                    avatar = mContext.getResources().getDrawable(R.drawable.ic_qs_default_user);
-                }
-
+                String id = null;
                 // If it's a single-user device, get the profile name, since the nickname is not
                 // usually valid
                 if (um.getUsers().size() <= 1) {
                     // Try and read the display name from the local profile
                     final Cursor cursor = context.getContentResolver().query(
-                            Profile.CONTENT_URI, new String[] {Phone._ID, Phone.DISPLAY_NAME},
+                            Profile.CONTENT_URI, new String[] {Phone.PHOTO_FILE_ID, Phone.DISPLAY_NAME},
                             null, null, null);
                     if (cursor != null) {
                         try {
                             if (cursor.moveToFirst()) {
                                 name = cursor.getString(cursor.getColumnIndex(Phone.DISPLAY_NAME));
+                                id = cursor.getString(cursor.getColumnIndex(Phone.PHOTO_FILE_ID));
                             }
                         } finally {
                             cursor.close();
                         }
+                        // Fall back to the UserManager nickname if we can't read the name from the local
+                        // profile below.
+                        if (name == null) {
+                            avatar = mContext.getResources().getDrawable(R.drawable.ic_qs_default_user);
+                            name = mContext.getResources().getString(com.android.internal.R.string.owner_name);
+                        } else {
+                            Bitmap rawAvatar = null;
+                            InputStream is = null;
+                            try {
+                                Uri.Builder uriBuilder = ContactsContract.DisplayPhoto.CONTENT_URI.buildUpon();
+                                uriBuilder.appendPath(id);
+                                is = mContext.getContentResolver().openInputStream(uriBuilder.build());
+                                rawAvatar = BitmapFactory.decodeStream(is);
+                                avatar = new BitmapDrawable(mContext.getResources(), rawAvatar);
+                            } catch (FileNotFoundException e) {
+                                avatar = mContext.getResources().getDrawable(R.drawable.ic_qs_default_user);
+                            } finally {
+                                if (is != null) {
+                                    try {
+                                        is.close();
+                                    } catch (IOException e) {
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    name = userName;
+                    Bitmap rawAvatar = um.getUserIcon(userId);
+                    if (rawAvatar != null) {
+                        avatar = new BitmapDrawable(mContext.getResources(), rawAvatar);
+                    } else {
+                        avatar = mContext.getResources().getDrawable(R.drawable.ic_qs_default_user);
                     }
                 }
+
                 return new Pair<String, Drawable>(name, avatar);
             }
 
